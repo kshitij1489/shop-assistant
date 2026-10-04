@@ -1,0 +1,11 @@
+<h3>Investigate before resolving</h3>
+<ol>
+  <li>Match tenant, location, original connection, provider account and test/live environment. Use the original command UUID as the provider idempotency key; collect the adapter receipt and provider references.</li>
+  <li>Verify payment currency, captured/refunded totals and settlement status; verify POS acceptance, kitchen/fulfillment status, and whether stock was actually consumed. A timeout or missing webhook does not prove failure.</li>
+  <li>Recover observations through the adapter's authenticated payment.updated, order.updated or inventory.updated events. Command acknowledgement alone does not update the business ledger. A processed event can still record a reconciliation issue; compare the resulting ledger with the provider.</li>
+  <li>Replay a provider operation only with the original request and key, within the provider's deduplication guarantee, after excluding concurrent work and checking order expiry/state. If idempotency/reference lookup cannot establish a safe outcome, keep it open and escalate to provider support. Never create a replacement charge/order to investigate a timeout.</li>
+  <li>For a failed inbox event, fix the dependency and redeliver the exact event ID and payload with a fresh request signature. Changed observations need a new event ID and increasing sequence. Never edit an existing payload or reset ledger counters.</li>
+  <li>Before any manual refund, check completed and in-flight refunds and queued adapter work; coordinate with the adapter operator to prevent duplicate money movement. Verify physical stock separately before correcting counts through its authority.</li>
+  <li>Record provider evidence, actions, event IDs, final disposition and any residual review/parked states below. Resolution records investigation closure only; it does not replay commands, refund money, resume fulfillment or restock.</li>
+</ol>
+<p>The deployment runbook is <code>docs/commerce/operations.md</code>. Reconciliation periodically requests provider observations for eligible unresolved payments and pending POS orders; it does not replay parked creates/refunds. Failed inbox rows stop automatic retry at ten attempts. Cases outside those scans require adapter/operator investigation.</p>

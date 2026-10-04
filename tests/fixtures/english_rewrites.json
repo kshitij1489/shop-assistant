@@ -1,0 +1,1020 @@
+[
+  {
+    "id": "address-pause-does-not-supply-postcode",
+    "text": "ruk jao, pincode dhoondh raha hoon phone mein",
+    "context": {
+      "open_requests": [{"id": "address-1", "intent": "location_based", "sub_intent": "add_delivery_address",
+        "question": "What are the city, state, country and pincode?", "missing_fields": ["city", "state", "country", "postal_code"]}],
+      "address_draft": {"street_address": "tower C, cyber hub ke paas"},
+      "response_language": "hi-Latn"
+    },
+    "route": "general/wait", "reply_to": "address-1", "clarify": false,
+    "expected_units": [{"action": null}],
+    "rewrite_checks": [{"unit": 0, "contains": [["wait", "pause"], ["pincode", "postal", "postcode"]]}]
+  },
+  {
+    "id": "complete-address-after-pause",
+    "text": "mil gaya, 22 DLF phase 2, gurugram, 122002 State: Haryana. Country: India.",
+    "context": {
+      "open_requests": [{"id": "address-1", "intent": "location_based", "sub_intent": "add_delivery_address",
+        "question": "What are the city, state, country and pincode?", "missing_fields": ["city", "state", "country", "postal_code"]}],
+      "address_draft": {"street_address": "tower C, cyber hub ke paas"},
+      "last_assistant_message": "Take your time.", "response_language": "hi-Latn"
+    },
+    "route": "location_based/add_delivery_address", "reply_to": "address-1", "clarify": false,
+    "expected_units": [{"action": null}],
+    "rewrite_checks": [{"unit": 0, "contains": ["22 DLF phase 2", "gurugram", "122002", "Haryana", "India"]}]
+  },
+  {
+    "id": "portuguese-product-translation",
+    "text": "coloca 2 pistache ice cream no pedido, o da carta",
+    "context": {
+      "catalog": [
+        {"item_id": "pista", "name": "Pistachio Ice Cream", "variants": [{"id": "standard", "name": "Standard"}], "modifier_groups": []},
+        {"item_id": "vanilla", "name": "Vanilla Ice Cream", "variants": [{"id": "vanilla-standard", "name": "Standard"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true, "open_requests": [], "basket": [], "has_placed_order": false
+    },
+    "route": "placing_order/add_to_basket", "reply_to": null, "clarify": false,
+    "expected_units": [{"action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "add", "item_id": "pista", "quantity": 2}], "unresolved": []}}}],
+    "rewrite_checks": [{"unit": 0, "contains": ["2", "pistachio"]}]
+  },
+  {
+    "id": "hours-and-pickup-preference",
+    "text": "в воскресенье до скольки вы работаете? заберу сам",
+    "context": {"open_requests": [], "checkout": {"fields": {}, "has_quote": false}, "has_placed_order": false,
+      "basket": [{"name": "Rose Cardamom Ice Cream", "quantity": 2}], "response_language": "ru"},
+    "route": "information_about_the_cafe/location_and_hours", "reply_to": null, "clarify": false,
+    "expected_units": [
+      {"intent": "information_about_the_cafe", "action": null},
+      {"intent": "placing_order", "sub_intent": "order_channels_and_modes", "action": {"kind": "SET_FULFILLMENT", "value": "pickup"}}
+    ]
+  },
+  {
+    "id": "explicit-checkout-with-pickup",
+    "text": "I'll collect it; start checkout now",
+    "context": {"open_requests": [], "checkout": {"fields": {}, "has_quote": false}, "has_placed_order": false,
+      "basket": [{"name": "Coffee", "quantity": 1}]},
+    "route": "placing_order/order_channels_and_modes", "reply_to": null, "clarify": false,
+    "routes": ["placing_order/order_channels_and_modes", "placing_order/order_confirmation"],
+    "expected_units": [
+      {"action": {"kind": "SET_FULFILLMENT", "value": "pickup"}},
+      {"action": {"kind": "CONTINUE_CHECKOUT"}}
+    ]
+  },
+  {
+    "id": "hinglish-quantity-after-detour",
+    "text": "do",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "quantity-1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Kitni Pistachio Ice Cream chahiye?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pista",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "target_number": null,
+                    "reference": null,
+                    "unresolved": []
+                  }
+                ],
+                "unresolved": [
+                  "How many Pistachio Ice Cream?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "quantity-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Google rating verified nahi hai.",
+      "last_assistant_question": "Kitni Pistachio Ice Cream chahiye?",
+      "recent_exchange": [
+        {
+          "user": "pehle google wali rating bata, kitne star ho aap",
+          "assistant": "Google rating verified nahi hai."
+        }
+      ],
+      "response_language": "hi-Latn"
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "quantity-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": "quantity-1",
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "pista",
+                "quantity": 2,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ],
+    "response_language": "hi-Latn",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "2",
+          "Pistachio"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "hindi-quantity-after-detour",
+    "text": "दो",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "quantity-1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Kitni Pistachio Ice Cream chahiye?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pista",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "target_number": null,
+                    "reference": null,
+                    "unresolved": []
+                  }
+                ],
+                "unresolved": [
+                  "How many Pistachio Ice Cream?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "quantity-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Google rating verified nahi hai.",
+      "last_assistant_question": "Kitni Pistachio Ice Cream chahiye?",
+      "recent_exchange": [
+        {
+          "user": "pehle google wali rating bata, kitne star ho aap",
+          "assistant": "Google rating verified nahi hai."
+        }
+      ],
+      "response_language": "hi"
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "quantity-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": "quantity-1",
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "pista",
+                "quantity": 2,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ],
+    "response_language": "hi",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "2",
+          "Pistachio"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "portuguese-new-add-over-edit",
+    "text": "tá, coloca 1 coffee",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "edit-1",
+          "intent": "placing_order",
+          "sub_intent": "update_order",
+          "query": "preciso mudar o pedido",
+          "original_message": "preciso mudar o pedido",
+          "question": "Which item and what change?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [],
+                "unresolved": [
+                  "Which item and what change?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "edit-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Nothing was added.",
+      "recent_exchange": [
+        {
+          "user": "tá um calor absurdo hoje, sério",
+          "assistant": "Nothing was added."
+        }
+      ],
+      "response_language": "pt"
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": null,
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "coffee",
+                "quantity": 1,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ],
+    "response_language": "pt",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "1",
+          "Coffee"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-detour",
+    "text": "Large please; also, when do you shut?",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "p17",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add a latte",
+          "question": "Which size for your latte?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {}
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Which size for your latte?",
+      "response_language": "en"
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "p17",
+    "clarify": false,
+    "expected_units": [
+      {},
+      {
+        "sub_intent": "location_and_hours",
+        "reply_to": null
+      }
+    ],
+    "response_language": "en",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "large",
+          "Latte"
+        ]
+      },
+      {
+        "unit": 1,
+        "contains": [
+          [
+            "close",
+            "closing",
+            "shut"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "address-yes",
+    "text": "हाँ, वही ठीक है",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "address-4",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Use Home",
+          "question": "Should I use Home?",
+          "missing_fields": [
+            "confirmation"
+          ]
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Should I use Home?",
+      "saved_addresses": [
+        {
+          "id": "home",
+          "label": "Home"
+        }
+      ],
+      "response_language": "hi"
+    },
+    "route": "location_based/confirm_delivery_address",
+    "reply_to": "address-4",
+    "clarify": false,
+    "response_language": "hi",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "Home",
+          [
+            "confirm",
+            "use"
+          ]
+        ]
+      }
+    ],
+    "expected_units": [
+      {
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "address-no",
+    "text": "No, use a different address.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "address-4",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Use Home",
+          "question": "Should I use Home?",
+          "missing_fields": [
+            "confirmation"
+          ]
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Should I use Home?",
+      "saved_addresses": [
+        {
+          "id": "home",
+          "label": "Home"
+        }
+      ],
+      "response_language": "en"
+    },
+    "route": "location_based/deny_delivery_address",
+    "reply_to": "address-4",
+    "clarify": false,
+    "response_language": "en",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          [
+            "not",
+            "different",
+            "reject",
+            "deny"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bare-yes",
+    "text": "Sure, go ahead.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "response_language": "en"
+    },
+    "route": null,
+    "reply_to": null,
+    "clarify": true,
+    "response_language": "en",
+    "rewrite_checks": [],
+    "expected_units": [
+      {
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "conditional-batch",
+    "text": "Add a brownie once we pick a flavor, then check me out.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "response_language": "en"
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": true,
+    "expected_unit_count": 1,
+    "response_language": "en",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "brownie",
+          [
+            "flavor",
+            "kind"
+          ],
+          [
+            "checkout",
+            "check out",
+            "check me out"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkout-name-hindi",
+    "text": "मेरा नाम अनाया है",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "What name should we use for this order?",
+          "missing_fields": [
+            "name"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "name",
+        "has_quote": false
+      },
+      "last_assistant_question": "What name should we use for this order?",
+      "declared_constraints": [],
+      "response_language": "hi"
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "response_language": "hi",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "अनाया"
+        ]
+      }
+    ],
+    "expected_units": [
+      {
+        "action": {
+          "kind": "SET_CHECKOUT_FIELD",
+          "field": "name",
+          "value": "अनाया"
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkout-phone",
+    "text": "Please reach me at +44 7700 900123",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "What phone number should we use?",
+          "missing_fields": [
+            "phone"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "phone",
+        "has_quote": false
+      },
+      "last_assistant_question": "What phone number should we use?",
+      "declared_constraints": [],
+      "response_language": "en"
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "response_language": "en",
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "+44 7700 900123"
+        ]
+      }
+    ],
+    "expected_units": [
+      {
+        "action": {
+          "kind": "SET_CHECKOUT_FIELD",
+          "field": "phone",
+          "value": "+44 7700 900123"
+        }
+      }
+    ]
+  },
+  {
+    "id": "spanish-spelling-and-negation",
+    "text": "El helado de pistacho contine leche? No añadas nada.",
+    "context": {
+      "open_requests": [],
+      "basket": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "response_language": "es"
+    },
+    "route": "menu_items/allergens",
+    "reply_to": null,
+    "clarify": false,
+    "response_language": "es",
+    "expected_units": [
+      {
+        "action": null
+      }
+    ],
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          [
+            "pistachio",
+            "Pistachio Ice Cream"
+          ],
+          "milk",
+          [
+            "not",
+            "no"
+          ],
+          [
+            "add",
+            "adding"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "conditional-consent-is-not-order-confirmation",
+    "text": "हाँ, लेकिन सिर्फ तभी जब इसमें दूध न हो।",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Place the quoted order",
+          "question": "Confirm the quoted order?",
+          "missing_fields": [
+            "confirmation"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "basket": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "response_language": "hi",
+      "last_assistant_question": "Confirm the quoted order?",
+      "checkout": {
+        "has_quote": true,
+        "awaiting": "confirmation"
+      }
+    },
+    "route": null,
+    "reply_to": "checkout-1",
+    "clarify": true,
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "milk",
+          [
+            "only",
+            "if"
+          ],
+          "order"
+        ]
+      }
+    ],
+    "expected_units": [
+      {
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "hindi-yes-confirms-current-order",
+    "text": "हाँ",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Place the quoted order",
+          "question": "Confirm the quoted order?",
+          "missing_fields": [
+            "confirmation"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "basket": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "response_language": "hi",
+      "last_assistant_question": "Confirm the quoted order?",
+      "checkout": {
+        "has_quote": true,
+        "awaiting": "confirmation"
+      }
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "order",
+          [
+            "confirm",
+            "place"
+          ]
+        ]
+      }
+    ],
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONFIRM_ORDER"
+        }
+      }
+    ]
+  }
+]

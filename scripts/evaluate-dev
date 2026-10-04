@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""Run evaluation on the existing development Compose project (no host venv)."""
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def main():
+    environment = dict(os.environ)
+    environment.setdefault("APP_ENV_FILE", ".env.dev")
+    project = environment.get("COMPOSE_PROJECT_NAME")
+    if not project:
+        result = subprocess.run(["docker", "compose", "ls", "--all", "--format", "json"],
+                                capture_output=True, text=True, check=True)
+        matches = [row["Name"] for row in json.loads(result.stdout)
+                   if str(ROOT / "docker-compose.dev.yml") in row.get("ConfigFiles", "").split(",")]
+        if len(matches) > 1:
+            raise SystemExit("Multiple development projects found; set COMPOSE_PROJECT_NAME.")
+        project = matches[0] if matches else None
+    # Let Compose resolve its normal directory/env-file/name default on a fresh
+    # checkout, just as a direct `docker compose ... up` invocation does.
+    compose = ["docker", "compose"]
+    if project:
+        compose += ["--project-name", project]
+    compose += ["--env-file", environment["APP_ENV_FILE"],
+               "-f", "docker-compose.yml", "-f", "docker-compose.dev.yml"]
+    args = sys.argv[1:] or ["preflight", "--config", "evaluate/configs/smoke.json",
+                            "--output", "/var/tmp/studio-eval"]
+    if args[0] == "up":
+        command = [*compose, "up", "-d", *args[1:]]
+    else:
+        command = [*compose, "exec", "-T", "-u", "appuser", "web", "python", "-m", "evaluate", *args]
+    return subprocess.call(command, cwd=ROOT, env=environment)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

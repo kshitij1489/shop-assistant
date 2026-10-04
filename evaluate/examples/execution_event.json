@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "sample-run",
+  "scenario_id": "sessions:s129_checkout_price_changed",
+  "scenario_instance_id": "b8576ec7-ebad-5318-b720-54174c381171",
+  "attempt": 1,
+  "event_id": "event-request-1",
+  "occurred_at": "2026-09-29T08:30:00+00:00",
+  "kind": "response",
+  "original_turn_index": 12,
+  "user_turn_index": 6,
+  "request_id": "request-1",
+  "action_id": null,
+  "status": "succeeded",
+  "detail": "Illustrative response received."
+}

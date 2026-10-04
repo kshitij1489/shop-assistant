@@ -1,0 +1,57 @@
+# Use: APP_ENV_FILE=.env.dev docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml up --build
+# Development and evaluation share the application, PostgreSQL and Redis.
+x-development-environment: &development-environment
+  DEBUG: "true"
+  STUDIO_ENV_FILE: /dev/null
+  DJANGO_SETTINGS_MODULE: evaluate.integration.settings
+  EVALUATION_EVIDENCE_ROOT: /var/tmp/studio-eval
+  EVALUATION_ADAPTER_URL: https://adapter_https:8443
+  EVALUATION_ADAPTER_CA: /tmp/studio-eval-certs/ca.pem
+  LOCATION_EMULATOR_URL: http://location_emulator:9080
+  CELERY_WORKER_MAX_MEMORY_PER_CHILD: ${EVALUATION_WORKER_MAX_MEMORY_KB:-1048576}
+
+x-development-volumes: &development-volumes
+  - .:/app
+  - evaluation_evidence:/var/tmp/studio-eval
+  - evaluation_certs:/tmp/studio-eval-certs
+
+services:
+  init:
+    environment: *development-environment
+    volumes: *development-volumes
+  web:
+    volumes: *development-volumes
+    command: python manage.py runserver 0.0.0.0:8000 --noreload
+    environment: *development-environment
+  celery_worker:
+    volumes: *development-volumes
+    environment: *development-environment
+  celery_beat:
+    volumes: *development-volumes
+    environment: *development-environment
+  nginx:
+    volumes:
+      - ./nginx/default.dev.conf:/etc/nginx/templates/default.conf.template:ro
+  location_emulator:
+    image: studio_desk:local
+    entrypoint: []
+    command: ["python", "-m", "mock_services", "serve", "--bind", "0.0.0.0", "--port", "9080", "--db", "/tmp/location-dev.sqlite3"]
+    volumes:
+      - .:/app
+    restart: unless-stopped
+  adapter_https:
+    image: studio_desk:local
+    entrypoint: []
+    # Internal Compose DNS survives application container restarts/recreation.
+    command: ["python", "-m", "evaluate.integration.adapter_https", "--listen", "0.0.0.0", "--port", "8443", "--upstream", "http://web:8000", "--cert-dir", "/tmp/studio-eval-certs"]
+    volumes:
+      - .:/app
+      - evaluation_certs:/tmp/studio-eval-certs
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  evaluation_evidence:
+  evaluation_certs:

@@ -1,0 +1,937 @@
+[
+  {
+    "id": "s23_wrong_item_arrived:0",
+    "text": "You sent the wrong dessert.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s23_wrong_item_arrived:2",
+    "text": "I had asked for Rose Cardamom and got vanilla.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "You sent the wrong dessert.",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "main_query": "You sent the wrong dessert.",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s23_wrong_item_arrived:4",
+    "text": "No reference. It was the one from this afternoon. Can they call me?",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "I had asked for Rose Cardamom and got vanilla.",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "main_query": "I had asked for Rose Cardamom and got vanilla.",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s25_refund_today:0",
+    "text": "Cancel my order and refund me today.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s25_refund_today:2",
+    "text": "The dessert melted. I want the money back, not a replacement.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "Cancel my order and refund me today.",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "main_query": "Cancel my order and refund me today.",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s25_refund_today:4",
+    "text": "Just tell me if the money comes back today.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "The dessert melted. I want the money back, not a replacement.",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "main_query": "The dessert melted. I want the money back, not a replacement.",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s28_driver_is_late:0",
+    "text": "The driver is late and not picking up the phone.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/delivery_problems",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "delivery_problems",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s28_driver_is_late:2",
+    "text": "Where is my order, then? Has it even left?",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "The driver is late and not picking up the phone.",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "delivery_problems",
+        "main_query": "The driver is late and not picking up the phone.",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/order_status_tracking",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "order_status_tracking",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s28_driver_is_late:4",
+    "text": "It was under Priya, phone ending 2211. Please have them call that number.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "Where is my order, then? Has it even left?",
+          "assistant": "I couldn't find any orders in the records available to this chat. Please contact the café directly for assistance."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "order_status_tracking",
+        "main_query": "Where is my order, then? Has it even left?",
+        "response": "I couldn't find any orders in the records available to this chat. Please contact the café directly for assistance."
+      }
+    },
+    "route": "order_enquiry/address_or_contact_update",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "address_or_contact_update",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s32_history_status_contact:0",
+    "text": "Can you pull up what I ordered last month?",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/get_order_history",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "get_order_history",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s32_history_status_contact:2",
+    "text": "Then just tell me if yesterday's order was delivered.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "Can you pull up what I ordered last month?",
+          "assistant": "Explain that no matching customer order history is available in this fixture; if a customer-scoped lookup is performed, report its actual result. A support or account suggestion is optional."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "get_order_history",
+        "main_query": "Can you pull up what I ordered last month?",
+        "response": "Explain that no matching customer order history is available in this fixture; if a customer-scoped lookup is performed, report its actual result. A support or account suggestion is optional."
+      }
+    },
+    "route": "order_enquiry/order_status_tracking",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "order_status_tracking",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s32_history_status_contact:4",
+    "text": "Yes. And the phone on that order is wrong, it should end with 9088.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "Then just tell me if yesterday's order was delivered.",
+          "assistant": "I couldn't find any orders in the records available to this chat. Please contact the café directly for assistance."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "order_status_tracking",
+        "main_query": "Then just tell me if yesterday's order was delivered.",
+        "response": "I couldn't find any orders in the records available to this chat. Please contact the café directly for assistance."
+      }
+    },
+    "route": "order_enquiry/address_or_contact_update",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "address_or_contact_update",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s32_history_status_contact:6",
+    "text": "If they can't fix the phone, I want it cancelled.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "Yes. And the phone on that order is wrong, it should end with 9088.",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "address_or_contact_update",
+        "main_query": "Yes. And the phone on that order is wrong, it should end with 9088.",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s86_complaint_no_false_action:0",
+    "text": "Only one of my two brownies arrived. Please send another immediately.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s86_complaint_no_false_action:2",
+    "text": "DN-QA-404. I demand a refund within 10 minutes.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "Only one of my two brownies arrived. Please send another immediately.",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "main_query": "Only one of my two brownies arrived. Please send another immediately.",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s86_complaint_no_false_action:4",
+    "text": "Have you emailed the manager and opened a complaint ticket?",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "DN-QA-404. I demand a refund within 10 minutes.",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "main_query": "DN-QA-404. I demand a refund within 10 minutes.",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s87_after_dispatch_change:0",
+    "text": "My order has already been dispatched. Change delivery to Flat 8, Ramgarh Road, Gurugram 122102.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/address_or_contact_update",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "address_or_contact_update",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s87_after_dispatch_change:2",
+    "text": "Then cancel that order, not my next order.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "My order has already been dispatched. Change delivery to Flat 8, Ramgarh Road, Gurugram 122102.",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "address_or_contact_update",
+        "main_query": "My order has already been dispatched. Change delivery to Flat 8, Ramgarh Road, Gurugram 122102.",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s158_hi_galat_item_refund:0",
+    "text": "galat item aa gaya yaar, rose cardamom manga tha, vanilla mil gaya",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s158_hi_galat_item_refund:2",
+    "text": "aaj ka refund chahiye, automatic hona chahiye, replacement nahi",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "galat item aa gaya yaar, rose cardamom manga tha, vanilla mil gaya",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "main_query": "galat item aa gaya yaar, rose cardamom manga tha, vanilla mil gaya",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s158_hi_galat_item_refund:4",
+    "text": "order number hai hi nahi mere paas, bas aaj ka order tha",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "aaj ka refund chahiye, automatic hona chahiye, replacement nahi",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "main_query": "aaj ka refund chahiye, automatic hona chahiye, replacement nahi",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s168_es_llego_mal:0",
+    "text": "me llegó mal el postre, pedí rose cardamom y vino vanilla",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s168_es_llego_mal:2",
+    "text": "quiero el reembolso hoy, automático, no otro postre",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "me llegó mal el postre, pedí rose cardamom y vino vanilla",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "main_query": "me llegó mal el postre, pedí rose cardamom y vino vanilla",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s168_es_llego_mal:4",
+    "text": "no tengo número de orden, fue el de esta tarde",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "quiero el reembolso hoy, automático, no otro postre",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "main_query": "quiero el reembolso hoy, automático, no otro postre",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s178_fr_mauvais_dessert:0",
+    "text": "mauvais dessert, j'avais demandé rose cardamom et j'ai reçu vanilla",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s178_fr_mauvais_dessert:2",
+    "text": "remboursez-moi aujourd'hui, automatiquement, pas un autre dessert",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "mauvais dessert, j'avais demandé rose cardamom et j'ai reçu vanilla",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "main_query": "mauvais dessert, j'avais demandé rose cardamom et j'ai reçu vanilla",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s178_fr_mauvais_dessert:4",
+    "text": "j'ai pas de numéro de commande",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "remboursez-moi aujourd'hui, automatiquement, pas un autre dessert",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "main_query": "remboursez-moi aujourd'hui, automatiquement, pas un autre dessert",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s188_ru_ne_tot_desert:0",
+    "text": "приехал не тот десерт, заказывал rose cardamom, пришла vanilla",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s188_ru_ne_tot_desert:2",
+    "text": "верните деньги сегодня, замену не надо",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "приехал не тот десерт, заказывал rose cardamom, пришла vanilla",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "main_query": "приехал не тот десерт, заказывал rose cardamom, пришла vanilla",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s188_ru_ne_tot_desert:4",
+    "text": "номера заказа нет",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "верните деньги сегодня, замену не надо",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "main_query": "верните деньги сегодня, замену не надо",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s198_pt_doce_errado:0",
+    "text": "veio o doce errado, pedi rose cardamom e chegou vanilla",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": []
+    },
+    "route": "order_enquiry/missing_or_wrong_items",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s198_pt_doce_errado:2",
+    "text": "quero reembolso hoje, automático, não quero outro doce",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "veio o doce errado, pedi rose cardamom e chegou vanilla",
+          "assistant": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "missing_or_wrong_items",
+        "main_query": "veio o doce errado, pedi rose cardamom e chegou vanilla",
+        "response": "Sorry about the problem with your order. Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "s198_pt_doce_errado:4",
+    "text": "não tenho número do pedido, foi o de hoje",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [
+        {
+          "user": "quero reembolso hoje, automático, não quero outro doce",
+          "assistant": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+        }
+      ],
+      "last_completed_request": {
+        "intent_type": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "main_query": "quero reembolso hoje, automático, não quero outro doce",
+        "response": "Please contact the store directly and share your order details with them. I cannot edit or cancel placed orders, issue refunds or replacements, arrange callbacks, contact staff or open complaint tickets through this chat. Store staff will assess available remedies and timing. No action has been taken through chat."
+      }
+    },
+    "route": "order_enquiry/refund_and_cancellation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "order_enquiry",
+        "sub_intent": "refund_and_cancellation",
+        "action": null
+      }
+    ]
+  }
+]

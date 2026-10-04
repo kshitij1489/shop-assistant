@@ -1,0 +1,213 @@
+{% extends "users/base_tenant.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'users/css/chats.css' %}?v=20260927-chat-layout">{% endblock %}
+
+{% block tenant_content %}
+<div class="tenant-chats-page">
+  <div class="tabs">
+    <div class="chat-channels">
+      <button type="button" id="tab-telegram" class="tab active">Telegram</button>
+      <button type="button" id="tab-whatsapp" class="tab" title="Coming soon" disabled>WhatsApp</button>
+    </div>
+    <div class="chat-toggle-group">
+      <label class="chat-meta" for="toggle-agent-global">Global toggle</label>
+      <button type="button" id="toggle-agent-global" class="chat-toggle" role="switch" aria-checked="true">
+        <span aria-hidden="true">On</span><span aria-hidden="true">Off</span>
+      </button>
+    </div>
+  </div>
+  <div class="chat-layout" data-channel="telegram">
+    <div class="chat-list-panel">
+      <div class="chat-list" id="chat-list"></div>
+    </div>
+    <div>
+      <div class="chat-toolbar">
+        <div>
+          <h3 id="chat-title" style="margin:0;">Select a chat</h3>
+          <div class="chat-meta" id="chat-subtitle"></div>
+        </div>
+        <!-- Agent control group -->
+        <div class="chat-toggle-group">
+          <label class="chat-meta" for="toggle-agent">Per-user (per-chat) toggle</label>
+          <button type="button" id="toggle-agent" class="chat-toggle" role="switch" aria-checked="false" disabled>
+            <span aria-hidden="true">On</span><span aria-hidden="true">Off</span>
+          </button>
+        </div>
+      </div>
+      <div class="transcript" id="transcript"></div>
+      <div class="composer">
+        <textarea aria-label="Message to customer" id="owner-text" placeholder="Type a message to the user..." disabled></textarea>
+        <button id="send-owner" disabled>Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const csrfToken = (function(){
+    const name = 'csrftoken=';
+    const parts = document.cookie.split(';');
+    for (let p of parts) { p = p.trim(); if (p.startsWith(name)) return decodeURIComponent(p.substring(name.length)); }
+    return '';
+  })();
+
+  let selectedChat = null;
+  let channel = 'telegram';
+  let globalEnabled = true;
+
+  async function fetchJSON(url) {
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    return await res.json();
+  }
+
+  async function listChats() {
+    const data = await fetchJSON('{% url "tenant:tenant_chats_list_api" %}?channel=' + channel);
+    const list = document.getElementById('chat-list');
+    list.innerHTML = '';
+    data.chats.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'chat-item' + (selectedChat && selectedChat.chat_id === c.chat_id ? ' active' : '');
+      const last = (c.last_text || '').substring(0, 100);
+      const when = c.last_activity_ts ? new Date(c.last_activity_ts * 1000).toLocaleString() : '';
+      const agent = c.agent_enabled !== '0';
+      div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong class="chat-name"></strong>
+            <div class="chat-meta chat-phone"></div>
+          </div>
+          <span class="pill ${agent ? 'on' : 'off'}">${agent ? 'ON' : 'OFF'}</span>
+        </div>
+        <div class="chat-meta chat-preview"></div>
+        <div class="chat-meta chat-time"></div>
+      `;
+      div.querySelector('.chat-name').textContent = c.display_name || 'Guest';
+      div.querySelector('.chat-phone').textContent = c.phone || '';
+      div.querySelector('.chat-preview').textContent = last;
+      div.querySelector('.chat-time').textContent = when;
+      div.tabIndex = 0;
+      div.setAttribute('role', 'button');
+      div.onclick = () => selectChat(c);
+      div.onkeydown = event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          selectChat(c);
+        }
+      };
+      list.appendChild(div);
+    });
+  }
+
+  async function selectChat(c) {
+    selectedChat = c;
+    document.getElementById('chat-title').textContent = c.display_name || 'Guest';
+    document.getElementById('chat-subtitle').textContent = c.phone ? ('+' + c.phone) : '';
+
+    const btn = document.getElementById('toggle-agent');
+    btn.disabled = !globalEnabled;
+    const enabled = c.agent_enabled !== '0';
+    btn.setAttribute('aria-checked', String(enabled));
+
+    document.getElementById('owner-text').disabled = false;
+    document.getElementById('send-owner').disabled = false;
+
+    await Promise.all([loadMessages(), listChats()]);
+  }
+
+  async function loadMessages() {
+    if (!selectedChat) return;
+    const url = '{% url "tenant:tenant_chats_messages_api" %}?channel=' + channel + '&chat_id=' + encodeURIComponent(selectedChat.chat_id);
+    const data = await fetchJSON(url);
+    const t = document.getElementById('transcript');
+    t.innerHTML = '';
+    data.messages.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'msg ' + (m.dir || 'in');
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = m.text || '';
+      div.appendChild(bubble);
+      t.appendChild(div);
+    });
+    t.scrollTop = t.scrollHeight;
+  }
+
+  async function toggleAgent() {
+    if (!selectedChat) return;
+    const btn = document.getElementById('toggle-agent');
+    const currentlyOn = btn.getAttribute('aria-checked') === 'true';
+    const res = await fetch('{% url "tenant:tenant_chats_toggle_api" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify({ channel, chat_id: selectedChat.chat_id, enabled: !currentlyOn })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      btn.setAttribute('aria-checked', String(!!data.enabled));
+      // reflect in list
+      selectedChat.agent_enabled = data.enabled ? '1' : '0';
+      listChats();
+    }
+  }
+
+  async function sendOwner() {
+    if (!selectedChat) return;
+    const text = document.getElementById('owner-text').value.trim();
+    if (!text) return;
+    const res = await fetch('{% url "tenant:tenant_chats_send_api" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify({ channel, chat_id: selectedChat.chat_id, text })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('owner-text').value = '';
+      loadMessages();
+      listChats();
+    } else if (data.error) {
+      alert(data.error);
+    }
+  }
+
+  document.getElementById('toggle-agent').addEventListener('click', toggleAgent);
+  document.getElementById('send-owner').addEventListener('click', sendOwner);
+
+  async function fetchGlobalStatus() {
+    const data = await fetchJSON('{% url "tenant:tenant_chats_global_status_api" %}?channel=' + channel);
+    globalEnabled = !!data.enabled;
+
+    const b = document.getElementById('toggle-agent-global');
+    b.setAttribute('aria-checked', String(globalEnabled));
+
+    // Optional: disable per-chat toggle while global OFF to avoid confusion
+    if (selectedChat) {
+      document.getElementById('toggle-agent').disabled = !globalEnabled;
+    }
+  }
+
+  async function toggleAgentGlobal() {
+    const b = document.getElementById('toggle-agent-global');
+    const currentlyOn = b.getAttribute('aria-checked') === 'true';
+    const res = await fetch('{% url "tenant:tenant_chats_toggle_global_api" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify({ channel, enabled: !currentlyOn })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      globalEnabled = !!data.enabled;
+      b.setAttribute('aria-checked', String(globalEnabled));
+      await fetchGlobalStatus();
+      listChats();
+    }
+  }
+
+  document.getElementById('toggle-agent-global').addEventListener('click', toggleAgentGlobal);
+
+  // initial
+  fetchGlobalStatus();
+  listChats();
+
+  // On load + poll
+  setInterval(() => { fetchGlobalStatus(); listChats(); if (selectedChat) loadMessages(); }, 5000);
+</script>
+{% endblock %}

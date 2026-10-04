@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dach & Nona AI Assistant</title>
+  <link rel="stylesheet" href="{% static 'users/css/style.css' %}" />
+  <style>
+    /* Minimal extras so you can see the live text/chat, keep/merge with your CSS */
+    .va-panel {max-width: 760px; margin: 16px auto; padding: 12px; border: 1px solid #eee; border-radius: 10px;}
+    .va-row {display:flex; gap:10px; align-items:center; justify-content:center;}
+    .va-chip {font-size:12px; opacity:.7;}
+    .va-chat {max-height: 260px; overflow:auto; padding:8px; border:1px solid #efefef; border-radius:10px;}
+    .va-msg {margin: 8px 0; line-height:1.4;}
+    .va-msg.you {text-align:right;}
+    .va-msg .who {font-weight:600; margin-right:6px;}
+    .va-live {font-family: ui-monospace, SFMono-Regular, Menlo, monospace; padding:8px; background:#fafafa; border:1px dashed #ddd; border-radius:10px; min-height:42px;}
+    .va-live .label {font-size:12px; opacity:.6; display:block;}
+    .va-live .content {margin-top:2px;}
+    .va-mic.listening {box-shadow: 0 0 0 8px rgba(0,153,255,.15);}
+    .va-mic.processing {opacity:.7;}
+    .va-error {color:#b00020;}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="va-header">
+    <div class="va-header-inner">
+      <h1 class="va-brand">Dach & Nona AI Assistant</h1>
+      <span class="va-version">v0.12 – Web Speech API</span>
+    </div>
+  </header>
+
+  <script>
+    window.VA_CONFIG = {
+      tenantId: "{{ tenant_id }}",
+      chatId: "{{ chat_id }}",
+      webhookUrl: "{{ webhook_url }}",
+      pollUrl: "{{ poll_url }}",
+      csrfToken: "{{ csrf_token }}"
+    };
+  </script>
+
+  <!-- Main -->
+  <main class="va-app">
+    <div class="va-intro">
+      <h2 class="va-title">Assistant</h2>
+      <p class="va-subtle">Speak naturally. 5s pause sends your message. 30s idle ends the session.</p>
+    </div>
+
+    <div class="va-center va-row">
+      <button id="micBtn" class="va-mic" aria-label="Start listening">
+        <span id="micHalo" class="va-mic-halo"></span>
+        Mic
+      </button>
+
+      <div class="va-status">
+        <p id="status">Click the mic to start</p>
+        <p id="errorMsg" class="va-error" style="display:none;"></p>
+        <div class="va-chip"><label><input type="checkbox" id="autoLoop" checked /> auto-resume after reply</label> • gap: 5s • idle: 30s</div>
+      </div>
+    </div>
+
+    <div class="va-panel" style="max-width:760px;margin:10px auto;">
+      <div class="va-row" style="justify-content:flex-start;gap:12px;flex-wrap:wrap;">
+        <label>Voice: <select id="voiceSelect"></select></label>
+        <label>Rate: <input id="rateCtl" type="range" min="0.7" max="1.2" step="0.05" value="0.95"></label>
+        <label>Pitch: <input id="pitchCtl" type="range" min="0.7" max="1.3" step="0.05" value="1.05"></label>
+        <label>Language:
+          <select id="langSelect">
+            <option value="en-US">English (US)</option>
+            <option value="en-IN">English (India)</option>
+            <option value="hi-IN">हिन्दी (Hindi)</option>
+            <option value="bn-IN">বাংলা (Bengali)</option>
+            <option value="mr-IN">मराठी (Marathi)</option>
+            <option value="ta-IN">தமிழ் (Tamil)</option>
+            <option value="te-IN">తెలుగు (Telugu)</option>
+            <option value="kn-IN">ಕನ್ನಡ (Kannada)</option>
+            <option value="ml-IN">മലയാളം (Malayalam)</option>
+            <option value="pa-IN">ਪੰਜਾਬੀ (Punjabi)</option>
+          </select>
+        </label>
+      </div>
+      <div class="va-chip">Pick a neural voice (Google/Microsoft) and tweak rate/pitch.</div>
+    </div>
+
+    <!-- Live transcript -->
+    <section class="va-panel">
+      <div class="va-live">
+        <span class="label">Live (interim):</span>
+        <div id="liveText" class="content"></div>
+      </div>
+      <div style="height:8px"></div>
+      <div class="va-chat" id="chatLog" aria-live="polite"></div>
+    </section>
+
+    <!-- Basket (unchanged) -->
+    <section class="va-basket">
+      <h3 class="va-section-title">Current Basket</h3>
+      <div class="va-table-wrap">
+        <table class="va-table">
+          <thead>
+            <tr>
+              <th>Item Name</th><th>Quantity</th><th>Size</th>
+              <th class="va-right">Price</th><th class="va-right">Tax</th>
+            </tr>
+          </thead>
+          <tbody id="basketBody"></tbody>
+          <tfoot>
+            <tr class="va-summary">
+              <td colspan="3" class="va-strong">Item subtotal</td>
+              <td class="va-right">Before checkout</td>
+              <td class="va-right va-strong" id="basketTotal"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="{% static 'users/js/voice.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "action_id": "price-change",
+  "scenario_id": "sessions:s129_checkout_price_changed",
+  "original_turn_index": 12,
+  "requirement_ref": "/before_turn/0/action",
+  "requirement_hash": "a1369114579cd588449cd411a17b79c5e13dad89aa7e973a9188038ade34aad9",
+  "review_ref": "evaluate/examples/README.md",
+  "operation": {
+    "kind": "catalog_control",
+    "item_name": "Pistachio Ice Cream",
+    "variant_name": "QA standard",
+    "price_minor": 47000,
+    "available": null
+  }
+}

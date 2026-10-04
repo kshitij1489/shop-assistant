@@ -1,0 +1,237 @@
+{
+  "schema_version": "1.0.0",
+  "version": "baseline-v1",
+  "contract_hash": "1bec08240b67983843cf173c3b84a9f27aed238e469072c8e2e68f0d10474630",
+  "default_clock": {
+    "at": "2026-09-29T14:00:00+05:30",
+    "timezone": "Asia/Kolkata"
+  },
+  "profiles": {
+    "knowledge_only": {
+      "source_hash": "12c3a7d6c3d23924e90b83f0fad087efb1a32bd845d48809afb39c8a16c1aac9",
+      "review_ref": "evaluate/datasets/README.md#baseline-v1",
+      "extends": [],
+      "defaults": {
+        "catalog": "none",
+        "variant_name": null,
+        "stock": "none",
+        "customer": "browser_guest",
+        "address_lookup": "unavailable",
+        "payment": "unavailable",
+        "payment_methods": null,
+        "modes": null,
+        "scheduling": null,
+        "horizon_days": null,
+        "lead_minutes": null,
+        "preparation_minutes": null,
+        "delivery_minimum_minor": null,
+        "delivery_fee_minor": null,
+        "pickup_minimum_minor": null,
+        "pickup_fee_minor": null,
+        "tax_basis_points": null,
+        "discounts": null,
+        "modifiers": null,
+        "currency": null,
+        "hours": null,
+        "contact_fixture": null,
+        "required_pickup": null,
+        "required_delivery": null,
+        "allowed_postal_codes": null
+      },
+      "required_capabilities": [
+        "knowledge_import",
+        "freeze_clock"
+      ]
+    },
+    "catalog_sandbox": {
+      "source_hash": "f692638c346f93ac50a52999ece8ec69b4f3d7d4acba6a15b612c9b9db012b55",
+      "review_ref": "evaluate/datasets/README.md#baseline-v1",
+      "extends": [],
+      "defaults": {
+        "catalog": "published_synthetic",
+        "variant_name": "QA standard",
+        "stock": "none",
+        "customer": null,
+        "address_lookup": null,
+        "payment": "unavailable",
+        "payment_methods": [
+          "cash"
+        ],
+        "modes": [
+          "pickup",
+          "delivery"
+        ],
+        "scheduling": false,
+        "horizon_days": null,
+        "lead_minutes": null,
+        "preparation_minutes": 30,
+        "delivery_minimum_minor": 70000,
+        "delivery_fee_minor": 10000,
+        "pickup_minimum_minor": 0,
+        "pickup_fee_minor": 0,
+        "tax_basis_points": 0,
+        "discounts": false,
+        "modifiers": false,
+        "currency": "INR",
+        "hours": "tuesday_sunday_12_00_23_30",
+        "contact_fixture": null,
+        "required_pickup": [
+          "name",
+          "phone"
+        ],
+        "required_delivery": [
+          "name",
+          "phone",
+          "address",
+          "postal_code"
+        ],
+        "allowed_postal_codes": null
+      },
+      "required_capabilities": [
+        "knowledge_import",
+        "freeze_clock",
+        "catalog_seed",
+        "checkout_settings"
+      ]
+    },
+    "address_sandbox": {
+      "source_hash": "d7d34126abf98d295e1415efca6c276ac4c81d2bf18cd57729689f51d5c5ed09",
+      "review_ref": "evaluate/datasets/README.md#baseline-v1",
+      "extends": [],
+      "defaults": {
+        "catalog": null,
+        "variant_name": null,
+        "stock": null,
+        "customer": "authenticated_synthetic",
+        "address_lookup": "complete_supplied_only",
+        "payment": null,
+        "payment_methods": null,
+        "modes": null,
+        "scheduling": null,
+        "horizon_days": null,
+        "lead_minutes": null,
+        "preparation_minutes": null,
+        "delivery_minimum_minor": null,
+        "delivery_fee_minor": null,
+        "pickup_minimum_minor": null,
+        "pickup_fee_minor": null,
+        "tax_basis_points": null,
+        "discounts": null,
+        "modifiers": null,
+        "currency": null,
+        "hours": null,
+        "contact_fixture": null,
+        "required_pickup": null,
+        "required_delivery": null,
+        "allowed_postal_codes": null
+      },
+      "required_capabilities": [
+        "knowledge_import",
+        "freeze_clock",
+        "address_stubs",
+        "authenticated_website_customer"
+      ]
+    },
+    "checkout_sandbox": {
+      "source_hash": "ac5fc93d2d2b484b1ca37cb37ab82e706a459b9c2b75843a5b58bcecaf799dc4",
+      "review_ref": "evaluate/datasets/README.md#baseline-v1",
+      "extends": [
+        "catalog_sandbox"
+      ],
+      "defaults": {
+        "catalog": null,
+        "variant_name": null,
+        "stock": null,
+        "customer": null,
+        "address_lookup": null,
+        "payment": "fake_adapter",
+        "payment_methods": [
+          "cash",
+          "online"
+        ],
+        "modes": null,
+        "scheduling": null,
+        "horizon_days": null,
+        "lead_minutes": null,
+        "preparation_minutes": null,
+        "delivery_minimum_minor": null,
+        "delivery_fee_minor": null,
+        "pickup_minimum_minor": null,
+        "pickup_fee_minor": null,
+        "tax_basis_points": null,
+        "discounts": null,
+        "modifiers": null,
+        "currency": null,
+        "hours": null,
+        "contact_fixture": "qa_guest_dummy_no_notifications",
+        "required_pickup": null,
+        "required_delivery": null,
+        "allowed_postal_codes": [
+          "122102"
+        ]
+      },
+      "required_capabilities": [
+        "fake_payment_adapter",
+        "checkout_settings"
+      ]
+    }
+  },
+  "scenarios": {
+    "sessions:s129_checkout_price_changed": {
+      "source_hash": "393159520d27cdb17082754ab98644dafab21190206e94c894a785fadae19afe",
+      "review_ref": "evaluate/examples/README.md",
+      "overrides": {
+        "catalog": null,
+        "variant_name": null,
+        "stock": null,
+        "customer": null,
+        "address_lookup": null,
+        "payment": null,
+        "payment_methods": null,
+        "modes": null,
+        "scheduling": null,
+        "horizon_days": null,
+        "lead_minutes": null,
+        "preparation_minutes": null,
+        "delivery_minimum_minor": null,
+        "delivery_fee_minor": null,
+        "pickup_minimum_minor": null,
+        "pickup_fee_minor": null,
+        "tax_basis_points": null,
+        "discounts": null,
+        "modifiers": null,
+        "currency": null,
+        "hours": null,
+        "contact_fixture": null,
+        "required_pickup": null,
+        "required_delivery": null,
+        "allowed_postal_codes": null
+      },
+      "actions": [
+        {
+          "schema_version": "1.0.0",
+          "action_id": "price-change",
+          "scenario_id": "sessions:s129_checkout_price_changed",
+          "original_turn_index": 12,
+          "requirement_ref": "/before_turn/0/action",
+          "requirement_hash": "a1369114579cd588449cd411a17b79c5e13dad89aa7e973a9188038ade34aad9",
+          "review_ref": "evaluate/examples/README.md",
+          "operation": {
+            "kind": "catalog_control",
+            "item_name": "Pistachio Ice Cream",
+            "variant_name": "QA standard",
+            "price_minor": 47000,
+            "available": null
+          }
+        }
+      ],
+      "requirements": {
+        "/before_turn/0/action": [
+          "price-change"
+        ]
+      }
+    }
+  },
+  "supported_capabilities": [],
+  "fixture_hashes": {}
+}

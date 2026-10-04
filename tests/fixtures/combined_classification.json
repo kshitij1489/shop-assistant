@@ -1,0 +1,657 @@
+{
+  "prompt_sha256": "5e71f400ac82cd3a7c0ac1753dcfcfb46a4de1729fade453f5938ce95d080ce9",
+  "replay_prompt_sha256": "f6a0700452c0b854717e88c4f2a1dc17b1501be582af91758e6f2c6d70e6c306",
+  "note": "Historical v3 responses replayed offline with the current schema and prompt. The retired GPS route in nc03 is explicitly adapted to request a typed address. Added empty declared_constraints to non-declaration fixtures. This checks transport and validation, not current model accuracy; original prompt_sha256 records provenance.",
+  "cases": [
+    {
+      "source": "v3-baseline",
+      "id": "m01",
+      "name": "Save one full delivery address in a single message.",
+      "input": {
+        "new_user_message": "Save my address: Flat 12, Tower B, Sector 56, Gurugram, Haryana 122011.",
+        "prev_user_sentence": "",
+        "prev_system_message": ""
+      },
+      "preserve": [
+        "Flat 12",
+        "Tower B",
+        "Sector 56",
+        "Gurugram",
+        "Haryana",
+        "122011"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Save my address: Flat 12, Tower B, Sector 56, Gurugram, Haryana 122011.",
+            "intent": "location_based",
+            "sub_intent": "add_delivery_address",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "m02",
+      "name": "Name an item, then answer the quantity question.",
+      "input": {
+        "new_user_message": "Two, please.",
+        "prev_user_sentence": "I want Pistachio Ice Cream, but I have not decided how many. Help me finish that choice.",
+        "prev_system_message": "Pistachio Ice Cream is listed at INR 460. How many should I add? The menu doesn't publish a serving size."
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "Two, please.",
+            "intent": "placing_order",
+            "sub_intent": "customize_confirmation",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "m03",
+      "name": "Ask to remove something, then name the brownie.",
+      "input": {
+        "new_user_message": "The fudgy chocolate brownie.",
+        "prev_user_sentence": "Take something off my order.",
+        "prev_system_message": "Which item should I remove?"
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "The fudgy chocolate brownie.",
+            "intent": "placing_order",
+            "sub_intent": "delete_entry",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "m04",
+      "name": "Offer an address, reject it, correct it, then confirm.",
+      "input": {
+        "new_user_message": "No, that's the old flat.",
+        "prev_user_sentence": "Use Flat 2, Sector 45, Gurugram 122003.",
+        "prev_system_message": "I have Flat 2, Sector 45, Gurugram 122003. Is that the right delivery address?"
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "No, that's the old flat.",
+            "intent": "location_based",
+            "sub_intent": "deny_delivery_address",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "m05",
+      "name": "Offer an address, reject it, correct it, then confirm.",
+      "input": {
+        "new_user_message": "Yes, that's the one.",
+        "prev_user_sentence": "Change it to Flat 18, Sector 45, Gurugram 122003.",
+        "prev_system_message": "Updated to Flat 18, Sector 45, Gurugram 122003. Is that right?"
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "Yes, that's the one.",
+            "intent": "location_based",
+            "sub_intent": "confirm_delivery_address",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "m06",
+      "name": "A special request must not become cancellation or an invented modifier.",
+      "input": {
+        "new_user_message": "No sugar, extra coffee, and make it dairy-free.",
+        "prev_user_sentence": "Add 1 Coffee Mascarpone Ice Cream.",
+        "prev_system_message": "One seeded item at INR 380."
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "No sugar, extra coffee, and make it dairy-free.",
+            "intent": "placing_order",
+            "sub_intent": "special_requests",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "m09",
+      "name": "Reject zero, negative and fractional order quantities, then recover with a valid count.",
+      "input": {
+        "new_user_message": "Add -2 Pistachio Ice Cream.",
+        "prev_user_sentence": "Add 0 Pistachio Ice Cream.",
+        "prev_system_message": "Ask for a positive whole quantity; basket remains empty."
+      },
+      "preserve": [
+        "-2",
+        "Pistachio Ice Cream"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Add -2 Pistachio Ice Cream.",
+            "intent": "placing_order",
+            "sub_intent": "add_to_basket",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "m10",
+      "name": "A mixed valid/invalid proposal must not partially change the basket.",
+      "input": {
+        "new_user_message": "Add 1 Tiramisu and 2 Galactic Mango Pizza.",
+        "prev_user_sentence": "",
+        "prev_system_message": ""
+      },
+      "preserve": [
+        "1",
+        "Tiramisu",
+        "2",
+        "Galactic Mango Pizza"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Add 1 Tiramisu and 2 Galactic Mango Pizza.",
+            "intent": "placing_order",
+            "sub_intent": "add_to_basket",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "c01",
+      "name": "Answer a quantity question and ask Sunday hours in the same reply.",
+      "input": {
+        "new_user_message": "Two, and what time do you shut on Sunday?",
+        "prev_user_sentence": "I want Masala Chai Ice Cream, but ask me how many before adding it.",
+        "prev_system_message": "Masala Chai Ice Cream is listed at INR 380. How many do you want?"
+      },
+      "preserve": [
+        "Sunday"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Two",
+            "intent": "placing_order",
+            "sub_intent": "customize_confirmation",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "What time do you shut on Sunday?",
+            "intent": "information_about_the_cafe",
+            "sub_intent": "location_and_hours",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "c02",
+      "name": "Confirm the address and remove an item in one reply.",
+      "input": {
+        "new_user_message": "Yes that's the address, and remove the limone.",
+        "prev_user_sentence": "Add 1 Coconut and Pineapple and 1 Sunshine Limone Ice Cream, and deliver to Flat 6, Sector 55, Gurugram 122003.",
+        "prev_system_message": "Basket: 1 × Coconut and Pineapple and 1 × Sunshine Limone Ice Cream, INR 380 each, INR 760 before fees or tax. Address I have: Flat 6, Sector 55, Gurugram 122003. Is that address right?"
+      },
+      "preserve": [
+        "limone"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Yes, that's the address.",
+            "intent": "location_based",
+            "sub_intent": "confirm_delivery_address",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "Remove the limone.",
+            "intent": "placing_order",
+            "sub_intent": "delete_entry",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "c03",
+      "name": "Finish an address and ask an eggless question together.",
+      "input": {
+        "new_user_message": "Flat 8, Tower 5, Sector 49, Gurugram 122018. Also, are the dates ice creams sugar free?",
+        "prev_user_sentence": "I want delivery but I only remember the tower.",
+        "prev_system_message": "Send the tower, street, city, and pincode."
+      },
+      "preserve": [
+        "Flat 8",
+        "Tower 5",
+        "Sector 49",
+        "Gurugram",
+        "122018"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Flat 8, Tower 5, Sector 49, Gurugram 122018",
+            "intent": "location_based",
+            "sub_intent": "add_delivery_address",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "Are the dates ice creams sugar free?",
+            "intent": "menu_items",
+            "sub_intent": "dietary_preferences",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "c04",
+      "name": "Process a pending answer, another basket action and a knowledge question in one message.",
+      "input": {
+        "new_user_message": "Fudgy Chocolate Brownie (2pcs), one. Also add 1 Tiramisu. What time do you close Sunday?",
+        "prev_user_sentence": "Add one brownie; ask me which listing.",
+        "prev_system_message": "Ask which brownie item; basket unchanged."
+      },
+      "preserve": [
+        "Fudgy Chocolate Brownie (2pcs)",
+        "1",
+        "Tiramisu",
+        "Sunday"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Fudgy Chocolate Brownie (2pcs), one",
+            "intent": "placing_order",
+            "sub_intent": "customize_confirmation",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "Add 1 Tiramisu",
+            "intent": "placing_order",
+            "sub_intent": "add_to_basket",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "What time do you close Sunday?",
+            "intent": "information_about_the_cafe",
+            "sub_intent": "location_and_hours",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "c05",
+      "name": "Check a nut allergy, ask ingredients, ask calories, then add a different item.",
+      "input": {
+        "new_user_message": "What's actually in the vanilla, how is it made, and where does the milk come from?",
+        "prev_user_sentence": "I'm ordering, but is pistachio ice cream safe? I have a nut allergy.",
+        "prev_system_message": "Pistachio Ice Cream names pistachio, so it is not a choice I can call safe for a nut allergy. Dates Rose & Nuts also names nuts. There's no full allergen list or cross-contact policy. Check with the cafe before you order it."
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "What's actually in the vanilla?",
+            "intent": "menu_items",
+            "sub_intent": "ingredients",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "How is the vanilla made?",
+            "intent": "menu_items",
+            "sub_intent": "preparation",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "Where does the milk come from?",
+            "intent": "menu_items",
+            "sub_intent": "source_quality",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "c06",
+      "name": "Hinglish typo add, then an eggless question, then Sunday pickup hours.",
+      "input": {
+        "new_user_message": "woh eggless hai kya? aur dates wali sugar free hai na, sach bolo",
+        "prev_user_sentence": "bhai 2 pistacho icecream dal do basket me, jaldi",
+        "prev_system_message": "Resolve the typo to Pistachio Ice Cream, quantity 2, listed at INR 460 each (INR 920 before fees or tax). Serving size is unpublished and live stock is unknown."
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "woh eggless hai kya?",
+            "intent": "menu_items",
+            "sub_intent": "dietary_preferences",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "dates wali sugar free hai na, sach bolo",
+            "intent": "menu_items",
+            "sub_intent": "dietary_preferences",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "c07",
+      "name": "Ask the Boston cream price in Spanish, then add one and ask Sunday hours.",
+      "input": {
+        "new_user_message": "pon uno, y a qué hora cierran el domingo?",
+        "prev_user_sentence": "cuánto sale el boston cream pie? no lo agregues todavía",
+        "prev_system_message": "Boston Cream Pie is listed at INR 410 and contains eggs. It is not in the basket."
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "pon uno",
+            "intent": "placing_order",
+            "sub_intent": "add_to_basket",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "¿A qué hora cierran el domingo?",
+            "intent": "information_about_the_cafe",
+            "sub_intent": "location_and_hours",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "v3-baseline",
+      "id": "c08",
+      "name": "Ask the pistachio price in French, then add two and request the map.",
+      "input": {
+        "new_user_message": "mets-en deux, et envoie le lien google maps",
+        "prev_user_sentence": "c'est combien le pistachio ice cream? ne l'ajoute pas encore",
+        "prev_system_message": "Pistachio Ice Cream is listed at INR 460. It is not in the basket. No serving size is published."
+      },
+      "preserve": [],
+      "response": {
+        "classifications": [
+          {
+            "query": "mets-en deux",
+            "intent": "placing_order",
+            "sub_intent": "add_to_basket",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "envoie le lien google maps",
+            "intent": "information_about_the_cafe",
+            "sub_intent": "location_and_hours",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "novel-30/results",
+      "id": "nc01",
+      "name": "Wrong item with limited refund request",
+      "input": {
+        "new_user_message": "Order DN-2026-640 arrived with 1 Tiramisu instead of 1 Classic Lamington. Refund only the wrong item, not the entire order.",
+        "prev_user_sentence": "",
+        "prev_system_message": ""
+      },
+      "preserve": [
+        "DN-2026-640",
+        "1",
+        "Tiramisu",
+        "Classic Lamington"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Order DN-2026-640 arrived with 1 Tiramisu instead of 1 Classic Lamington. Refund only the wrong item, not the entire order.",
+            "intent": "order_enquiry",
+            "sub_intent": "missing_or_wrong_items",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": true
+    },
+    {
+      "source": "novel-30/results",
+      "id": "nc03",
+      "name": "Coverage checks using two representations",
+      "input": {
+        "new_user_message": "Is delivery available to pincode 560034? Separately, check this pin exactly as supplied: latitude -12.9716, longitude 77.5946; do not swap them.",
+        "prev_user_sentence": "",
+        "prev_system_message": ""
+      },
+      "preserve": [
+        "560034",
+        "-12.9716",
+        "77.5946"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Is delivery available to pincode 560034?",
+            "intent": "location_based",
+            "sub_intent": "verify_address_for_delivery",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "Check delivery availability for latitude -12.9716, longitude 77.5946; do not swap them.",
+            "intent": "location_based",
+            "sub_intent": "add_delivery_address",
+            "reply_to": null,
+            "clarification": "Location pins are not supported. Please type your address."
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "novel-30/results",
+      "id": "nc06",
+      "name": "Cancel pending work but protect placed order",
+      "input": {
+        "new_user_message": "Stop every unfinished task in this chat. Do not cancel placed order DN-2026-902. After that, list my saved addresses.",
+        "prev_user_sentence": "",
+        "prev_system_message": ""
+      },
+      "preserve": [
+        "DN-2026-902"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Stop every unfinished task in this chat. Do not cancel placed order DN-2026-902.",
+            "intent": "general",
+            "sub_intent": "cancel_and_abort",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "List my saved addresses.",
+            "intent": "location_based",
+            "sub_intent": "read_addresses",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "novel-30/results",
+      "id": "nc09",
+      "name": "Russian reorder, scheduling and phone channel",
+      "input": {
+        "new_user_message": "Повторите заказ DN-2026-118. Запланируйте его на 2026-10-04 в 18:45. Можно оформить это по телефону?",
+        "prev_user_sentence": "",
+        "prev_system_message": ""
+      },
+      "preserve": [
+        "DN-2026-118",
+        "2026-10-04",
+        "18:45"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "Повторите заказ DN-2026-118.",
+            "intent": "placing_order",
+            "sub_intent": "reorder_or_repeat",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "Запланируйте его на 2026-10-04 в 18:45.",
+            "intent": "placing_order",
+            "sub_intent": "order_scheduling",
+            "reply_to": null,
+            "clarification": null
+          },
+          {
+            "query": "Можно оформить это по телефону?",
+            "intent": "placing_order",
+            "sub_intent": "order_channels_and_modes",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": false
+    },
+    {
+      "source": "novel-30/results",
+      "id": "nc10",
+      "name": "Complaint-reference answer plus conditional refund",
+      "input": {
+        "new_user_message": "It is DN-2026-307. If the missing item cannot be delivered today, I would like a refund for that item only.",
+        "prev_user_sentence": "One dessert was missing from my delivery.",
+        "prev_system_message": "What is the order reference for the delivery with the missing item?"
+      },
+      "preserve": [
+        "DN-2026-307"
+      ],
+      "response": {
+        "classifications": [
+          {
+            "query": "It is DN-2026-307. If the missing item cannot be delivered today, I would like a refund for that item only.",
+            "intent": "order_enquiry",
+            "sub_intent": "missing_or_wrong_items",
+            "reply_to": null,
+            "clarification": null
+          }
+        ],
+        "declared_constraints": []
+      },
+      "known_route_failure": true
+    }
+  ],
+  "note_v5": "Historical model queries replayed with null routing fields to test plumbing only; not live v5 semantic evidence."
+}

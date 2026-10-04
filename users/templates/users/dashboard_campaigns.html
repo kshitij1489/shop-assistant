@@ -1,0 +1,38 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+<h2>Campaigns</h2>
+<p>Create and view marketing campaign logs.</p>
+
+<ul>
+  <li><a href="#">New WhatsApp Campaign</a></li>
+  <li><a href="#">New Telegram Campaign</a></li>
+  <li><a href="#">New Email Campaign</a></li>
+</ul>
+
+<hr>
+
+<h3>Past Campaigns</h3>
+<div class="table-wrap" role="region" aria-label="Data table" tabindex="0">
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Sent</th>
+      <th>Reach</th>
+      <th>Clicks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>WhatsApp</td><td>2025-07-24</td><td>152</td><td>34</td>
+    </tr>
+    <tr>
+      <td>Email</td><td>2025-07-21</td><td>80</td><td>12</td>
+    </tr>
+    <tr>
+      <td>Telegram</td><td>2025-07-18</td><td>60</td><td>18</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+{% endblock %}

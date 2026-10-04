@@ -1,0 +1,154 @@
+{
+  "information_about_the_cafe": {
+    "location_and_hours": {
+      "name": "Dach & Nona",
+      "address": "2173, Ramgarh Road, Sector 64, Gurugram, Haryana 122102, India",
+      "timezone": "Asia/Kolkata",
+      "opening_hours": {
+        "days_open": "Tuesday to Sunday",
+        "timings": "12:00 PM to 11:30 PM",
+        "closed": "Monday",
+        "weekly": {
+          "monday": [],
+          "tuesday": [
+            {
+              "opens": "12:00",
+              "closes": "23:30"
+            }
+          ],
+          "wednesday": [
+            {
+              "opens": "12:00",
+              "closes": "23:30"
+            }
+          ],
+          "thursday": [
+            {
+              "opens": "12:00",
+              "closes": "23:30"
+            }
+          ],
+          "friday": [
+            {
+              "opens": "12:00",
+              "closes": "23:30"
+            }
+          ],
+          "saturday": [
+            {
+              "opens": "12:00",
+              "closes": "23:30"
+            }
+          ],
+          "sunday": [
+            {
+              "opens": "12:00",
+              "closes": "23:30"
+            }
+          ]
+        },
+        "holiday_hours": null
+      },
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "google_maps": {
+        "url": "https://maps.app.goo.gl/xwPvNhttGsFBMVcY8",
+        "resolved_url": "https://www.google.com/maps/place/Dach+%26+Nona,+The+Ice+Cream+Factory/@28.3912776,77.0651871,17z/data=!3m1!4b1!4m6!3m5!1s0x390d2372971f59a9:0x9d45d7812a7c16c3!8m2!3d28.3912776!4d77.067762!16s%2Fg%2F11wxqklpvs",
+        "listing_name_from_redirect": "Dach & Nona, The Ice Cream Factory",
+        "pin_from_redirect": {
+          "latitude": 28.3912776,
+          "longitude": 77.067762
+        },
+        "rating": null,
+        "review_count": null,
+        "verification_note": "Short link resolved successfully. Listing content requires JavaScript; hours, ratings and reviews were not readable from Google Maps. Hours and address above come from the official website."
+      },
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/contact-10",
+        "https://maps.app.goo.gl/xwPvNhttGsFBMVcY8",
+        "https://in.linkedin.com/jobs/view/cafe-team-lead-at-dach-nona-4416021063"
+      ]
+    },
+    "brand_story": {
+      "summary": "A family-inspired ice cream and dessert business focused on ingredient transparency. Its published story describes getting an ice cream machine in June 2024.",
+      "mission_summary": "Make desserts with straightforward ingredients and earn families’ trust.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/about-3"
+      ]
+    },
+    "about_the_brand": {
+      "brand_name": "Dach & Nona",
+      "legal_entity": "Subira Desserts Private Limited",
+      "website": "https://www.dachnona.com/",
+      "business_type": "Craft ice creams and desserts",
+      "founder_names": null,
+      "founding_date": null,
+      "note": "The published story gives an equipment milestone, not a verified incorporation date.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/",
+        "https://www.dachnona.com/about-3"
+      ]
+    },
+    "team_and_policy": {
+      "brand_claims": {
+        "avoids": [
+          "stabilizers",
+          "emulsifiers",
+          "additives",
+          "preservatives"
+        ],
+        "uses": [
+          "real fruits",
+          "fresh A2 milk from Country Delight",
+          "eggs from Bajaj Eggs",
+          "small-batch production",
+          "bean-to-bar chocolate"
+        ]
+      },
+      "note": "These are the brand’s published claims, not independent certifications or an item-level allergen guarantee.",
+      "team_size": null,
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/"
+      ]
+    },
+    "amenities": {
+      "wifi": {
+        "available": null,
+        "password": null
+      },
+      "parking": null,
+      "pet_friendly": null,
+      "wheelchair_accessible": null,
+      "outdoor_seating": null,
+      "note": "These amenities were not verified in the reviewed sources. Ask the cafe instead of treating unknown as unavailable.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/contact-10"
+      ]
+    },
+    "events_and_tours": {
+      "factory_visit": {
+        "name": "Ice Cream Factory Visit and Tasting",
+        "booking_link": "https://www.dachnona.com/book-online",
+        "listed_price": 1000,
+        "currency": "INR",
+        "price_basis": null,
+        "duration_minutes": null,
+        "available_slots": null,
+        "description": "A family-oriented factory experience with ingredient discovery and tasting.",
+        "booking_note": "Check the booking page or contact the cafe for dates, duration, capacity and whether the price is per person or booking."
+      },
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/book-online"
+      ]
+    }
+  }
+}

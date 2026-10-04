@@ -1,0 +1,126 @@
+{
+  "researched_on": "2026-09-27",
+  "tenant_key": "cafe_dach_nona",
+  "primary_location": "2173, Ramgarh Road, Sector 64, Gurugram, Haryana 122102, India",
+  "scope": "Public business knowledge snapshot for testing; no tenant database or runtime configuration was updated.",
+  "sources": [
+    {
+      "id": "home",
+      "url": "https://www.dachnona.com/",
+      "status": "read",
+      "kind": "official_website"
+    },
+    {
+      "id": "contact",
+      "url": "https://www.dachnona.com/contact-10",
+      "status": "read",
+      "kind": "official_website"
+    },
+    {
+      "id": "about",
+      "url": "https://www.dachnona.com/about-3",
+      "status": "read",
+      "kind": "official_website"
+    },
+    {
+      "id": "menu",
+      "url": "https://www.dachnona.com/online-ordering",
+      "status": "read",
+      "kind": "official_website"
+    },
+    {
+      "id": "visits",
+      "url": "https://www.dachnona.com/book-online",
+      "status": "read",
+      "kind": "official_website"
+    },
+    {
+      "id": "shipping",
+      "url": "https://www.dachnona.com/english-shipping-policy",
+      "status": "read",
+      "kind": "official_website"
+    },
+    {
+      "id": "listing",
+      "url": "https://in.linkedin.com/jobs/view/cafe-team-lead-at-dach-nona-4416021063",
+      "status": "read",
+      "kind": "brand_job_listing",
+      "used_for": "Discovery of the Maps short link only."
+    },
+    {
+      "id": "maps",
+      "url": "https://maps.app.goo.gl/xwPvNhttGsFBMVcY8",
+      "resolved_url": "https://www.google.com/maps/place/Dach+%26+Nona,+The+Ice+Cream+Factory/@28.3912776,77.0651871,17z/data=!3m1!4b1!4m6!3m5!1s0x390d2372971f59a9:0x9d45d7812a7c16c3!8m2!3d28.3912776!4d77.067762!16s%2Fg%2F11wxqklpvs",
+      "status": "redirect_verified_content_requires_javascript",
+      "kind": "google_maps",
+      "used_for": "Listing name and pin from the resolved URL only. Rating, reviews and business hours not extracted."
+    },
+    {
+      "id": "google",
+      "url": "https://www.google.com/search?q=%22Dach+%26+Nona%22+Gurugram",
+      "status": "fetched_but_results_not_readable",
+      "kind": "google_search",
+      "used_for": "Direct Google search attempted; it returned a redirect/JavaScript page. General web search supplied discoverable sources."
+    },
+    {
+      "id": "order",
+      "url": "https://order.dachnona.com/",
+      "status": "linked_but_content_unavailable",
+      "kind": "official_ordering"
+    },
+    {
+      "id": "refund",
+      "url": "https://www.dachnona.com/english-refund-policy",
+      "status": "linked_but_content_unavailable",
+      "kind": "official_policy"
+    }
+  ],
+  "conflicts_and_limits": [
+    {
+      "topic": "opening_hours",
+      "old_fixture": "11:00–23:00, Tuesday–Sunday; major holidays closed",
+      "selected": "12:00–23:30, Tuesday–Sunday; Monday closed; holidays unknown",
+      "source_url": "https://www.dachnona.com/contact-10"
+    },
+    {
+      "topic": "factory_visit",
+      "old_fixture": "INR 500, weekends, 2 hours",
+      "selected": "INR 1000 listed; date, duration and price basis unknown",
+      "source_url": "https://www.dachnona.com/book-online"
+    },
+    {
+      "topic": "delivery_radius",
+      "resolution": "Keep both radius and fee bands with the conflict note; do not infer guaranteed 15 km coverage.",
+      "source_url": "https://www.dachnona.com/english-shipping-policy"
+    },
+    {
+      "topic": "old_menu_names",
+      "resolution": "Use current published names. Do not silently equate Go Bananas with Eggless Banoffee, Classic Tiramisu with Tiramisu, or Chocolate Lamington with Classic Lamington."
+    },
+    {
+      "topic": "other_outlets",
+      "resolution": "Search also surfaced a DLF Phase 4 delivery listing. It was excluded to avoid mixing another outlet’s address, prices and policies into the Ramgarh Road fixture."
+    },
+    {
+      "topic": "missing_details",
+      "resolution": "Stock, size variants, nutritional values, full allergens, amenities, founders and team size are not invented."
+    },
+    {
+      "topic": "catalog_integration",
+      "resolution": "Knowledge uploads do not create MenuItem records or basket variants. Real checkout testing still needs a separate menu import."
+    }
+  ],
+  "synthetic_content": [
+    "Sample user questions and expected-answer assertions.",
+    "Editorial recommendations and generic how-to-order steps, explicitly labelled inside their payloads."
+  ],
+  "import_files": [
+    "01_cafe_knowledge.json",
+    "02_menu_knowledge.json",
+    "03_ordering_knowledge.json"
+  ],
+  "combined_import_file": "knowledge_base.json",
+  "records_file": "knowledge_records.json",
+  "record_count": 33,
+  "menu_item_count": 26
+}

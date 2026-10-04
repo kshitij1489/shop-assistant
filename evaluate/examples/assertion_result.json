@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "sample-run",
+  "scenario_id": "sessions:s129_checkout_price_changed",
+  "scenario_instance_id": "b8576ec7-ebad-5318-b720-54174c381171",
+  "attempt": 1,
+  "event_id": "event-assertion-1",
+  "assertion_id": "assertion-1",
+  "original_turn_index": 12,
+  "request_id": "request-1",
+  "evaluator": "state-v1",
+  "outcome": "BLOCKED",
+  "criterion": "Changed price requires fresh quote.",
+  "explanation": "Illustrative snapshot does not expose quote state.",
+  "evidence_ids": [
+    "event-turn-1",
+    "snapshot-1"
+  ]
+}

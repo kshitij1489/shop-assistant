@@ -1,0 +1,38 @@
+{% extends "users/base_tenant.html" %}
+
+{% block tenant_content %}
+<h2>Customer Directory</h2>
+<p>These are the users who have interacted with your chatbot across platforms.</p>
+
+{% if customers %}
+<div class="table-wrap" role="region" aria-label="Data table" tabindex="0">
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Phone</th>
+      <th>WhatsApp</th>
+      <th>Telegram ID</th>
+      <th>Address</th>
+      <th>Created At</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in customers %}
+    <tr>
+      <td>{{ customer.name }}</td>
+      <td>{{ customer.phone }}</td>
+      <td>{{ customer.whatsapp_number|default:"—" }}</td>
+      <td>{{ customer.telegram_id|default:"—" }}</td>
+      <td>{{ customer.address|truncatechars:50 }}</td>
+      <td>{{ customer.created_at|date:"M d, Y H:i" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p>No customers have interacted yet.</p>
+{% endif %}
+
+{% endblock %}

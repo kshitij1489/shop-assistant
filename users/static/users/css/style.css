@@ -1,0 +1,88 @@
+/* --- base layout so we can center vertically & horizontally --- */
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;                 /* remove outer margin so centering is true center */
+  min-height: 100vh;         /* full viewport height */
+  display: flex;             /* enable vertical centering */
+  flex-direction: column;
+}
+
+/* Center the main app content (title, version, assistant text, mic, status, controls) */
+.va-app {
+  flex: 1;                   /* take available height */
+  display: grid;             /* simple way to center both axes */
+  place-items: center;
+  padding: 2rem;             /* keep your original spacing */
+  text-align: center;        /* center inline text */
+}
+
+/* Header line (title + version) centered instead of space-between */
+.va-header-inner {
+  display: flex;
+  justify-content: center;   /* was space-between */
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Ensure the inner block (mic + status + controls) is centered in a column */
+.va-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* -------- your existing styles (kept) -------- */
+
+.va-mic {
+  position: relative;
+  font-size: 2rem;
+  border: none;
+  background: #fff;
+  border-radius: 50%;
+  width: 100px; height: 100px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,.2);
+}
+
+.va-mic-halo {
+  position: absolute;
+  top: -10px; left: -10px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(0, 150, 255, 0.2);
+  display: none;
+}
+
+.va-mic.listening #micHalo {
+  display: block;
+  animation: pulse 2s infinite;
+}
+
+.va-mic.processing {
+  background: #fdd;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  70% { transform: scale(1.1); opacity: 0; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.va-status { margin-top: 1rem; }
+.va-error { color: red; font-size: 0.9rem; }
+.va-right { text-align: right; }
+.va-strong { font-weight: bold; }
+
+/* Basket section still spans full width below; center its headings/text if desired */
+.va-basket { margin-top: 3rem; }
+.va-table { width: 100%; border-collapse: collapse; }
+.va-table th, .va-table td {
+  border: 1px solid #ddd; padding: 0.5rem;
+}
+
+.va-table-wrap { max-width: 720px; margin: 0 auto; }

@@ -1,0 +1,28 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+<h2>Integration issue: {{ issue.code }}</h2>
+<p><a href="{% url 'commerce:operations' %}">Integration operations and history</a></p>
+<p>Issue {{ issue.pk }} · created {{ issue.created_at }} · location {{ record.location_id }}</p>
+<p>Order {{ record.order_id }} · accepted order {{ record.pk }} · state {{ record.state }} · POS {{ record.pos_state }} · expires {{ record.expires_at }}</p>
+<p>Accepted total {{ record.total_minor }} minor units {{ record.currency }} (exponent {{ record.exponent }}) · snapshot hash {{ record.snapshot_hash }}</p>
+<pre>{{ issue.detail }}</pre>
+<h3>Payments</h3>
+<ul>{% for payment in payments %}<li>{{ payment.pk }} — {{ payment.status }} — provider reference {{ payment.external_id|default:'unknown' }} — requested/captured/refunded {{ payment.requested_minor }}/{{ payment.captured_minor }}/{{ payment.refunded_minor }} minor units {{ payment.currency }} — sequence {{ payment.sequence }} — connection {{ payment.connection_id }} ({{ payment.connection.provider }}, {{ payment.connection.account_id }}, {{ payment.connection.environment }})</li>{% empty %}<li>No online payment.</li>{% endfor %}</ul>
+<h3>Commands and provider keys</h3>
+<ul>{% for command in commands %}<li>{{ command.pk }} — {{ command.kind }} — {{ command.status }} — attempts {{ command.attempts }} — error {{ command.error|default:'none' }} — lease until {{ command.lease_until|default:'none' }} — connection {{ command.connection_id }} ({{ command.connection.provider }}, {{ command.connection.account_id }}, {{ command.connection.environment }})</li>{% empty %}<li>No commands.</li>{% endfor %}</ul>
+<h3>Provider order references</h3>
+<ul>{% for mapping in mappings %}<li>{{ mapping.external_id }} — connection {{ mapping.connection_id }}</li>{% empty %}<li>No observed provider order reference.</li>{% endfor %}</ul>
+<h3>Stock reservations</h3>
+<ul>{% for hold in reservations %}<li>{{ hold.pk }} — stock {{ hold.stock_id }} — quantity {{ hold.quantity }} — {{ hold.state }} — provider acknowledged {{ hold.acknowledged|yesno:'yes,no' }} — current on hand/reserved/pending consumed {{ hold.stock.on_hand }}/{{ hold.stock.reserved }}/{{ hold.stock.pending_consumed }}</li>{% empty %}<li>No reservations.</li>{% endfor %}</ul>
+{% include 'commerce/recovery_guidance.html' %}
+{% if issue.resolved_at %}
+<h3>Recorded resolution</h3>
+<p>{{ issue.resolved_at }} — {{ issue.resolved_by|default:'Legacy resolution (actor not recorded)' }}</p>
+<h4>Evidence</h4><p>{{ issue.resolution_evidence|linebreaksbr }}</p>
+<h4>Actions and disposition</h4><p>{{ issue.resolution_note|linebreaksbr }}</p>
+{{ form.non_field_errors }}
+{% else %}
+<h3>Record resolution</h3>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Record investigation resolution</button></form>
+{% endif %}
+{% endblock %}

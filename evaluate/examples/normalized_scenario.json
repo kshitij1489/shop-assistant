@@ -1,0 +1,292 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "sessions:s129_checkout_price_changed",
+  "source_id": "s129_checkout_price_changed",
+  "namespace": "sessions",
+  "source_hash": "e96e4014effdcd5a2b591c4c3a314c8bce0084bf12fabe192da0d22d7977fec1",
+  "scenario_plan_version": "baseline-v1",
+  "priority": "P0",
+  "summary": "A catalog price change between quote and confirmation must not silently increase the charge.",
+  "tags": [
+    "checkout",
+    "catalog_change",
+    "quote_invalidation",
+    "evaluator_setup_action"
+  ],
+  "setup_profiles": [
+    "checkout_sandbox"
+  ],
+  "clock": {
+    "at": "2026-09-29T14:00:00+05:30",
+    "timezone": "Asia/Kolkata"
+  },
+  "setup": {
+    "catalog": "published_synthetic",
+    "variant_name": "QA standard",
+    "stock": "none",
+    "customer": null,
+    "address_lookup": null,
+    "payment": "fake_adapter",
+    "payment_methods": [
+      "cash",
+      "online"
+    ],
+    "modes": [
+      "pickup",
+      "delivery"
+    ],
+    "scheduling": false,
+    "horizon_days": null,
+    "lead_minutes": null,
+    "preparation_minutes": 30,
+    "delivery_minimum_minor": 70000,
+    "delivery_fee_minor": 10000,
+    "pickup_minimum_minor": 0,
+    "pickup_fee_minor": 0,
+    "tax_basis_points": 0,
+    "discounts": false,
+    "modifiers": false,
+    "currency": "INR",
+    "hours": "tuesday_sunday_12_00_23_30",
+    "contact_fixture": "qa_guest_dummy_no_notifications",
+    "required_pickup": [
+      "name",
+      "phone"
+    ],
+    "required_delivery": [
+      "name",
+      "phone",
+      "address",
+      "postal_code"
+    ],
+    "allowed_postal_codes": [
+      "122102"
+    ]
+  },
+  "setup_inputs": [
+    "01_cafe_knowledge.json",
+    "02_menu_knowledge.json",
+    "03_ordering_knowledge.json"
+  ],
+  "turns": [
+    {
+      "original_turn_index": 0,
+      "user_turn_index": 0,
+      "text": "Add 2 Pistachio Ice Cream.",
+      "intent": "placing_order",
+      "sub_intent": "add_to_basket",
+      "turn_kind": "question",
+      "expected_facts": [
+        "Add exactly 2 of the seeded variant; item subtotal INR 920."
+      ],
+      "must_not": [],
+      "parts": [],
+      "answers_ask_from_turn": null,
+      "ignores_ask_from_turn": null
+    },
+    {
+      "original_turn_index": 2,
+      "user_turn_index": 1,
+      "text": "checkout",
+      "intent": "placing_order",
+      "sub_intent": "order_confirmation",
+      "turn_kind": "followup",
+      "expected_facts": [
+        "Start a checkout draft and request fulfillment mode; no order yet."
+      ],
+      "must_not": [],
+      "parts": [],
+      "answers_ask_from_turn": null,
+      "ignores_ask_from_turn": null
+    },
+    {
+      "original_turn_index": 4,
+      "user_turn_index": 2,
+      "text": "pickup",
+      "intent": "placing_order",
+      "sub_intent": "order_channels_and_modes",
+      "turn_kind": "followup",
+      "expected_facts": [
+        "Select pickup and request required missing contact/fulfillment fields."
+      ],
+      "must_not": [],
+      "parts": [],
+      "answers_ask_from_turn": null,
+      "ignores_ask_from_turn": null
+    },
+    {
+      "original_turn_index": 6,
+      "user_turn_index": 3,
+      "text": "name: QA Guest",
+      "intent": "placing_order",
+      "sub_intent": "order_confirmation",
+      "turn_kind": "followup",
+      "expected_facts": [
+        "Save QA Guest as the test contact name; request the next missing field."
+      ],
+      "must_not": [],
+      "parts": [],
+      "answers_ask_from_turn": null,
+      "ignores_ask_from_turn": null
+    },
+    {
+      "original_turn_index": 8,
+      "user_turn_index": 4,
+      "text": "phone: 0000000000",
+      "intent": "placing_order",
+      "sub_intent": "order_confirmation",
+      "turn_kind": "followup",
+      "expected_facts": [
+        "Save the synthetic test phone; continue collecting required fields or payment choice."
+      ],
+      "must_not": [],
+      "parts": [],
+      "answers_ask_from_turn": null,
+      "ignores_ask_from_turn": null
+    },
+    {
+      "original_turn_index": 10,
+      "user_turn_index": 5,
+      "text": "cash",
+      "intent": "placing_order",
+      "sub_intent": "order_payment",
+      "turn_kind": "followup",
+      "expected_facts": [
+        "Present pickup quote INR 920."
+      ],
+      "must_not": [],
+      "parts": [],
+      "answers_ask_from_turn": null,
+      "ignores_ask_from_turn": null
+    },
+    {
+      "original_turn_index": 12,
+      "user_turn_index": 6,
+      "text": "confirm",
+      "intent": "placing_order",
+      "sub_intent": "order_confirmation",
+      "turn_kind": "followup",
+      "expected_facts": [
+        "Detect changed component price and require basket review; no order at the stale quote."
+      ],
+      "must_not": [
+        "Do not silently charge INR 940 or preserve an invalid INR 920 quote."
+      ],
+      "parts": [],
+      "answers_ask_from_turn": null,
+      "ignores_ask_from_turn": null
+    },
+    {
+      "original_turn_index": 14,
+      "user_turn_index": 7,
+      "text": "Show me what changed before I agree.",
+      "intent": "placing_order",
+      "sub_intent": "check_order_cart",
+      "turn_kind": "followup",
+      "expected_facts": [
+        "Explain the test price change from INR 460 to INR 470 per selected variant and require explicit review before checkout."
+      ],
+      "must_not": [
+        "Do not present this artificial update as a newly verified public website price."
+      ],
+      "parts": [],
+      "answers_ask_from_turn": null,
+      "ignores_ask_from_turn": null
+    }
+  ],
+  "references": [
+    {
+      "original_turn_index": 1,
+      "text": "Add exactly 2 of the seeded variant; item subtotal INR 920.",
+      "asks": null,
+      "reference_only": true
+    },
+    {
+      "original_turn_index": 3,
+      "text": "Start a checkout draft and request fulfillment mode; no order yet.",
+      "asks": null,
+      "reference_only": true
+    },
+    {
+      "original_turn_index": 5,
+      "text": "Select pickup and request required missing contact/fulfillment fields.",
+      "asks": null,
+      "reference_only": true
+    },
+    {
+      "original_turn_index": 7,
+      "text": "Save QA Guest as the test contact name; request the next missing field.",
+      "asks": null,
+      "reference_only": true
+    },
+    {
+      "original_turn_index": 9,
+      "text": "Save the synthetic test phone; continue collecting required fields or payment choice.",
+      "asks": null,
+      "reference_only": true
+    },
+    {
+      "original_turn_index": 11,
+      "text": "Present pickup quote INR 920.",
+      "asks": null,
+      "reference_only": true
+    },
+    {
+      "original_turn_index": 13,
+      "text": "Detect changed component price and require basket review; no order at the stale quote.",
+      "asks": null,
+      "reference_only": true
+    },
+    {
+      "original_turn_index": 15,
+      "text": "Explain the test price change from INR 460 to INR 470 per selected variant and require explicit review before checkout.",
+      "asks": null,
+      "reference_only": true
+    }
+  ],
+  "knowledge_refs": [
+    "knowledge_base.json#/placing_order/order_channels_and_modes"
+  ],
+  "workflow_refs": [
+    "chatbot_core/capabilities.py",
+    "docs/chatbot/catalog_ordering.md",
+    "docs/chatbot/checkout.md",
+    "chatbot_core/logic/cafe/intent_handler/location_based.py",
+    "chatbot_core/logic/cafe/workflow/lifecycle.py"
+  ],
+  "actions": [
+    {
+      "schema_version": "1.0.0",
+      "action_id": "price-change",
+      "scenario_id": "sessions:s129_checkout_price_changed",
+      "original_turn_index": 12,
+      "requirement_ref": "/before_turn/0/action",
+      "requirement_hash": "a1369114579cd588449cd411a17b79c5e13dad89aa7e973a9188038ade34aad9",
+      "review_ref": "evaluate/examples/README.md",
+      "operation": {
+        "kind": "catalog_control",
+        "item_name": "Pistachio Ice Cream",
+        "variant_name": "QA standard",
+        "price_minor": 47000,
+        "available": null
+      }
+    }
+  ],
+  "blockers": [
+    {
+      "code": "unsupported_setup",
+      "location": "sessions:s129_checkout_price_changed",
+      "message": "Required capabilities are unavailable for catalog_sandbox."
+    },
+    {
+      "code": "unsupported_setup",
+      "location": "sessions:s129_checkout_price_changed",
+      "message": "Required capabilities are unavailable for checkout_sandbox."
+    },
+    {
+      "code": "unsupported_action",
+      "location": "sessions:s129_checkout_price_changed/before_turn/0/action",
+      "message": "No control implementation declares this action capability."
+    }
+  ]
+}

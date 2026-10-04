@@ -1,0 +1,206 @@
+{
+  "placing_order": {
+    "order_channels_and_modes": {
+      "online_order_links": [
+        "https://order.dachnona.com/",
+        "https://www.dachnona.com/online-ordering"
+      ],
+      "website_pickup_listed": true,
+      "website_delivery_policy_published": true,
+      "pickup_address": "2173, Ramgarh Road, Sector 64, Gurugram, Haryana 122102, India",
+      "note": "The order subdomain is linked from the official website but its checkout could not be inspected.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering",
+        "https://www.dachnona.com/english-shipping-policy"
+      ]
+    },
+    "how_to_order": {
+      "steps": [
+        "Open the official ordering link.",
+        "Select items and any available options.",
+        "Select pickup or check delivery for your address.",
+        "Review current prices, fees and payment options before submitting."
+      ],
+      "note": "General testing guidance; checkout controls and availability were not verified.",
+      "ordering_url": "https://order.dachnona.com/",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering",
+        "https://www.dachnona.com/english-shipping-policy"
+      ]
+    },
+    "special_requests": {
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "note": "Refer the customer directly to the store. Do not collect details, save the request, change the basket or checkout, or promise staff can fulfill it.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/contact-10"
+      ],
+      "chatbot_supported": false,
+      "response": "Sorry, we cannot take special requests through the chatbot. Please contact the store directly for any special requests."
+    },
+    "order_scheduling": {
+      "status": "not_verified",
+      "note": "Refer the customer directly to the store. Do not collect details, save the request, change the basket or checkout, or promise staff can fulfill it.",
+      "chatbot_supported": false,
+      "response": "Sorry, we cannot schedule orders through the chatbot. Please contact the store directly to arrange a scheduled order."
+    }
+  },
+  "order_enquiry": {
+    "general_order_enquiry": {
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "delivery": {
+        "typical_radius_km": {
+          "min": 5,
+          "max": 7
+        },
+        "minimum_order_inr": 700,
+        "estimated_delivery_minutes": {
+          "min": 45,
+          "max": 60
+        },
+        "estimate_guaranteed": false,
+        "published_delivery_fees": [
+          {
+            "distance_km": "less than 8",
+            "fee_inr": 100
+          },
+          {
+            "distance_km": "8 to 15",
+            "fee_inr": 175
+          }
+        ],
+        "conflict_note": "The same policy describes a typical 5–7 km service radius but lists fees out to 15 km. These fee bands do not establish serviceability; confirm the address and current fee at checkout.",
+        "as_of": "2026-09-27",
+        "source_urls": [
+          "https://www.dachnona.com/english-shipping-policy"
+        ]
+      },
+      "pickup_estimate_minutes": 30,
+      "pickup_note": "The online-ordering page shows up to 30 minutes; it is a snapshot, not a live ETA.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/contact-10",
+        "https://www.dachnona.com/online-ordering",
+        "https://www.dachnona.com/english-shipping-policy"
+      ]
+    },
+    "order_status_tracking": {
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "published_confirmation_channels": [
+        "SMS",
+        "WhatsApp"
+      ],
+      "live_order_status": null,
+      "note": "Use a real order record or contact support; this fixture cannot establish payment, dispatch or delivery.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/english-shipping-policy",
+        "https://www.dachnona.com/contact-10"
+      ]
+    },
+    "missing_or_wrong_items": {
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "guidance": "Report the issue promptly; staff assess possible remedies.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/english-shipping-policy",
+        "https://www.dachnona.com/contact-10"
+      ]
+    },
+    "refund_and_cancellation": {
+      "refund_policy_url": "https://www.dachnona.com/english-refund-policy",
+      "refund_policy_fetch_status": "unavailable",
+      "shipping_policy_summary": "Remedies are assessed case by case; no automatic refund or replacement is promised.",
+      "cancellation_window_minutes": null,
+      "refund_processing_days": null,
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/english-shipping-policy",
+        "https://www.dachnona.com/contact-10"
+      ]
+    },
+    "address_or_contact_update": {
+      "guidance": "Contact support immediately. Changes may be unavailable after preparation or dispatch.",
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/english-shipping-policy",
+        "https://www.dachnona.com/contact-10"
+      ]
+    },
+    "delivery_problems": {
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "guidance": "Ask support about delays or delivery issues. Published delivery times are estimates.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/english-shipping-policy",
+        "https://www.dachnona.com/contact-10"
+      ]
+    },
+    "get_order_history": {
+      "status": "requires_live_customer_data",
+      "orders": null,
+      "note": "No customer histories are included in public business knowledge."
+    }
+  },
+  "location_based": {
+    "verify_address_for_delivery": {
+      "typical_radius_km": {
+        "min": 5,
+        "max": 7
+      },
+      "minimum_order_inr": 700,
+      "estimated_delivery_minutes": {
+        "min": 45,
+        "max": 60
+      },
+      "estimate_guaranteed": false,
+      "published_delivery_fees": [
+        {
+          "distance_km": "less than 8",
+          "fee_inr": 100
+        },
+        {
+          "distance_km": "8 to 15",
+          "fee_inr": 175
+        }
+      ],
+      "conflict_note": "The same policy describes a typical 5–7 km service radius but lists fees out to 15 km. These fee bands do not establish serviceability; confirm the address and current fee at checkout.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/english-shipping-policy"
+      ]
+    }
+  }
+}

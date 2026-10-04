@@ -1,0 +1,395 @@
+{
+  "menu_items": {
+    "pricing": {
+      "items": {
+        "Old Fashion Vanilla Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Eggless Banoffee Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Pistachio Ice Cream": {
+          "listed_price": 460,
+          "currency": "INR",
+          "size": null
+        },
+        "Bean-to-Bar Chocolate Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Rose Cardamom Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Strawberry Cream Cheese Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Coffee Mascarpone Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Paan & Gulkand Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Fig Orange Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Sunshine Limone Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Masala Chai Ice Cream": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Eggless Chocolate Overload": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Coconut and Pineapple": {
+          "listed_price": 380,
+          "currency": "INR",
+          "size": null
+        },
+        "Tiramisu": {
+          "listed_price": 415,
+          "currency": "INR",
+          "size": null
+        },
+        "Boston Cream Pie": {
+          "listed_price": 410,
+          "currency": "INR",
+          "size": null
+        },
+        "Classic Lamington": {
+          "listed_price": 335,
+          "currency": "INR",
+          "size": null
+        },
+        "New York Baked Cheesecake": {
+          "listed_price": 300,
+          "currency": "INR",
+          "size": null
+        },
+        "Tres Leches": {
+          "listed_price": 425,
+          "currency": "INR",
+          "size": null
+        },
+        "Brownie Cheesecake": {
+          "listed_price": 340,
+          "currency": "INR",
+          "size": null
+        },
+        "Orange Chocolate Cheesecake": {
+          "listed_price": 340,
+          "currency": "INR",
+          "size": null
+        },
+        "Fudgy Chocolate Brownie (2pcs)": {
+          "listed_price": 320,
+          "currency": "INR",
+          "size": null
+        },
+        "Coffee Banana Cheesecake": {
+          "listed_price": 340,
+          "currency": "INR",
+          "size": null
+        },
+        "Brownie With Vanilla Ice Cream & Fudge Sauce": {
+          "listed_price": 350,
+          "currency": "INR",
+          "size": null
+        },
+        "Dates with Chocolates": {
+          "listed_price": 460,
+          "currency": "INR",
+          "size": null
+        },
+        "Dates with Fig & Orange": {
+          "listed_price": 460,
+          "currency": "INR",
+          "size": null
+        },
+        "Dates Rose & Nuts": {
+          "listed_price": 350,
+          "currency": "INR",
+          "size": null
+        }
+      },
+      "note": "Published website listing prices, not a quote or size-specific checkout catalog. Serving size, taxes and current checkout price were not verified.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "menu_category": {
+      "Old Fashion Vanilla Ice Cream": "Comfort Classics Ice Creams",
+      "Eggless Banoffee Ice Cream": "Comfort Classics Ice Creams",
+      "Pistachio Ice Cream": "Comfort Classics Ice Creams",
+      "Bean-to-Bar Chocolate Ice Cream": "Dach & Nona Originals",
+      "Rose Cardamom Ice Cream": "Dach & Nona Originals",
+      "Strawberry Cream Cheese Ice Cream": "Dach & Nona Originals",
+      "Coffee Mascarpone Ice Cream": "Dach & Nona Originals",
+      "Paan & Gulkand Ice Cream": "Dach & Nona Originals",
+      "Fig Orange Ice Cream": "The Curiosity Cabinet",
+      "Sunshine Limone Ice Cream": "The Curiosity Cabinet",
+      "Masala Chai Ice Cream": "The Curiosity Cabinet",
+      "Eggless Chocolate Overload": "The Curiosity Cabinet",
+      "Coconut and Pineapple": "The Curiosity Cabinet",
+      "Tiramisu": "Desserts",
+      "Boston Cream Pie": "Desserts",
+      "Classic Lamington": "Desserts",
+      "New York Baked Cheesecake": "Desserts",
+      "Tres Leches": "Desserts",
+      "Brownie Cheesecake": "Desserts",
+      "Orange Chocolate Cheesecake": "Desserts",
+      "Fudgy Chocolate Brownie (2pcs)": "Desserts",
+      "Coffee Banana Cheesecake": "Desserts",
+      "Brownie With Vanilla Ice Cream & Fudge Sauce": "Desserts",
+      "Dates with Chocolates": "Dates Sweetened Ice Creams",
+      "Dates with Fig & Orange": "Dates Sweetened Ice Creams",
+      "Dates Rose & Nuts": "Dates Sweetened Ice Creams"
+    },
+    "explore_options": {
+      "categories": {
+        "Comfort Classics Ice Creams": [
+          "Old Fashion Vanilla Ice Cream",
+          "Eggless Banoffee Ice Cream",
+          "Pistachio Ice Cream"
+        ],
+        "Dach & Nona Originals": [
+          "Bean-to-Bar Chocolate Ice Cream",
+          "Rose Cardamom Ice Cream",
+          "Strawberry Cream Cheese Ice Cream",
+          "Coffee Mascarpone Ice Cream",
+          "Paan & Gulkand Ice Cream"
+        ],
+        "The Curiosity Cabinet": [
+          "Fig Orange Ice Cream",
+          "Sunshine Limone Ice Cream",
+          "Masala Chai Ice Cream",
+          "Eggless Chocolate Overload",
+          "Coconut and Pineapple"
+        ],
+        "Desserts": [
+          "Tiramisu",
+          "Boston Cream Pie",
+          "Classic Lamington",
+          "New York Baked Cheesecake",
+          "Tres Leches",
+          "Brownie Cheesecake",
+          "Orange Chocolate Cheesecake",
+          "Fudgy Chocolate Brownie (2pcs)",
+          "Coffee Banana Cheesecake",
+          "Brownie With Vanilla Ice Cream & Fudge Sauce"
+        ],
+        "Dates Sweetened Ice Creams": [
+          "Dates with Chocolates",
+          "Dates with Fig & Orange",
+          "Dates Rose & Nuts"
+        ]
+      },
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "availability": {
+      "listed_items": [
+        "Old Fashion Vanilla Ice Cream",
+        "Eggless Banoffee Ice Cream",
+        "Pistachio Ice Cream",
+        "Bean-to-Bar Chocolate Ice Cream",
+        "Rose Cardamom Ice Cream",
+        "Strawberry Cream Cheese Ice Cream",
+        "Coffee Mascarpone Ice Cream",
+        "Paan & Gulkand Ice Cream",
+        "Fig Orange Ice Cream",
+        "Sunshine Limone Ice Cream",
+        "Masala Chai Ice Cream",
+        "Eggless Chocolate Overload",
+        "Coconut and Pineapple",
+        "Tiramisu",
+        "Boston Cream Pie",
+        "Classic Lamington",
+        "New York Baked Cheesecake",
+        "Tres Leches",
+        "Brownie Cheesecake",
+        "Orange Chocolate Cheesecake",
+        "Fudgy Chocolate Brownie (2pcs)",
+        "Coffee Banana Cheesecake",
+        "Brownie With Vanilla Ice Cream & Fudge Sauce",
+        "Dates with Chocolates",
+        "Dates with Fig & Orange",
+        "Dates Rose & Nuts"
+      ],
+      "live_stock_verified": false,
+      "note": "Being listed on the website does not establish current availability. No stock quantities were published.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "dietary_preferences": {
+      "explicitly_eggless": [
+        "Eggless Banoffee Ice Cream",
+        "Eggless Chocolate Overload",
+        "New York Baked Cheesecake",
+        "Tres Leches",
+        "Dates with Chocolates",
+        "Dates with Fig & Orange"
+      ],
+      "explicitly_contains_eggs": [
+        "Tiramisu",
+        "Boston Cream Pie",
+        "Classic Lamington"
+      ],
+      "dates_sweetened_no_added_sugar_claim": [
+        "Dates with Chocolates",
+        "Dates with Fig & Orange",
+        "Dates Rose & Nuts"
+      ],
+      "vegan_options": null,
+      "gluten_free_options": null,
+      "nut_free_options": null,
+      "note": "Only explicit item claims are included. Unlisted items have unknown egg status. No-added-sugar is not a sugar-free claim. Confirm dietary requirements with staff.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "allergens": {
+      "explicitly_contains_eggs": [
+        "Tiramisu",
+        "Boston Cream Pie",
+        "Classic Lamington"
+      ],
+      "nut_ingredients_named": {
+        "Pistachio Ice Cream": [
+          "pistachio"
+        ],
+        "Dates Rose & Nuts": [
+          "nuts; types unspecified"
+        ]
+      },
+      "complete_allergen_matrix": null,
+      "cross_contact_policy": null,
+      "note": "Ingredient mentions are incomplete. Absence from this list never means allergen-free. Contact the cafe for an item-specific check.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "ingredients": {
+      "examples_only": {
+        "Old Fashion Vanilla Ice Cream": [
+          "Madagascar vanilla"
+        ],
+        "Pistachio Ice Cream": [
+          "pistachios"
+        ],
+        "Coffee Mascarpone Ice Cream": [
+          "coffee",
+          "mascarpone"
+        ]
+      },
+      "complete_recipes": null,
+      "note": "Only selected ingredients mentioned in public descriptions; not full recipes or allergen lists.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "nutrition": {
+      "status": "not_verified",
+      "note": "No verified calorie, macronutrient or sugar-per-serving table was found. Do not reuse estimated values from the older fixture."
+    },
+    "portion_and_size": {
+      "status": "not_verified",
+      "note": "Website listing prices were visible, but volume and weight variants were not. Do not infer scoop or tub volumes. The brownie listing explicitly names 2 pieces."
+    },
+    "preparation": {
+      "brand_process": [
+        "small-batch production",
+        "bean-to-bar chocolate"
+      ],
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/"
+      ]
+    },
+    "source_quality": {
+      "published_suppliers": {
+        "milk": "Country Delight (A2 milk)",
+        "eggs": "Bajaj Eggs"
+      },
+      "note": "Published brand sourcing claims; not proof of every item’s recipe.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/"
+      ]
+    },
+    "recommendations": {
+      "status": "test_editorial_suggestions",
+      "suggestions": [
+        {
+          "preference": "coffee",
+          "item": "Coffee Mascarpone Ice Cream"
+        },
+        {
+          "preference": "nuts",
+          "item": "Pistachio Ice Cream"
+        },
+        {
+          "preference": "eggless dessert",
+          "item": "New York Baked Cheesecake"
+        }
+      ],
+      "note": "Suggestions authored for testing from item names and explicit dietary claims; not best-seller rankings.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "specialty_items": {
+      "category": "Dach & Nona Originals",
+      "items": [
+        "Bean-to-Bar Chocolate Ice Cream",
+        "Rose Cardamom Ice Cream",
+        "Strawberry Cream Cheese Ice Cream",
+        "Coffee Mascarpone Ice Cream",
+        "Paan & Gulkand Ice Cream"
+      ],
+      "note": "Official category, not a popularity ranking.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "flavor_profile": {
+      "status": "not_verified",
+      "note": "Use the named flavors in the catalog; detailed tasting profiles are not included in this fixture."
+    },
+    "pairings": {
+      "status": "not_verified",
+      "note": "No verified official pairing recommendations were found."
+    }
+  }
+}

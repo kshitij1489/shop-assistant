@@ -1,0 +1,7 @@
+.tabs { display:flex; gap:.5rem; overflow-x:auto; padding:.5rem 0; border-bottom:1px solid #e5e7eb; }
+.tab { padding:.35rem .6rem; border:1px solid #e5e7eb; border-bottom:none; border-radius:.5rem .5rem 0 0; background:#f9fafb; cursor:pointer; white-space:nowrap; }
+.tab.active { background:#fff; font-weight:600; }
+.center { display:flex; justify-content:center; }
+.square-card { width:220px; height:160px; display:flex; align-items:center; justify-content:center; border:2px dashed #d1d5db; border-radius:.75rem; background:#f9fafb; cursor:pointer; }
+.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; z-index:100; padding:1rem; overflow-y:auto; }
+.modal { max-height:calc(100dvh - 2rem); overflow-y:auto; width:min(700px, 92vw); background:#fff; border-radius:.75rem; padding:1rem; border:1px solid #e5e7eb; }

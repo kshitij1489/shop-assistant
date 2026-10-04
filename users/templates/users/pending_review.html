@@ -1,0 +1,25 @@
+{% extends "users/base.html" %}
+{% block title %}{% if tenant.is_active %}Application Under Review{% else %}Tenant Inactive{% endif %}{% endblock %}
+{% block content %}
+  <div style="max-width:700px;margin:2rem auto;text-align:center">
+    {% if not tenant.is_active %}
+    <h1>Tenant inactive</h1>
+    <p style="margin:.75rem 0 1.25rem">Access to <strong>{{ tenant.display_name }}</strong> has been deactivated. Contact support to restore access.</p>
+    {% else %}
+    <h1>Thanks, {{ request.user.username }}!</h1>
+    <p style="margin:.75rem 0 1.25rem">We’re reviewing <strong>{{ tenant.display_name }}</strong> and will enable your dashboard shortly.</p>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:.5rem;padding:1rem">
+      <p style="margin:0">Status: <strong>{{ status|title }}</strong></p>
+      {% if tenant.review_note %}
+        <p style="margin-top:.5rem;color:#374151">Note from reviewer: "{{ tenant.review_note }}"</p>
+      {% endif %}
+    </div>
+    {% endif %}
+    <p style="margin-top:1.5rem">
+      Need help? <a href="mailto:support@example.com">Contact support</a> or
+      <form method="post" action="{% url 'logout' %}" style="display:inline">{% csrf_token %}
+        <button type="submit" style="background:none;border:none;color:#2563eb;cursor:pointer">log out</button>
+      </form>
+    </p>
+  </div>
+{% endblock %}

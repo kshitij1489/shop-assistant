@@ -1,0 +1,10 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+<h2>Stock</h2><a href="{% url 'commerce:settings' %}">Commerce settings</a>
+<p>Track an item, an individual variant, or a modifier option. Reserved units cannot be removed from local stock. Provider-managed stock is updated by its adapter.</p>
+<div class="table-wrap" role="region" aria-label="Stock" tabindex="0"><table><thead><tr><th>Selection</th><th>Mode</th><th>Total</th><th>Reserved</th><th>Pending provider consumption</th><th>Available</th></tr></thead><tbody>
+{% for entry in stocks %}<tr><td><a href="{% url 'commerce:stock_edit' entry.pk %}">{% firstof entry.item entry.variant entry.addon.name %}</a></td><td>{{ entry.mode }}</td><td>{{ entry.on_hand }}</td><td>{{ entry.reserved }}</td><td>{{ entry.pending_consumed }}</td><td>{{ entry.available|yesno }}</td></tr>{% endfor %}
+</tbody></table></div>
+<a href="{% url 'commerce:stock' %}">New stock record</a>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Save stock</button></form>
+{% endblock %}

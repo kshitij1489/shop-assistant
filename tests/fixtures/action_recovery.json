@@ -1,0 +1,1199 @@
+[
+  {
+    "id": "consent_yes",
+    "text": "yes",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONFIRM_ORDER"
+        }
+      }
+    ]
+  },
+  {
+    "id": "consent_proceed",
+    "text": "proceed",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONFIRM_ORDER"
+        }
+      }
+    ]
+  },
+  {
+    "id": "consent_spanish_ack",
+    "text": "sí",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONFIRM_ORDER"
+        }
+      }
+    ]
+  },
+  {
+    "id": "consent_hindi_ack",
+    "text": "हाँ",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONFIRM_ORDER"
+        }
+      }
+    ]
+  },
+  {
+    "id": "explicit_consent",
+    "text": "Please place my order.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONFIRM_ORDER"
+        }
+      }
+    ]
+  },
+  {
+    "id": "asap",
+    "text": "As soon as possible, please.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CLEAR_CHECKOUT_FIELD",
+          "field": "scheduled_at",
+          "value": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "fr_clear",
+    "text": "Finalement, dès que possible, sans réservation horaire.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CLEAR_CHECKOUT_FIELD",
+          "field": "scheduled_at",
+          "value": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "invalid_date",
+    "text": "Schedule it for February 30, 2030 at 19:00.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": true,
+    "expected_units": [
+      {}
+    ]
+  },
+  {
+    "id": "correct_variant",
+    "text": "Use the available cup, two please.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "p1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add two teas in litre bottles",
+          "original_message": "Add two teas in litre bottles",
+          "question": "Bottles are unavailable. Would you like cups?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {},
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "active_pending_id": "p1"
+    },
+    "route": null,
+    "reply_to": "p1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "tea",
+                "variant_id": "cup",
+                "quantity": 2,
+                "reference": null,
+                "unresolved": []
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "resume_quantity_hindi",
+    "text": "दो",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "p1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add Jasmine Tea; quantity later",
+          "original_message": "Add Jasmine Tea; quantity later",
+          "question": "How many cups?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {},
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "active_pending_id": "p1",
+      "last_assistant_message": "We close at ten."
+    },
+    "route": null,
+    "reply_to": "p1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "tea",
+                "variant_id": "cup",
+                "quantity": 2,
+                "reference": null,
+                "unresolved": []
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "translated_product",
+    "text": "Ajoute deux thés au jasmin.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": []
+    },
+    "route": null,
+    "reply_to": null,
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "tea",
+                "variant_id": "cup",
+                "quantity": 2,
+                "reference": null,
+                "unresolved": []
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "spanish_remove",
+    "text": "Quita el brownie; deja el té.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {
+          "item_number": 7,
+          "item_id": "brownie",
+          "item_variant_id": "piece",
+          "name": "Chocolate Brownie",
+          "size": "Piece",
+          "quantity": 1
+        },
+        {
+          "item_number": 8,
+          "item_id": "tea",
+          "item_variant_id": "cup",
+          "name": "Jasmine Tea",
+          "size": "Cup",
+          "quantity": 1
+        }
+      ],
+      "open_requests": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": []
+    },
+    "route": null,
+    "reply_to": null,
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "remove",
+                "reference": {
+                  "by": "name"
+                },
+                "quantity": null
+              }
+            ],
+            "unresolved": []
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "address_retry",
+    "text": "Check it again: Flat 8, Main Road, Delhi 110001.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "a1",
+          "intent": "location_based",
+          "sub_intent": "add_delivery_address",
+          "query": "Save my delivery address",
+          "original_message": "Save Flat 8, Delhi",
+          "question": "The address lookup failed. Please try again.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "active_pending_id": "a1",
+      "address_draft": {
+        "house_or_flat": "Flat 8",
+        "city": "Delhi"
+      }
+    },
+    "route": null,
+    "reply_to": "a1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "action": null
+      }
+    ],
+    "routes": [
+      "location_based/add_delivery_address",
+      "location_based/update_delivery_address"
+    ]
+  },
+  {
+    "id": "independent_add_address",
+    "text": "Add two Jasmine Tea, and deliver to Flat 8, Main Road, Delhi 110001.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": []
+    },
+    "route": null,
+    "reply_to": null,
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "tea",
+                "variant_id": "cup",
+                "quantity": 2,
+                "reference": null,
+                "unresolved": []
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      },
+      {
+        "intent": "location_based",
+        "sub_intent": "add_delivery_address",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "unsupported_customization",
+    "text": "Add one brownie only if you can print my photo on it.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": []
+    },
+    "route": null,
+    "reply_to": null,
+    "clarify": true,
+    "expected_units": [
+      {}
+    ]
+  },
+  {
+    "id": "excessive_quantity",
+    "text": "Add 999999999999999999999 Jasmine Tea.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": []
+    },
+    "route": null,
+    "reply_to": null,
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "tea",
+                "variant_id": "cup",
+                "quantity": 999999999999999999999,
+                "reference": null,
+                "unresolved": []
+              }
+            ],
+            "unresolved": []
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "consent_ok",
+    "text": "ok",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONFIRM_ORDER"
+        }
+      }
+    ]
+  },
+  {
+    "id": "consent_sure",
+    "text": "sure",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "tea",
+          "name": "Jasmine Tea",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Chocolate Brownie",
+          "variants": [
+            {
+              "id": "piece",
+              "name": "Piece"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "c1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "Checkout",
+          "question": "Reply confirm to place the order.",
+          "missing_fields": [],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "recent_exchange": [],
+      "checkout": {
+        "mode": "pickup",
+        "awaiting": null,
+        "has_quote": true,
+        "confirmation_policy": "contextual_consent_to_current_quote",
+        "fields": {
+          "scheduled_at": "2030-01-01T19:00:00"
+        }
+      },
+      "active_pending_id": "c1"
+    },
+    "route": null,
+    "reply_to": "c1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONFIRM_ORDER"
+        }
+      }
+    ]
+  }
+]

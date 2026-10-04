@@ -1,0 +1,12 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+<h2>Provider connections</h2>
+<a href="{% url 'commerce:settings' %}">Commerce settings</a>
+<p>A connection pairs this cafe with a deployed payment or POS adapter. Configure the provider account in your adapter and test it before activating this connection.</p>
+<ul>{% for entry in connections %}<li><a href="{% url 'commerce:connection_edit' entry.pk %}">{{ entry.provider }} / {{ entry.role }} / {{ entry.environment }}</a> — {% if entry.active %}active{% else %}inactive{% endif %}</li>{% endfor %}</ul>
+<a href="{% url 'commerce:connections' %}">New connection</a>
+{% if adapter_secret %}<p>Copy this adapter signing secret now; it is only shown after creation or rotation.</p><pre>{{ adapter_secret }}</pre>{% endif %}
+{% if connection.pk and connection.secret_ref %}<p>Connection ID: <code>{{ connection.pk }}</code></p><p>Adapter API path: <code>/commerce/v1/connections/{{ connection.pk }}/</code></p>{% endif %}
+<form method="post" {% if connection.secret_ref %}action="{% url 'commerce:connection_edit' connection.pk %}"{% endif %}>{% csrf_token %}{{ form.as_p }}<button type="submit">Save connection</button>
+{% if connection.secret_ref %}<button type="submit" name="action" value="rotate">Rotate signing secret</button>{% endif %}</form>
+{% endblock %}

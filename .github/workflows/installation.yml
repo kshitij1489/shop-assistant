@@ -1,0 +1,136 @@
+name: Fresh installation
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  installation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: studio_desk_ci
+          POSTGRES_USER: studio_desk
+          POSTGRES_PASSWORD: ci-only-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U studio_desk -d studio_desk_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      STUDIO_ENV_FILE: /dev/null
+      SECRET_KEY: ci-only-django-secret-over-32-characters
+      JWT_SECRET: ci-only-jwt-secret-over-32-characters
+      PUBLIC_URL: http://localhost:8000
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      POSTGRES_DB: studio_desk_ci
+      POSTGRES_USER: studio_desk
+      POSTGRES_PASSWORD: ci-only-password
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: '5432'
+      APP_REDIS_URL: redis://127.0.0.1:6379/2
+      APP_SESSION_REDIS_URL: redis://127.0.0.1:6379/1
+      CELERY_BROKER_URL: redis://127.0.0.1:6379/0
+      OPENAI_API_KEY: ''
+      GOOGLE_MAPS_API_KEY: ''
+      MONGO_DB_URL: ''
+      DEMO_OWNER_PASSWORD: ci-only-demo-password
+      CAFE_WORKFLOW: graph
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Reject tracked private configuration and runtime files
+        run: |
+          python - <<'PY'
+          from pathlib import PurePosixPath
+          import subprocess
+
+          tracked = subprocess.check_output(['git', 'ls-files', '-z'], text=True).split('\0')
+          forbidden = []
+          for path in filter(None, tracked):
+              name = PurePosixPath(path).name
+              private_env = (name == '.env' or name.startswith('.env.')) and not name.endswith('.example')
+              if private_env or name.startswith('celerybeat-schedule') or path.startswith('nginx/certs/'):
+                  forbidden.append(path)
+          if forbidden:
+              raise SystemExit('Remove private/runtime files from Git tracking: ' + ', '.join(forbidden))
+          PY
+      - name: Install application dependencies
+        run: pip install -r requirements.txt
+      - name: Validate Compose profiles without deployment secrets
+        run: |
+          cp .env.example .env
+          docker compose --env-file .env.example -f docker-compose.yml config --quiet
+          docker compose --env-file .env.example -f docker-compose.yml -f docker-compose.tls.yml config --quiet
+          docker compose --env-file .env.example -f docker-compose.yml -f docker-compose.dev.yml config --quiet
+      - name: Migrate an empty PostgreSQL database
+        run: |
+          python manage.py check
+          python manage.py migrate --noinput
+          python manage.py migrate --check
+          python manage.py makemigrations --check --dry-run
+          python manage.py collectstatic --noinput
+      - name: Seed twice and smoke check without external providers
+        run: |
+          python manage.py seed_cafe_demo
+          python manage.py seed_cafe_demo
+          python manage.py audit_tenant_ownership --fail
+          python manage.py smoke_installation
+      - name: Verify the HTTP listener
+        run: |
+          gunicorn studio_desk.wsgi:application --bind 127.0.0.1:8000 > /tmp/studio-desk-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if python scripts/check_health.py; then break; fi
+            sleep 1
+          done
+          python scripts/check_health.py
+          curl --fail http://127.0.0.1:8000/accounts/login/ > /dev/null
+      - name: Test onboarding and deployment failure handling
+        run: python manage.py test tests.integration.test_installation tests.integration.test_installation_settings tests.integration.test_production_start --noinput
+      - name: Test café runtime contracts without provider calls
+        run: python manage.py test tests.integration.test_runtime_configuration tests.integration.test_checkout tests.integration.test_cafe_conversations --settings=tests.settings.integration --noinput
+      - name: Test commerce integrations and concurrency with real PostgreSQL migrations
+        env:
+          COMMERCE_TEST_PG_HOST: ${{ env.POSTGRES_HOST }}
+          COMMERCE_TEST_PG_PORT: ${{ env.POSTGRES_PORT }}
+          COMMERCE_TEST_PG_USER: ${{ env.POSTGRES_USER }}
+          PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        run: >-
+          python manage.py test
+          tests.integration.test_menu_sync tests.integration.test_reference_adapter tests.integration.test_commerce_operations
+          tests.integration.test_commerce tests.integration.test_checkout tests.integration.test_mock_commerce
+          --settings=tests.settings.integration_postgres --noinput
+          --report-dir=.test-reports/postgres
+      - name: Test mock service lifecycle and reporting
+        run: python -m unittest tests.framework.test_harness -v
+      - name: Test application provider integrations
+        run: >-
+          python manage.py test
+          tests.integration.test_mock_commerce tests.integration.test_location_provider
+          --settings=tests.settings.integration --noinput -v 2
+      - name: Upload integration test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-reports
+          path: .test-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Test standalone reference adapter recovery and delivery
+        run: python -m unittest mock_services.commerce_adapter.test_app -v

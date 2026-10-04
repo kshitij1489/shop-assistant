@@ -1,0 +1,17 @@
+# Explicit opt-in to live public Nominatim. No Google or location emulator calls.
+# See https://operations.osmfoundation.org/policies/nominatim/ before use.
+x-location: &location
+  EVALUATION_LOCATION_PROVIDER: openstreetmap
+  NOMINATIM_BASE_URL: https://nominatim.openstreetmap.org
+  NOMINATIM_MIN_INTERVAL_SECONDS: "1"
+  NOMINATIM_MAX_QUEUE_SECONDS: "10"
+
+services:
+  web:
+    environment: *location
+  celery_worker:
+    environment: *location
+  celery_beat:
+    environment: *location
+  init:
+    environment: *location

@@ -1,0 +1,65 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+
+<h2>Platform Activity Logs</h2>
+<p>View incoming events and session metadata from integrated platforms.</p>
+
+<h3>Webhook Logs</h3>
+{% if logs %}
+<div class="table-wrap" role="region" aria-label="Data table" tabindex="0">
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Event</th>
+      <th>Received At</th>
+      <th>Processed?</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td>{{ log.source|title }}</td>
+      <td>{{ log.event_type }}</td>
+      <td>{{ log.received_at|date:"M d, Y H:i" }}</td>
+      <td>{{ log.processed|yesno:"Yes,No" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p>No webhook logs found.</p>
+{% endif %}
+
+<hr>
+
+<h3>Recent Chat Sessions</h3>
+{% if sessions %}
+<div class="table-wrap" role="region" aria-label="Data table" tabindex="0">
+<table>
+  <thead>
+    <tr>
+      <th>Platform</th>
+      <th>Customer</th>
+      <th>Session ID</th>
+      <th>Last Interaction</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for session in sessions %}
+    <tr>
+      <td>{{ session.get_platform_display }}</td>
+      <td>{{ session.customer.name }}</td>
+      <td>{{ session.session_id }}</td>
+      <td>{{ session.last_interaction_at|date:"M d, Y H:i" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p>No chat sessions found.</p>
+{% endif %}
+
+{% endblock %}

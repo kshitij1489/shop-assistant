@@ -1,0 +1,120 @@
+{
+  "$defs": {
+    "JsonValue": {}
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "scenario_instance_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Scenario Instance Id",
+      "type": "string"
+    },
+    "attempt": {
+      "minimum": 1,
+      "title": "Attempt",
+      "type": "integer"
+    },
+    "event_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "original_turn_index": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Original Turn Index"
+    },
+    "request_id": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Request Id"
+    },
+    "phase": {
+      "enum": [
+        "before",
+        "after",
+        "setup",
+        "cleanup"
+      ],
+      "title": "Phase",
+      "type": "string"
+    },
+    "captured_at": {
+      "title": "Captured At",
+      "type": "string"
+    },
+    "state": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "State",
+      "type": "object"
+    },
+    "unavailable_sections": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unavailable Sections",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "scenario_id",
+    "scenario_instance_id",
+    "attempt",
+    "event_id",
+    "snapshot_id",
+    "original_turn_index",
+    "request_id",
+    "phase",
+    "captured_at",
+    "state",
+    "unavailable_sections"
+  ],
+  "title": "StateSnapshot",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:studio-desk:evaluate:1.0.0:state_snapshot"
+}

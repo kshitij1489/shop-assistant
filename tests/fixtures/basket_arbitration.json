@@ -1,0 +1,1415 @@
+[
+  {
+    "id": "defer-quantity-without-losing-add",
+    "text": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": false
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": true,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "sub_intent": "add_to_basket",
+        "reply_to": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "pista",
+                "quantity": null,
+                "reference": null
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "hinglish-quantity-after-detour",
+    "text": "do",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "quantity-1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Kitni Pistachio Ice Cream chahiye?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pista",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "target_number": null,
+                    "reference": null,
+                    "unresolved": []
+                  }
+                ],
+                "unresolved": [
+                  "How many Pistachio Ice Cream?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "quantity-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Google rating verified nahi hai.",
+      "last_assistant_question": "Kitni Pistachio Ice Cream chahiye?",
+      "recent_exchange": [
+        {
+          "user": "pehle google wali rating bata, kitne star ho aap",
+          "assistant": "Google rating verified nahi hai."
+        }
+      ]
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "quantity-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": "quantity-1",
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "pista",
+                "quantity": 2,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "hindi-quantity-after-detour",
+    "text": "दो",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "quantity-1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Kitni Pistachio Ice Cream chahiye?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pista",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "target_number": null,
+                    "reference": null,
+                    "unresolved": []
+                  }
+                ],
+                "unresolved": [
+                  "How many Pistachio Ice Cream?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "quantity-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Google rating verified nahi hai.",
+      "last_assistant_question": "Kitni Pistachio Ice Cream chahiye?",
+      "recent_exchange": [
+        {
+          "user": "pehle google wali rating bata, kitne star ho aap",
+          "assistant": "Google rating verified nahi hai."
+        }
+      ]
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "quantity-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": "quantity-1",
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "pista",
+                "quantity": 2,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "explicit-quantity-after-detour",
+    "text": "2 pista ice cream",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "quantity-1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Kitni Pistachio Ice Cream chahiye?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pista",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "target_number": null,
+                    "reference": null,
+                    "unresolved": []
+                  }
+                ],
+                "unresolved": [
+                  "How many Pistachio Ice Cream?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "quantity-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Google rating verified nahi hai.",
+      "last_assistant_question": "Kitni Pistachio Ice Cream chahiye?",
+      "recent_exchange": [
+        {
+          "user": "pehle google wali rating bata, kitne star ho aap",
+          "assistant": "Google rating verified nahi hai."
+        }
+      ]
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "quantity-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": "quantity-1",
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "pista",
+                "quantity": 2,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "portuguese-new-add-over-edit",
+    "text": "tá, coloca 1 coffee",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "edit-1",
+          "intent": "placing_order",
+          "sub_intent": "update_order",
+          "query": "preciso mudar o pedido",
+          "original_message": "preciso mudar o pedido",
+          "question": "Which item and what change?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [],
+                "unresolved": [
+                  "Which item and what change?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "edit-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Nothing was added.",
+      "recent_exchange": [
+        {
+          "user": "tá um calor absurdo hoje, sério",
+          "assistant": "Nothing was added."
+        }
+      ]
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": null,
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "coffee",
+                "quantity": 1,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "english-new-add-over-edit",
+    "text": "Add one coffee please",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "edit-1",
+          "intent": "placing_order",
+          "sub_intent": "update_order",
+          "query": "preciso mudar o pedido",
+          "original_message": "preciso mudar o pedido",
+          "question": "Which item and what change?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [],
+                "unresolved": [
+                  "Which item and what change?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "edit-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Nothing was added.",
+      "recent_exchange": [
+        {
+          "user": "tá um calor absurdo hoje, sério",
+          "assistant": "Nothing was added."
+        }
+      ]
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": null,
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "coffee",
+                "quantity": 1,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "address-choice-independent-of-complete-add",
+    "text": "Deliver 2 Coffee. I have two saved addresses, Home and Office.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": false,
+      "saved_addresses": [
+        {
+          "id": "home",
+          "label": "Home"
+        },
+        {
+          "id": "office",
+          "label": "Office"
+        }
+      ]
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 2,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": null,
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "coffee",
+                "quantity": 2,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      },
+      {
+        "intent": "location_based",
+        "reply_to": null,
+        "sub_intent": "choose_delivery_address",
+        "action": null
+      }
+    ],
+    "clarification_checks": [
+      {
+        "unit": 1,
+        "contains": [
+          "?",
+          [
+            "which",
+            "where"
+          ],
+          "Home",
+          "Office"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "conditional-add-waits-for-address",
+    "text": "Add two coffees only if you can deliver to whichever address I choose; I have Home and Office saved.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": false,
+      "saved_addresses": [
+        {
+          "id": "home",
+          "label": "Home"
+        },
+        {
+          "id": "office",
+          "label": "Office"
+        }
+      ]
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": true,
+    "expected_unit_count": 1
+  },
+  {
+    "id": "current-pause-keeps-quantity-deferred",
+    "text": "abhi ruko, quantity baad mein bataunga",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "quantity-1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Kitni Pistachio Ice Cream chahiye?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pista",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "target_number": null,
+                    "reference": null,
+                    "unresolved": []
+                  }
+                ],
+                "unresolved": [
+                  "How many Pistachio Ice Cream?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "quantity-1",
+      "has_placed_order": false
+    },
+    "route": "general/wait",
+    "reply_to": "quantity-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "general",
+        "sub_intent": "wait",
+        "action": null,
+        "reply_to": "quantity-1"
+      }
+    ]
+  },
+  {
+    "id": "bare-number-without-pending-slot",
+    "text": "2",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": false
+    },
+    "route": "insufficient_information/insufficient_information",
+    "reply_to": null,
+    "clarify": null,
+    "expected_units": [
+      {
+        "intent": "insufficient_information",
+        "action": null,
+        "reply_to": null
+      }
+    ]
+  },
+  {
+    "id": "entry-number-is-not-a-quantity",
+    "text": "2",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {
+          "item_number": 1,
+          "item_id": "coffee",
+          "name": "Coffee",
+          "size": "Regular",
+          "quantity": 1
+        },
+        {
+          "item_number": 2,
+          "item_id": "coffee",
+          "name": "Coffee",
+          "size": "Large",
+          "quantity": 1
+        }
+      ],
+      "open_requests": [
+        {
+          "id": "edit-1",
+          "intent": "placing_order",
+          "sub_intent": "update_order",
+          "query": "preciso mudar o pedido",
+          "original_message": "preciso mudar o pedido",
+          "question": "Which entry: #1 Coffee Regular or #2 Coffee Large?",
+          "missing_fields": [
+            "selection"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "update",
+                    "item_id": null,
+                    "variant_id": null,
+                    "quantity": 3,
+                    "modifiers": null,
+                    "target_number": null,
+                    "reference": {
+                      "by": "name",
+                      "value": "Coffee"
+                    },
+                    "unresolved": []
+                  }
+                ],
+                "unresolved": [],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "edit-1",
+      "has_placed_order": false
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "edit-1",
+    "clarify": false,
+    "routes": [
+      "placing_order/customize_confirmation",
+      "placing_order/update_order"
+    ],
+    "expected_units": [
+      {
+        "reply_to": "edit-1",
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "update",
+                "quantity": 3,
+                "reference": {
+                  "by": "id",
+                  "value": "2"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "ambiguous-quantity-or-map-offer",
+    "text": "do",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "quantity-1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Kitni Pistachio Ice Cream chahiye?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pista",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "target_number": null,
+                    "reference": null,
+                    "unresolved": []
+                  }
+                ],
+                "unresolved": [
+                  "How many Pistachio Ice Cream?"
+                ],
+                "catalog_miss": false
+              }
+            }
+          },
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "quantity-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Google rating verified nahi hai. Map link chahiye?",
+      "last_assistant_question": "Map link chahiye?",
+      "recent_exchange": [
+        {
+          "user": "pehle google wali rating bata, kitne star ho aap",
+          "assistant": "Google rating verified nahi hai. Map link chahiye?"
+        }
+      ]
+    },
+    "route": "insufficient_information/insufficient_information",
+    "reply_to": null,
+    "clarify": true,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "insufficient_information",
+        "sub_intent": "insufficient_information",
+        "reply_to": null,
+        "action": null
+      }
+    ],
+    "clarification_contains": [
+      "?",
+      [
+        "two",
+        "2",
+        "do"
+      ],
+      [
+        "Pistachio",
+        "pista"
+      ],
+      "map"
+    ]
+  },
+  {
+    "id": "independent-quantity-and-address-choices",
+    "text": "Deliver Coffee, but I will decide how many later. I have Home and Office saved and have not chosen which to use.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": false,
+      "saved_addresses": [
+        {
+          "id": "home",
+          "label": "Home"
+        },
+        {
+          "id": "office",
+          "label": "Office"
+        }
+      ]
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": true,
+    "expected_unit_count": 2,
+    "expected_units": [
+      {
+        "intent": "placing_order",
+        "reply_to": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "coffee",
+                "quantity": null,
+                "reference": null
+              }
+            ],
+            "catalog_miss": false
+          }
+        }
+      },
+      {
+        "intent": "location_based",
+        "reply_to": null,
+        "sub_intent": "choose_delivery_address",
+        "action": null
+      }
+    ],
+    "clarification_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "?",
+          [
+            "how many",
+            "quantity"
+          ]
+        ]
+      },
+      {
+        "unit": 1,
+        "contains": [
+          "?",
+          [
+            "which",
+            "where"
+          ],
+          "Home",
+          "Office"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "supersede-pending-update_order-with-add",
+    "text": "Forget my request to change my order; add one Coffee instead.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "edit-1",
+          "intent": "placing_order",
+          "sub_intent": "update_order",
+          "query": "change my order",
+          "original_message": "change my order",
+          "question": "Which item?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {},
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "edit-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Nothing was added.",
+      "recent_exchange": [
+        {
+          "user": "tá um calor absurdo hoje, sério",
+          "assistant": "Nothing was added."
+        }
+      ]
+    },
+    "route": "general/cancel_and_abort",
+    "reply_to": "edit-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "general",
+        "sub_intent": "cancel_and_abort",
+        "reply_to": "edit-1",
+        "clarification": null,
+        "action": {
+          "kind": "CANCEL_PENDING_ACTION"
+        }
+      },
+      {
+        "intent": "placing_order",
+        "reply_to": null,
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "coffee",
+                "quantity": 1,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ],
+    "expected_unit_count": 2
+  },
+  {
+    "id": "supersede-pending-delete_entry-with-add",
+    "text": "Forget my request to remove an item; add one Coffee instead.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "edit-1",
+          "intent": "placing_order",
+          "sub_intent": "delete_entry",
+          "query": "remove an item",
+          "original_message": "remove an item",
+          "question": "Which item?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {},
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "edit-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Nothing was added.",
+      "recent_exchange": [
+        {
+          "user": "tá um calor absurdo hoje, sério",
+          "assistant": "Nothing was added."
+        }
+      ]
+    },
+    "route": "general/cancel_and_abort",
+    "reply_to": "edit-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "general",
+        "sub_intent": "cancel_and_abort",
+        "reply_to": "edit-1",
+        "clarification": null,
+        "action": {
+          "kind": "CANCEL_PENDING_ACTION"
+        }
+      },
+      {
+        "intent": "placing_order",
+        "reply_to": null,
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "coffee",
+                "quantity": 1,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ],
+    "expected_unit_count": 2
+  },
+  {
+    "id": "supersede-pending-special_requests-with-add",
+    "text": "Forget my request to customize an item; add one Coffee instead.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "coffee",
+          "name": "Coffee",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "pista",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "Standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "open_requests": [
+        {
+          "id": "edit-1",
+          "intent": "placing_order",
+          "sub_intent": "special_requests",
+          "query": "customize an item",
+          "original_message": "customize an item",
+          "question": "Which item?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {},
+          "basket_effect_status": "not_applied"
+        }
+      ],
+      "active_pending_id": "edit-1",
+      "has_placed_order": false,
+      "last_assistant_message": "Nothing was added.",
+      "recent_exchange": [
+        {
+          "user": "tá um calor absurdo hoje, sério",
+          "assistant": "Nothing was added."
+        }
+      ]
+    },
+    "route": "general/cancel_and_abort",
+    "reply_to": "edit-1",
+    "clarify": false,
+    "expected_units": [
+      {
+        "intent": "general",
+        "sub_intent": "cancel_and_abort",
+        "reply_to": "edit-1",
+        "clarification": null,
+        "action": {
+          "kind": "CANCEL_PENDING_ACTION"
+        }
+      },
+      {
+        "intent": "placing_order",
+        "reply_to": null,
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "coffee",
+                "quantity": 1,
+                "reference": null
+              }
+            ],
+            "unresolved": [],
+            "catalog_miss": false
+          }
+        }
+      }
+    ],
+    "expected_unit_count": 2
+  }
+]

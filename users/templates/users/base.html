@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'users/css/dashboard.css' %}?v=20260927-settings-tabs-3">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  {% if user.is_authenticated %}
+  <!-- Dashboard Navbar -->
+  <header class="dashboard-header">
+    <nav class="dashboard-nav" aria-label="Account">
+      <div class="logo">
+        <a href="{% url 'dashboard' %}" class="logo">ChatWise AI</a>
+      </div>
+      <div class="nav-links">
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        {% if user.is_superuser or user.tenantprofile.is_master %}
+          <a href="{% url 'master_tenants' %}"{% if request.resolver_match.url_name == 'master_tenants' or request.resolver_match.url_name == 'create_tenant' or request.resolver_match.url_name == 'update_tenant_details' %} aria-current="page"{% endif %}>Tenants</a>
+        {% endif %}
+        <a href="#">APIs</a>
+        <a href="#">Marketing</a>
+        <form method="post" action="{% url 'logout' %}" class="inline-form">
+        {% csrf_token %}
+          <button type="submit" class="btn btn-secondary">
+          Logout
+          </button>
+      </form>
+      </div>
+    </nav>
+  </header>
+  {% endif %}
+
+  <main class="dashboard-main" id="main-content">
+
+    {% if user.is_authenticated and not user.tenantprofile.is_master %}
+      {% with t=user.tenantprofile.tenant %}
+        {% if t and t.approval_status != 'APPROVED' %}
+          <div class="alert warning">
+            Your application for <strong>{{ t.display_name }}</strong> is <strong>{{ t.approval_status|title }}</strong>.
+            <a href="{% url 'pending_review' %}" style="margin-left:.5rem; text-decoration:underline;">View status</a>
+          </div>
+        {% endif %}
+      {% endwith %}
+    {% endif %}
+
+    {% if messages %}
+      <div class="messages" aria-live="polite">
+        {% for message in messages %}
+          <div class="alert {{ message.tags }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+  </main>
+  <!-- Footer (optional) -->
+  <footer class="footer">
+    <div>
+      &copy; {% now "Y" %} Chat-Wise AI. All rights reserved.
+    </div>
+  </footer>
+
+</body>
+</html>

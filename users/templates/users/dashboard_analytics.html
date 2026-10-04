@@ -1,0 +1,201 @@
+{% extends "users/base_tenant.html" %}
+{% load static %}
+{% load dict_get %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'users/css/analytics.css' %}">{% endblock %}
+
+{% block tenant_content %}
+<h2 class="analytics-title">Chatbot Analytics</h2>
+
+<div class="analytics-header">
+  <p class="muted">
+    Chatbot usage summary and performance indicators.
+  </p>
+
+  <!-- Wrapped, centered, full-width search -->
+  <div class="search-wrap" aria-hidden="false">
+    <form method="get" action="" class="search-bar" role="search" aria-label="Search analytics">
+      <input aria-label="Search analytics" name="q" type="search" placeholder="Search by user, session id, message, or ask the data..." value="{{ query|default:'' }}" />
+      <button type="submit" class="btn primary" aria-label="Search">
+        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Search
+      </button>
+    </form>
+  </div>
+</div>
+
+{% if summary %}
+<div class="summary-grid">
+  <div class="card">
+    <div class="muted">Total Conversations</div>
+    <div class="summary-value">{{ summary.total_sessions }}</div>
+  </div>
+  <div class="card">
+    <div class="muted">Unique Users</div>
+    <div class="summary-value">{{ summary.unique_customers }}</div>
+  </div>
+  <div class="card">
+    <div class="muted">Average Session Time</div>
+    <div class="summary-value">{{ summary.avg_duration|default:"—" }}</div>
+  </div>
+  <div class="card">
+    <div class="muted">Feedback Score</div>
+    <div class="summary-value">{{ summary.positive_feedback|default_if_none:"—" }}</div>
+  </div>
+</div>
+{% endif %}
+
+<div class="tabs" role="tablist" aria-label="Analytics tabs">
+  <button class="tab-btn active" data-target="db-panel" role="tab" aria-selected="true">DB Results</button>
+  <button class="tab-btn" data-target="charts-panel" role="tab" aria-selected="false">Charts</button>
+</div>
+
+<!-- DB Results -->
+<div id="db-panel" class="panel" role="tabpanel" aria-hidden="false">
+  {% if db_result_error %}
+    <div class="empty-state" style="color:#b91c1c;">Error executing query: {{ db_result_error }}</div>
+  {% endif %}
+
+  {% if db_result %}
+    <div style="margin-bottom:0.5rem; display:flex; gap:0.5rem; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+      <div style="font-size:0.9rem; color:#374151;">
+        <strong>{{ db_result.row_count }}</strong> rows • Columns: <strong>{{ db_result.columns|length }}</strong>
+      </div>
+
+      <div style="font-size:0.85rem; color:#6b7280;">
+        <em>Execution info</em>
+        {% if db_sql_preview %}
+          <button type="button" onclick="toggleDebug(this)" class="btn" aria-controls="results-desc" aria-expanded="false">Show SQL</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="analytics-table" aria-describedby="results-desc">
+        <thead>
+          <tr>
+            {% for col in db_result.columns %}
+              <th>{{ col }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in db_result.rows %}
+            <tr>
+              {% for col in db_result.columns %}
+                <td>{{ row|dict_get:col }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div id="results-desc" class="debug" hidden>
+      {% if db_sql_preview %}
+        <div><strong>SQL:</strong></div>
+        <pre>{{ db_sql_preview }}</pre>
+      {% endif %}
+      {% if db_result.params %}
+        <div><strong>Params:</strong> {{ db_result.params }}</div>
+      {% endif %}
+      {% if db_warnings %}
+        <div style="margin-top:.5rem;"><strong>Warnings:</strong> {{ db_warnings }}</div>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <div class="empty-state">No DB query executed yet. Enter a question in the search box and press Search to run a database query.</div>
+  {% endif %}
+</div>
+
+<!-- Charts -->
+<div id="charts-panel" class="panel" role="tabpanel" aria-hidden="true" hidden>
+  <div class="two">
+    <div class="card">
+      <h4 style="margin:0 0 .5rem 0;">Line Chart — Weekly Sessions</h4>
+      <div class="chart-frame"><canvas id="lineChart" width="400" height="240" aria-label="Line chart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h4 style="margin:0 0 .5rem 0;">Bar Chart — Platform Events</h4>
+      <div class="chart-frame"><canvas id="barChart" width="400" height="240" aria-label="Bar chart"></canvas></div>
+    </div>
+
+    <div class="card full-row">
+      <h4 style="margin:0 0 .5rem 0;">Scatter Plot — Session Duration vs Messages</h4>
+      <div class="chart-frame"><canvas id="scatterChart" width="800" height="280" aria-label="Scatter chart"></canvas></div>
+    </div>
+  </div>
+  <p style="margin-top:0.75rem; color:#6b7280;">These charts use placeholder data. I will wire them to your analytics data when you share aggregated series (dates, platform counts, session datapoints).</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function toggleDebug(button){
+    const el = document.getElementById('results-desc');
+    if(!el) return;
+    el.hidden = !el.hidden;
+    button.setAttribute('aria-expanded', String(!el.hidden));
+    button.textContent = el.hidden ? 'Show SQL' : 'Hide SQL';
+  }
+
+  // Tab toggling
+  (function(){
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = { 'db-panel': document.getElementById('db-panel'), 'charts-panel': document.getElementById('charts-panel') };
+    tabs.forEach(btn=>{
+      btn.addEventListener('click', ()=> {
+        tabs.forEach(t=> {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        Object.keys(panels).forEach(k=>{
+          const panel = panels[k];
+          if (k === btn.dataset.target) {
+            panel.hidden = false;
+            panel.setAttribute('aria-hidden','false');
+          } else {
+            panel.hidden = true;
+            panel.setAttribute('aria-hidden','true');
+          }
+        });
+      });
+    });
+  })();
+
+  // Chart placeholders
+  (function initCharts(){
+    if (typeof Chart === 'undefined') return;
+    const line = document.getElementById('lineChart');
+    const bar = document.getElementById('barChart');
+    const scatter = document.getElementById('scatterChart');
+    if(line){
+      new Chart(line.getContext('2d'), {
+        type:'line',
+        data:{ labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{label:'Sessions', data:[120,150,100,170,190,230,210], fill:false, tension:0.3, pointRadius:4, borderWidth:2}]},
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}} }
+      });
+    }
+    if(bar){
+      new Chart(bar.getContext('2d'), {
+        type:'bar',
+        data:{ labels:['Website','WhatsApp','Messenger','SMS','Other'], datasets:[{label:'Events', data:[450,320,210,90,35], borderWidth:1}]},
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
+      });
+    }
+    if(scatter){
+      new Chart(scatter.getContext('2d'), {
+        type:'scatter',
+        data:{ datasets:[{ label:'Sessions', data:[{x:5,y:12},{x:1,y:3},{x:12,y:50},{x:7,y:20},{x:3,y:8},{x:9,y:30}], pointRadius:6 }]},
+        options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{ title:{display:true,text:'Messages'} }, y:{ title:{display:true,text:'Duration (seconds)'} } } }
+      });
+    }
+  })();
+</script>
+{% endblock %}

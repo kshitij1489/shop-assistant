@@ -1,0 +1,1143 @@
+{
+  "$defs": {
+    "CatalogControl": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "catalog_control",
+          "title": "Kind",
+          "type": "string"
+        },
+        "item_name": {
+          "minLength": 1,
+          "title": "Item Name",
+          "type": "string"
+        },
+        "variant_name": {
+          "minLength": 1,
+          "title": "Variant Name",
+          "type": "string"
+        },
+        "price_minor": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Price Minor"
+        },
+        "available": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Available"
+        }
+      },
+      "required": [
+        "kind",
+        "item_name",
+        "variant_name"
+      ],
+      "title": "CatalogControl",
+      "type": "object"
+    },
+    "Clock": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "title": "At",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "Asia/Kolkata",
+          "title": "Timezone",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at"
+      ],
+      "title": "Clock",
+      "type": "object"
+    },
+    "FreezeClock": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "freeze_clock",
+          "title": "Kind",
+          "type": "string"
+        },
+        "clock": {
+          "$ref": "#/$defs/Clock"
+        }
+      },
+      "required": [
+        "kind",
+        "clock"
+      ],
+      "title": "FreezeClock",
+      "type": "object"
+    },
+    "Issue": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Code",
+          "type": "string"
+        },
+        "location": {
+          "title": "Location",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "location",
+        "message"
+      ],
+      "title": "Issue",
+      "type": "object"
+    },
+    "LookupControl": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "lookup_control",
+          "title": "Kind",
+          "type": "string"
+        },
+        "service": {
+          "enum": [
+            "coverage",
+            "geocoding",
+            "reverse_geocoding",
+            "classification"
+          ],
+          "title": "Service",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "unavailable",
+            "success",
+            "postal_mismatch",
+            "timeout"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "postal_code": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{6}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Postal Code"
+        }
+      },
+      "required": [
+        "kind",
+        "service",
+        "outcome"
+      ],
+      "title": "LookupControl",
+      "type": "object"
+    },
+    "PaymentControl": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "payment_control",
+          "title": "Kind",
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "capture",
+            "fail",
+            "cancel",
+            "timeout_creation",
+            "timeout_after_creation",
+            "restore_and_reconcile"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "target": {
+          "const": "active_order",
+          "default": "active_order",
+          "title": "Target",
+          "type": "string"
+        },
+        "amount_minor": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Amount Minor"
+        },
+        "currency": {
+          "const": "INR",
+          "default": "INR",
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "operation"
+      ],
+      "title": "PaymentControl",
+      "type": "object"
+    },
+    "PendingExpectation": {
+      "additionalProperties": false,
+      "description": "Reviewed clarification capability; question phrasing is not an execution contract.",
+      "properties": {
+        "intent_type": {
+          "minLength": 1,
+          "title": "Intent Type",
+          "type": "string"
+        },
+        "sub_intents": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Sub Intents",
+          "type": "array"
+        },
+        "equivalent_tasks": {
+          "items": {
+            "$ref": "#/$defs/PendingTaskExpectation"
+          },
+          "title": "Equivalent Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "intent_type",
+        "sub_intents"
+      ],
+      "title": "PendingExpectation",
+      "type": "object"
+    },
+    "PendingTaskExpectation": {
+      "additionalProperties": false,
+      "description": "One reviewed internal representation of a clarification capability.",
+      "properties": {
+        "intent_type": {
+          "minLength": 1,
+          "title": "Intent Type",
+          "type": "string"
+        },
+        "sub_intents": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Sub Intents",
+          "type": "array"
+        }
+      },
+      "required": [
+        "intent_type",
+        "sub_intents"
+      ],
+      "title": "PendingTaskExpectation",
+      "type": "object"
+    },
+    "Reconnect": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "reconnect",
+          "title": "Kind",
+          "type": "string"
+        },
+        "evict_session_cache": {
+          "const": true,
+          "default": true,
+          "title": "Evict Session Cache",
+          "type": "boolean"
+        },
+        "retain_database_and_identity": {
+          "const": true,
+          "default": true,
+          "title": "Retain Database And Identity",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Reconnect",
+      "type": "object"
+    },
+    "ReferenceTurn": {
+      "additionalProperties": false,
+      "properties": {
+        "original_turn_index": {
+          "minimum": 0,
+          "title": "Original Turn Index",
+          "type": "integer"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "asks": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asks"
+        },
+        "pending": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PendingExpectation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reference_only": {
+          "const": true,
+          "default": true,
+          "title": "Reference Only",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "original_turn_index",
+        "text"
+      ],
+      "title": "ReferenceTurn",
+      "type": "object"
+    },
+    "ScenarioAction": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "action_id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Action Id",
+          "type": "string"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "original_turn_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Turn Index"
+        },
+        "requirement_ref": {
+          "minLength": 1,
+          "title": "Requirement Ref",
+          "type": "string"
+        },
+        "requirement_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Requirement Hash",
+          "type": "string"
+        },
+        "review_ref": {
+          "minLength": 1,
+          "title": "Review Ref",
+          "type": "string"
+        },
+        "operation": {
+          "discriminator": {
+            "mapping": {
+              "catalog_control": "#/$defs/CatalogControl",
+              "freeze_clock": "#/$defs/FreezeClock",
+              "lookup_control": "#/$defs/LookupControl",
+              "payment_control": "#/$defs/PaymentControl",
+              "reconnect": "#/$defs/Reconnect",
+              "seed_fixture": "#/$defs/SeedFixture",
+              "set_delivery_fee": "#/$defs/SetDeliveryFee"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/FreezeClock"
+            },
+            {
+              "$ref": "#/$defs/LookupControl"
+            },
+            {
+              "$ref": "#/$defs/CatalogControl"
+            },
+            {
+              "$ref": "#/$defs/PaymentControl"
+            },
+            {
+              "$ref": "#/$defs/Reconnect"
+            },
+            {
+              "$ref": "#/$defs/SetDeliveryFee"
+            },
+            {
+              "$ref": "#/$defs/SeedFixture"
+            }
+          ],
+          "title": "Operation"
+        }
+      },
+      "required": [
+        "action_id",
+        "scenario_id",
+        "requirement_ref",
+        "requirement_hash",
+        "review_ref",
+        "operation"
+      ],
+      "title": "ScenarioAction",
+      "type": "object"
+    },
+    "SeedFixture": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "seed_fixture",
+          "title": "Kind",
+          "type": "string"
+        },
+        "fixture_id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Fixture Id",
+          "type": "string"
+        },
+        "fixture_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Fixture Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "fixture_id",
+        "fixture_hash"
+      ],
+      "title": "SeedFixture",
+      "type": "object"
+    },
+    "SetDeliveryFee": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "set_delivery_fee",
+          "title": "Kind",
+          "type": "string"
+        },
+        "amount_minor": {
+          "minimum": 0,
+          "title": "Amount Minor",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "amount_minor"
+      ],
+      "title": "SetDeliveryFee",
+      "type": "object"
+    },
+    "Setup": {
+      "additionalProperties": false,
+      "description": "Partial overrides. None means inherit; false/zero/empty lists are explicit.",
+      "properties": {
+        "catalog": {
+          "anyOf": [
+            {
+              "enum": [
+                "none",
+                "published_synthetic"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Catalog"
+        },
+        "variant_name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variant Name"
+        },
+        "stock": {
+          "anyOf": [
+            {
+              "enum": [
+                "none",
+                "finite_local"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stock"
+        },
+        "customer": {
+          "anyOf": [
+            {
+              "enum": [
+                "browser_guest",
+                "authenticated_synthetic"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Customer"
+        },
+        "address_lookup": {
+          "anyOf": [
+            {
+              "enum": [
+                "unavailable",
+                "complete_supplied_only"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address Lookup"
+        },
+        "payment": {
+          "anyOf": [
+            {
+              "enum": [
+                "unavailable",
+                "fake_adapter"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payment"
+        },
+        "payment_methods": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "cash",
+                  "online"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payment Methods"
+        },
+        "modes": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "pickup",
+                  "delivery",
+                  "dine_in"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modes"
+        },
+        "scheduling": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scheduling"
+        },
+        "horizon_days": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Horizon Days"
+        },
+        "lead_minutes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lead Minutes"
+        },
+        "preparation_minutes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preparation Minutes"
+        },
+        "delivery_minimum_minor": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delivery Minimum Minor"
+        },
+        "delivery_fee_minor": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delivery Fee Minor"
+        },
+        "pickup_minimum_minor": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pickup Minimum Minor"
+        },
+        "pickup_fee_minor": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pickup Fee Minor"
+        },
+        "tax_basis_points": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tax Basis Points"
+        },
+        "discounts": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discounts"
+        },
+        "modifiers": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modifiers"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "const": "INR",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currency"
+        },
+        "hours": {
+          "anyOf": [
+            {
+              "const": "tuesday_sunday_12_00_23_30",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hours"
+        },
+        "contact_fixture": {
+          "anyOf": [
+            {
+              "const": "qa_guest_dummy_no_notifications",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Contact Fixture"
+        },
+        "required_pickup": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "name",
+                  "phone"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Pickup"
+        },
+        "required_delivery": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "name",
+                  "phone",
+                  "address",
+                  "postal_code"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Delivery"
+        },
+        "allowed_postal_codes": {
+          "anyOf": [
+            {
+              "items": {
+                "pattern": "^\\d{6}$",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Postal Codes"
+        }
+      },
+      "title": "Setup",
+      "type": "object"
+    },
+    "Turn": {
+      "additionalProperties": false,
+      "properties": {
+        "original_turn_index": {
+          "minimum": 0,
+          "title": "Original Turn Index",
+          "type": "integer"
+        },
+        "user_turn_index": {
+          "minimum": 0,
+          "title": "User Turn Index",
+          "type": "integer"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "intent": {
+          "minLength": 1,
+          "title": "Intent",
+          "type": "string"
+        },
+        "sub_intent": {
+          "minLength": 1,
+          "title": "Sub Intent",
+          "type": "string"
+        },
+        "turn_kind": {
+          "default": "question",
+          "title": "Turn Kind",
+          "type": "string"
+        },
+        "expected_facts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Facts",
+          "type": "array"
+        },
+        "must_not": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Must Not",
+          "type": "array"
+        },
+        "parts": {
+          "items": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "title": "Parts",
+          "type": "array"
+        },
+        "answers_ask_from_turn": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answers Ask From Turn"
+        },
+        "ignores_ask_from_turn": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ignores Ask From Turn"
+        },
+        "branch_dependency": {
+          "default": "required",
+          "enum": [
+            "required",
+            "context_only"
+          ],
+          "title": "Branch Dependency",
+          "type": "string"
+        },
+        "allow_empty_rejection": {
+          "default": false,
+          "title": "Allow Empty Rejection",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "original_turn_index",
+        "user_turn_index",
+        "text",
+        "intent",
+        "sub_intent",
+        "expected_facts",
+        "must_not"
+      ],
+      "title": "Turn",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "source_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "namespace": {
+      "enum": [
+        "sessions",
+        "qa"
+      ],
+      "title": "Namespace",
+      "type": "string"
+    },
+    "source_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Source Hash",
+      "type": "string"
+    },
+    "scenario_plan_version": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Scenario Plan Version",
+      "type": "string"
+    },
+    "priority": {
+      "default": "P1",
+      "enum": [
+        "P0",
+        "P1",
+        "P2"
+      ],
+      "title": "Priority",
+      "type": "string"
+    },
+    "summary": {
+      "title": "Summary",
+      "type": "string"
+    },
+    "tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "setup_profiles": {
+      "items": {
+        "enum": [
+          "knowledge_only",
+          "catalog_sandbox",
+          "address_sandbox",
+          "checkout_sandbox"
+        ],
+        "type": "string"
+      },
+      "title": "Setup Profiles",
+      "type": "array"
+    },
+    "clock": {
+      "$ref": "#/$defs/Clock"
+    },
+    "setup": {
+      "$ref": "#/$defs/Setup"
+    },
+    "setup_inputs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Setup Inputs",
+      "type": "array"
+    },
+    "turns": {
+      "items": {
+        "$ref": "#/$defs/Turn"
+      },
+      "minItems": 1,
+      "title": "Turns",
+      "type": "array"
+    },
+    "references": {
+      "items": {
+        "$ref": "#/$defs/ReferenceTurn"
+      },
+      "title": "References",
+      "type": "array"
+    },
+    "knowledge_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Knowledge Refs",
+      "type": "array"
+    },
+    "workflow_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Workflow Refs",
+      "type": "array"
+    },
+    "actions": {
+      "items": {
+        "$ref": "#/$defs/ScenarioAction"
+      },
+      "title": "Actions",
+      "type": "array"
+    },
+    "blockers": {
+      "items": {
+        "$ref": "#/$defs/Issue"
+      },
+      "title": "Blockers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "source_id",
+    "namespace",
+    "source_hash",
+    "scenario_plan_version",
+    "summary",
+    "tags",
+    "setup_profiles",
+    "clock",
+    "setup",
+    "setup_inputs",
+    "turns",
+    "references",
+    "knowledge_refs",
+    "workflow_refs",
+    "actions",
+    "blockers"
+  ],
+  "title": "NormalizedScenario",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:studio-desk:evaluate:1.0.0:normalized_scenario"
+}

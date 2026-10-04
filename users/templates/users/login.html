@@ -1,0 +1,52 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block title %}Login - Chat-Wise{% endblock %}
+
+{% block content %}
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  main.fullscreen-center {
+    min-height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 10vh;
+  }
+</style>
+
+<main class="fullscreen-center">
+  <div style="text-align: center; margin-bottom: 1.5rem;">
+    <h1 style="margin-bottom: 0.5rem;">Welcome back</h1>
+    <p>Sign in to your Chat-Wise dashboard</p>
+  </div>
+
+  <div style="max-width: 400px; width: 100%;">
+    <form method="post" action="{% url 'login' %}" class="card">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        <p style="color: red;">{{ form.non_field_errors }}</p>
+      {% endif %}
+
+      <div style="margin-bottom: 1rem;">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" value="{{ form.username.value|default_if_none:'' }}" class="form-control" required id="id_username" style="width: 100%; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label for="id_password">Password</label>
+        <input type="password" name="password" class="form-control" required id="id_password" style="width: 100%; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Sign In</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1rem;">Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,372 @@
+{
+  "$defs": {
+    "CatalogControl": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "catalog_control",
+          "title": "Kind",
+          "type": "string"
+        },
+        "item_name": {
+          "minLength": 1,
+          "title": "Item Name",
+          "type": "string"
+        },
+        "variant_name": {
+          "minLength": 1,
+          "title": "Variant Name",
+          "type": "string"
+        },
+        "price_minor": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Price Minor"
+        },
+        "available": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Available"
+        }
+      },
+      "required": [
+        "kind",
+        "item_name",
+        "variant_name"
+      ],
+      "title": "CatalogControl",
+      "type": "object"
+    },
+    "Clock": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "title": "At",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "Asia/Kolkata",
+          "title": "Timezone",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at"
+      ],
+      "title": "Clock",
+      "type": "object"
+    },
+    "FreezeClock": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "freeze_clock",
+          "title": "Kind",
+          "type": "string"
+        },
+        "clock": {
+          "$ref": "#/$defs/Clock"
+        }
+      },
+      "required": [
+        "kind",
+        "clock"
+      ],
+      "title": "FreezeClock",
+      "type": "object"
+    },
+    "LookupControl": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "lookup_control",
+          "title": "Kind",
+          "type": "string"
+        },
+        "service": {
+          "enum": [
+            "coverage",
+            "geocoding",
+            "reverse_geocoding",
+            "classification"
+          ],
+          "title": "Service",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "unavailable",
+            "success",
+            "postal_mismatch",
+            "timeout"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "postal_code": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{6}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Postal Code"
+        }
+      },
+      "required": [
+        "kind",
+        "service",
+        "outcome"
+      ],
+      "title": "LookupControl",
+      "type": "object"
+    },
+    "PaymentControl": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "payment_control",
+          "title": "Kind",
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "capture",
+            "fail",
+            "cancel",
+            "timeout_creation",
+            "timeout_after_creation",
+            "restore_and_reconcile"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "target": {
+          "const": "active_order",
+          "default": "active_order",
+          "title": "Target",
+          "type": "string"
+        },
+        "amount_minor": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Amount Minor"
+        },
+        "currency": {
+          "const": "INR",
+          "default": "INR",
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "operation"
+      ],
+      "title": "PaymentControl",
+      "type": "object"
+    },
+    "Reconnect": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "reconnect",
+          "title": "Kind",
+          "type": "string"
+        },
+        "evict_session_cache": {
+          "const": true,
+          "default": true,
+          "title": "Evict Session Cache",
+          "type": "boolean"
+        },
+        "retain_database_and_identity": {
+          "const": true,
+          "default": true,
+          "title": "Retain Database And Identity",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Reconnect",
+      "type": "object"
+    },
+    "SeedFixture": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "seed_fixture",
+          "title": "Kind",
+          "type": "string"
+        },
+        "fixture_id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Fixture Id",
+          "type": "string"
+        },
+        "fixture_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Fixture Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "fixture_id",
+        "fixture_hash"
+      ],
+      "title": "SeedFixture",
+      "type": "object"
+    },
+    "SetDeliveryFee": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "set_delivery_fee",
+          "title": "Kind",
+          "type": "string"
+        },
+        "amount_minor": {
+          "minimum": 0,
+          "title": "Amount Minor",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "amount_minor"
+      ],
+      "title": "SetDeliveryFee",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "action_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Action Id",
+      "type": "string"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "original_turn_index": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Original Turn Index"
+    },
+    "requirement_ref": {
+      "minLength": 1,
+      "title": "Requirement Ref",
+      "type": "string"
+    },
+    "requirement_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Requirement Hash",
+      "type": "string"
+    },
+    "review_ref": {
+      "minLength": 1,
+      "title": "Review Ref",
+      "type": "string"
+    },
+    "operation": {
+      "discriminator": {
+        "mapping": {
+          "catalog_control": "#/$defs/CatalogControl",
+          "freeze_clock": "#/$defs/FreezeClock",
+          "lookup_control": "#/$defs/LookupControl",
+          "payment_control": "#/$defs/PaymentControl",
+          "reconnect": "#/$defs/Reconnect",
+          "seed_fixture": "#/$defs/SeedFixture",
+          "set_delivery_fee": "#/$defs/SetDeliveryFee"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/FreezeClock"
+        },
+        {
+          "$ref": "#/$defs/LookupControl"
+        },
+        {
+          "$ref": "#/$defs/CatalogControl"
+        },
+        {
+          "$ref": "#/$defs/PaymentControl"
+        },
+        {
+          "$ref": "#/$defs/Reconnect"
+        },
+        {
+          "$ref": "#/$defs/SetDeliveryFee"
+        },
+        {
+          "$ref": "#/$defs/SeedFixture"
+        }
+      ],
+      "title": "Operation"
+    }
+  },
+  "required": [
+    "action_id",
+    "scenario_id",
+    "requirement_ref",
+    "requirement_hash",
+    "review_ref",
+    "operation"
+  ],
+  "title": "ScenarioAction",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:studio-desk:evaluate:1.0.0:scenario_action"
+}

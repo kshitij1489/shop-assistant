@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "ScenarioResult": {
+      "additionalProperties": false,
+      "properties": {
+        "scenario_id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "scenario_instance_id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Scenario Instance Id",
+          "type": "string"
+        },
+        "attempt": {
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "outcome": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED",
+            "ERROR",
+            "SKIPPED",
+            "COMPLETED",
+            "NEEDS_REVIEW",
+            "INTERRUPTED"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "assertion_ids": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+            "type": "string"
+          },
+          "title": "Assertion Ids",
+          "type": "array"
+        },
+        "execution_status": {
+          "anyOf": [
+            {
+              "enum": [
+                "COMPLETED",
+                "BLOCKED",
+                "ERROR",
+                "INTERRUPTED",
+                "SKIPPED"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Execution Status"
+        },
+        "evaluation_verdict": {
+          "anyOf": [
+            {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "BLOCKED",
+                "NEEDS_REVIEW"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evaluation Verdict"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "scenario_instance_id",
+        "attempt",
+        "outcome",
+        "assertion_ids"
+      ],
+      "title": "ScenarioResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "results": {
+      "items": {
+        "$ref": "#/$defs/ScenarioResult"
+      },
+      "title": "Results",
+      "type": "array"
+    },
+    "counts": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "propertyNames": {
+        "enum": [
+          "PASS",
+          "FAIL",
+          "BLOCKED",
+          "ERROR",
+          "SKIPPED",
+          "COMPLETED",
+          "NEEDS_REVIEW",
+          "INTERRUPTED"
+        ]
+      },
+      "title": "Counts",
+      "type": "object"
+    }
+  },
+  "required": [
+    "run_id",
+    "results",
+    "counts"
+  ],
+  "title": "EvaluationSummary",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:studio-desk:evaluate:1.0.0:evaluation_summary"
+}

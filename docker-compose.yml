@@ -1,0 +1,114 @@
+x-app: &app
+  build: .
+  image: studio_desk:local
+  env_file: ${APP_ENV_FILE:-.env}
+  environment: &app-env
+    POSTGRES_HOST: db
+    POSTGRES_PORT: 5432
+    STATIC_ROOT: /app/static
+    HF_HOME: /model_cache
+    RUN_ENTRYPOINT_ACTIONS: "False"
+  volumes:
+    - static_volume:/app/static
+    - model_cache:/model_cache
+    - faiss_index:/var/lib/cafe
+  restart: unless-stopped
+
+services:
+  init:
+    <<: *app
+    restart: "no"
+    environment:
+      <<: *app-env
+      RUN_ENTRYPOINT_ACTIONS: "True"
+      RUN_COLLECTSTATIC: "True"
+    command: ["python", "manage.py", "audit_tenant_ownership", "--fail"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    <<: *app
+    environment:
+      <<: *app-env
+      GUNICORN_CMD_ARGS: >-
+        --workers 2 --threads 2 --timeout 60 --keep-alive 5
+        --worker-tmp-dir /dev/shm --max-requests 2000 --max-requests-jitter 200
+        --error-logfile - --access-logfile - --capture-output
+    expose: ["8000"]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "scripts/check_health.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8080}:80"
+    environment:
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-localhost}
+      TLS_CERT_NAME: ${TLS_CERT_NAME:-localhost}
+      NGINX_ENVSUBST_FILTER: "^(NGINX_SERVER_NAME|TLS_CERT_NAME)$"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/templates/default.conf.template:ro
+      - static_volume:/app/static:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-studio_desk}
+      POSTGRES_USER: ${POSTGRES_USER:-studio_desk}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the selected environment file}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  celery_worker:
+    <<: *app
+    command: celery -A studio_desk worker --loglevel=info -Q default,embeddings --concurrency=2 --prefetch-multiplier=1
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  celery_beat:
+    <<: *app
+    command: celery -A studio_desk beat --loglevel=info --schedule=/tmp/celerybeat-schedule
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+volumes:
+  static_volume:
+  postgres_data:
+  redis_data:
+  model_cache:
+  faiss_index:

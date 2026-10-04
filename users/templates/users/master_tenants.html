@@ -1,0 +1,157 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block title %}Tenants - Chat-Wise{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'users/css/master_tenants.css' %}?v=20260927-edit-spacing">
+{% endblock %}
+{% block content %}
+<div class="dashboard-home">
+  <div class="dashboard-intro">
+    <h1>Tenants</h1>
+    <p>Review pending approvals, create business accounts, and manage tenant access.</p>
+  </div>
+
+  {% include "users/partials/pending_approvals.html" with approval_return_to="master_tenants" %}
+
+  <section class="dashboard-section" aria-label="Create tenant">
+    <details class="card tenant-create"{% if form.errors %} open{% endif %}>
+      <summary>Create Tenant</summary>
+      <p>Create a new business and its owner's login account. The tenant will await approval, just like a signup. You will remain signed in to your master account.</p>
+      <form method="post" action="{% url 'create_tenant' %}" novalidate>
+        {% csrf_token %}
+        {% if form.errors %}
+          <div class="alert error" role="alert">
+            <h2>Tenant was not created.</h2>
+            <p>Correct the errors below and re-enter the passwords.</p>
+            {{ form.non_field_errors }}
+            <ul>
+              {% for field in form %}
+                {% for error in field.errors %}
+                  <li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a></li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        <div class="form-grid">
+          {% for field in form %}
+            <div class="form-group{% if field.name == 'address' %} full-row{% endif %}">
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.help_text %}<small class="help-text" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</small>{% endif %}
+              {{ field.errors }}
+            </div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Create Tenant</button>
+      </form>
+    </details>
+  </section>
+
+  <section class="dashboard-section" aria-label="Edit tenant">
+    <details class="card tenant-edit" id="edit-tenant"{% if edit_form %} open{% endif %}>
+      <summary>Edit Tenant</summary>
+      <p>Choose a tenant to edit its business name, login usernames, and address. The public link does not change.</p>
+      <div class="form-group">
+        <label for="edit-tenant-select">Tenant</label>
+        <select id="edit-tenant-select" data-tenant-picker data-base="{% url 'master_tenants' %}">
+          <option value="">Select a tenant</option>
+          {% for tenant in tenants %}
+            <option value="{{ tenant.pk }}"{% if edit_form and edit_form.tenant.pk == tenant.pk %} selected{% endif %}>{{ tenant.display_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if edit_form %}
+        {{ edit_form.saved_values|json_script:"tenant-edit-saved" }}
+        <form method="post" action="{% url 'update_tenant_details' edit_form.tenant.pk %}" autocomplete="off" data-tenant-edit-form>
+          {% csrf_token %}
+          {% if edit_form.non_field_errors %}
+            <div class="alert error" role="alert">{{ edit_form.non_field_errors }}</div>
+          {% endif %}
+          <div class="form-grid">
+            {% for field in edit_form %}
+              <div class="form-group{% if field.name == 'address' %} full-row{% endif %}">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.name == 'display_name' %}
+                  <p class="help-text">Public link stays <strong>{{ edit_form.tenant.slug }}</strong>.</p>
+                {% endif %}
+                {% if field.name == 'display_name' and not edit_form.username_fields %}
+                  <p class="muted">No login account is linked to this tenant.</p>
+                {% endif %}
+                {{ field.errors }}
+              </div>
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn btn-primary" data-save-edits disabled>Save Edits</button>
+        </form>
+        <dialog class="tenant-edit-dialog" data-tenant-edit-dialog aria-labelledby="tenant-edit-confirm-title">
+          <h3 id="tenant-edit-confirm-title">Save edits?</h3>
+          <p>Save changes to <strong>{{ edit_form.tenant.display_name }}</strong>?</p>
+          <div class="actions">
+            <button type="button" class="btn btn-primary" data-confirm-edits>Confirm</button>
+            <button type="button" class="btn" data-cancel-edits>Cancel</button>
+          </div>
+        </dialog>
+      {% endif %}
+    </details>
+  </section>
+
+  <section class="dashboard-section" aria-labelledby="all-tenants-title">
+    <h2 id="all-tenants-title">All Tenants</h2>
+    <p>Deactivating a tenant blocks its access. Activating it does not change its approval status.</p>
+    <div class="table-wrap" role="region" aria-labelledby="all-tenants-title" tabindex="0">
+      <table class="all-tenants-table">
+        <thead>
+          <tr>
+            <th scope="col">Business</th>
+            <th scope="col">Type</th>
+            <th scope="col">Users</th>
+            <th scope="col">Address</th>
+            <th scope="col">Approval</th>
+            <th scope="col">Created</th>
+            <th scope="col">Active</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tenant in tenants %}
+            <tr>
+              <th scope="row">{{ tenant.display_name }}</th>
+              <td>{{ tenant.get_business_type_display }}</td>
+              <td>
+                {% for profile in tenant.users.all %}
+                  <div>{{ profile.user.username }}</div>
+                {% empty %}
+                  <span class="muted">Unassigned</span>
+                {% endfor %}
+              </td>
+              <td class="tenant-address">
+                {% if tenant.address %}
+                  <span class="tenant-address-text">{{ tenant.address }}</span>
+                {% else %}
+                  <span class="muted">—</span>
+                {% endif %}
+              </td>
+              <td>{{ tenant.get_approval_status_display }}</td>
+              <td>{{ tenant.created_at|date:"M d, Y" }}</td>
+              <td>
+                <form method="post" action="{% url 'set_tenant_active' tenant.id %}"{% if tenant.is_active %} onsubmit="return confirm('Deactivate this tenant? This will immediately block its access.')"{% endif %}>
+                  {% csrf_token %}
+                  <input type="hidden" name="is_active" value="{% if tenant.is_active %}false{% else %}true{% endif %}">
+                  <button type="submit" class="tenant-switch" role="switch" aria-checked="{{ tenant.is_active|yesno:'true,false' }}" aria-label="Active status for {{ tenant.display_name }}">
+                    <span class="tenant-switch-track" aria-hidden="true"></span>
+                    <span>{% if tenant.is_active %}Deactivate{% else %}Activate{% endif %}</span>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7">No tenants yet. Create a tenant above or wait for a new signup.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+<script src="{% static 'users/js/tenant_directory.js' %}?v=20260927-edit-section"></script>
+{% endblock %}

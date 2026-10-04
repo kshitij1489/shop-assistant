@@ -1,0 +1,10 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+{% if external_menu %}<p>This menu is externally managed. Update products, prices and modifiers in your connected application.</p>{% endif %}
+<h2>Modifiers for {{ item.name }}</h2>
+<a href="{% url 'tenant:tenant_menu_item_detail' item.pk %}">Back to item</a> · <a href="{% url 'tenant:modifiers' %}">Manage groups and options</a>
+<ul>{% for entry in links %}<li><a href="{% url 'tenant:item_modifier_edit' item.pk entry.pk %}">{{ entry.group.name }}</a> — {{ entry.min_selections }}–{{ entry.max_selections }} distinct selections</li>{% empty %}<li>No modifier groups attached.</li>{% endfor %}</ul>
+<a href="{% url 'tenant:item_modifiers' item.pk %}">Attach another group</a>
+<form method="post"><fieldset {% if external_menu %}disabled{% endif %}>{% csrf_token %}{{ form.as_p }}<button type="submit">Save item rules</button>
+{% if link.pk %}<button type="submit" name="action" value="delete">Detach group</button>{% endif %}</fieldset></form>
+{% endblock %}

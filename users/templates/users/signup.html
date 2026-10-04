@@ -1,0 +1,143 @@
+{% extends "users/base.html" %}
+{% block title %}Sign up - Chat-Wise{% endblock %}
+{% block content %}
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  main.fullscreen-center {
+    min-height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 8vh;
+  }
+  #signup-errors {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 2px solid #dc2626;
+    border-radius: .5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  #signup-errors a { color: inherit; text-decoration: underline; }
+  #signup-errors ul { padding-left: 1.25rem; }
+</style>
+
+<main class="fullscreen-center">
+  <section style="text-align: center; margin-bottom: 1.5rem;">
+    <h1>Create your account</h1>
+    <p>Get started with Chat-Wise for your business</p>
+  </section>
+
+  <section style="max-width: 400px; width: 100%;">
+    <form method="post" action="{% url 'signup' %}" class="card" novalidate id="signup-form">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        <div id="signup-errors" role="alert" tabindex="-1" aria-labelledby="signup-errors-title">
+          <h2 id="signup-errors-title">Your account was not created.</h2>
+          <p>Correct the errors below and re-enter your passwords, then select Sign Up.</p>
+          <ul>
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a></li>
+              {% endfor %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <p class="error" id="{{ form.username.auto_id }}_error">{{ form.username.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <p class="error" id="{{ form.email.auto_id }}_error">{{ form.email.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <p class="error" id="{{ form.password.auto_id }}_error">{{ form.password.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+          <p class="error" id="{{ form.password2.auto_id }}_error">{{ form.password2.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.business_name.id_for_label }}">Business Name</label>
+        {{ form.business_name }}
+        {% if form.business_name.help_text %}
+          <small class="help-text">{{ form.business_name.help_text }}</small>
+        {% endif %}
+        {% if form.business_name.errors %}
+          <p class="error" id="{{ form.business_name.auto_id }}_error">{{ form.business_name.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.slug.id_for_label }}">Public link</label>
+        {{ form.slug }}
+        {% if form.slug.help_text %}
+          <small class="help-text">{{ form.slug.help_text }}</small>
+        {% endif %}
+        {% if form.slug.errors %}
+          <p class="error" id="{{ form.slug.auto_id }}_error">{{ form.slug.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.address.id_for_label }}">Address</label>
+        {{ form.address }}
+        {% if form.address.help_text %}
+          <small class="help-text">{{ form.address.help_text }}</small>
+        {% endif %}
+        {% if form.address.errors %}
+          <p class="error" id="{{ form.address.auto_id }}_error">{{ form.address.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.business_type.id_for_label }}">Business Type</label>
+        {{ form.business_type }}
+        {% if form.business_type.errors %}
+          <p class="error" id="{{ form.business_type.auto_id }}_error">{{ form.business_type.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Sign Up</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1rem;">
+      Already have an account? <a href="{% url 'login' %}">Sign in</a>
+    </p>
+  </section>
+</main>
+
+<script>
+  const signupErrors = document.getElementById('signup-errors');
+  if (signupErrors) signupErrors.focus();
+</script>
+{% endblock %}

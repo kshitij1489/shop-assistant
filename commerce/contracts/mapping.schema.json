@@ -1,0 +1,63 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "enum": [
+        "item",
+        "variant",
+        "modifier_group",
+        "modifier",
+        "category",
+        "tax",
+        "customer",
+        "order",
+        "payment",
+        "stock",
+        "location",
+        "order_line",
+        "fulfillment",
+        "pricing_tax",
+        "discount",
+        "fee"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "canonical_id": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Canonical Id",
+      "type": "string"
+    },
+    "external_id": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "External Id",
+      "type": "string"
+    },
+    "scope": {
+      "default": "",
+      "maxLength": 200,
+      "title": "Scope",
+      "type": "string"
+    },
+    "revision": {
+      "default": "",
+      "maxLength": 100,
+      "title": "Revision",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "kind",
+    "canonical_id",
+    "external_id"
+  ],
+  "title": "MappingInput",
+  "type": "object"
+}

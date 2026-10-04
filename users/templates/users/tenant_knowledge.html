@@ -1,0 +1,150 @@
+{% extends "users/base_tenant.html" %}
+{% load static %}
+
+{% block title %}Tenant Knowledge{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'users/css/knowledge.css' %}">{% endblock %}
+
+{% block tenant_content %}
+{{ docs_payload|json_script:"docs_json" }}
+
+<div style="max-width: 1100px; margin: 0 auto;">
+  <h1 style="font-size:1.5rem; font-weight:600; margin-bottom:1rem;">Tenant Knowledge</h1>
+
+  <section class="card" style="padding:1rem; margin-bottom:1rem;">
+    <h2>Published configuration: version {{ publication.version|default:0 }}</h2>
+    <p>Edits below are drafts. Publishing checks capabilities, required knowledge and settings, and catalog references. The next message in every conversation uses the published changes.</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="publish">
+      <input type="hidden" name="version" value="{{ publication.version|default:0 }}">
+      <button class="btn success" type="submit">Validate and publish configuration</button>
+    </form>
+  </section>
+
+  <details class="card" style="padding:1rem; margin-bottom:1rem;" {% if topic_form.errors %}open{% endif %}>
+    <summary>Add or replace a capability topic</summary>
+    <p>Choose Cafe information to add an FAQ topic. Use the same capability and topic to replace its draft. Uncheck Enabled to disable it when published.</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_topic">
+      {{ topic_form.as_p }}
+      <button class="btn primary" type="submit">Save topic to draft</button>
+    </form>
+  </details>
+  <details class="card" style="padding:1rem; margin-bottom:1rem;">
+    <summary>Implemented capabilities and topics</summary>
+    <p>Order enquiries provide support information; they do not issue refunds. Executable actions must be implemented in the backend.</p>
+    <ul>{% for name, capability in capabilities %}
+      <li><strong>{{ name }}</strong>: {% if capability.dynamic_topics %}Any configured FAQ topic{% else %}{{ capability.sub_intents|join:", " }}{% endif %}</li>
+    {% endfor %}</ul>
+    <p>In the classification editor, a topic can be a description string or an object with <code>description</code>, <code>enabled</code>, <code>examples</code>, <code>required_knowledge</code> (paths such as <code>information_about_the_cafe/pet_policy</code>), <code>required_settings</code> (paths in tenant metadata), and <code>catalog_references</code> (objects with <code>type</code> and <code>id</code>).</p>
+  </details>
+
+  <!-- 1) DType dropdown -->
+  <div class="card" style="padding: .75rem 1rem; margin-bottom: .75rem;">
+    <label for="dtypeSelect" class="muted" style="display:block; margin-bottom:.35rem;">Select DType</label>
+    <select id="dtypeSelect" class="fullwidth">
+      <option value="">— Choose a dtype —</option>
+      {% for val,label in dtypes %}
+        <option value="{{ val }}" {% if selected_dtype == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <div class="muted" style="margin-top:.35rem;">Only entries for the selected dtype (and your tenant) will be shown.</div>
+  </div>
+
+  <!-- 2) Two-layer tabs -->
+  <div class="card" style="padding: .25rem 1rem; margin-bottom: .75rem;">
+    <div class="muted" style="margin:.25rem 0 .25rem;">Intents</div>
+    <div id="intentTabs" class="tabs"></div>
+    <div class="muted" style="margin:.5rem 0 .25rem;">Sub-intents</div>
+    <div id="subIntentTabs" class="tabs"></div>
+  </div>
+
+  <!-- Payload editor -->
+  <div class="card" style="padding: 1rem; margin-bottom:.75rem;">
+    <div class="muted" id="selectionPath" style="margin-bottom:.35rem;">—</div>
+    <textarea id="payloadTA" class="mono" placeholder="{ }"></textarea>
+  </div>
+
+  <!-- 3) Buttons under textarea -->
+  <div class="btn-row" style="margin-bottom:1rem;">
+    <button type="button" class="btn" id="btnFormat">Format JSON</button>
+    <button type="button" class="btn" id="btnValidate">Validate JSON</button>
+
+    <!-- Update existing -->
+    <form id="updateForm" method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="update">
+      <input type="hidden" name="dtype" id="update_dtype">
+      <input type="hidden" name="intent" id="update_intent">
+      <input type="hidden" name="sub_intent" id="update_sub_intent">
+      <input type="hidden" name="payload" id="update_payload">
+      <button type="submit" class="btn primary" id="btnUpdate">Edit / Save</button>
+    </form>
+
+    <!-- Delete existing -->
+    <form id="deleteForm" method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="delete">
+      <input type="hidden" name="dtype" id="delete_dtype">
+      <input type="hidden" name="intent" id="delete_intent">
+      <input type="hidden" name="sub_intent" id="delete_sub_intent">
+      <button type="submit" class="btn danger" id="btnDelete">Delete</button>
+    </form>
+  </div>
+
+  <!-- 4) Add Entry card -->
+  <div class="center" style="margin: 1rem 0 2rem;">
+    <button id="openAddModal" type="button" class="square-card">
+      <div>
+        <div style="text-align:center; font-weight:600;">＋ Add Entry</div>
+        <div class="muted" style="text-align:center; margin-top:.25rem;">Create a new intent / sub_intent</div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- Modal for Add Entry -->
+<div id="addModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <h3 id="addModalTitle" style="font-size:1.125rem; font-weight:600; margin-bottom:.5rem;">Add Entry</h3>
+    <form id="addForm" method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add">
+      <div class="grid2" style="margin-bottom:.75rem;">
+        <div>
+          <label class="muted" for="add_dtype">DType</label>
+          <select name="dtype" id="add_dtype" required class="fullwidth">
+            {% for val,label in dtypes %}
+              <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="muted" for="add_intent">Intent</label>
+          <input type="text" name="intent" id="add_intent" required class="fullwidth">
+        </div>
+        <div>
+          <label class="muted" for="add_sub_intent">Sub Intent</label>
+          <input type="text" name="sub_intent" id="add_sub_intent" required class="fullwidth">
+        </div>
+        <div style="grid-column:1 / -1;">
+          <label class="muted" for="add_payload">Payload (JSON)</label>
+          <textarea name="payload" id="add_payload" class="mono" style="min-height:220px;"></textarea>
+        </div>
+      </div>
+
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button type="button" class="btn" id="btnAddFormat">Format JSON</button>
+        <button type="button" class="btn" id="btnAddValidate">Validate JSON</button>
+        <button type="button" class="btn" id="btnAddCancel">Cancel</button>
+        <button type="submit" class="btn success" id="btnAddSave">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Load external JS (served from your origin) -->
+<script src="{% static 'users/js/knowledge.js' %}" defer></script>
+{% endblock %}

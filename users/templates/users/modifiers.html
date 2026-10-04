@@ -1,0 +1,17 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+{% if external_menu %}<p>This menu is externally managed. Update products, prices and modifiers in your connected application.</p>{% endif %}
+<h2>Modifier groups</h2>
+<p>Create choices such as milk, sweetness and extra shots, then attach them from a menu item's Modifiers page.</p>
+<ul>{% for entry in groups %}<li><a href="{% url 'tenant:modifier_edit' entry.pk %}">{{ entry.name }}</a></li>{% endfor %}</ul>
+<a href="{% url 'tenant:modifiers' %}">New group</a>
+<form method="post"><fieldset {% if external_menu %}disabled{% endif %}>{% csrf_token %}
+{{ form.as_p }}
+<h3>Options</h3>
+<p>Prices are surcharges per option. Quantity limits apply to each purchased item. Save to add another option.</p>
+{{ options.management_form }}{{ options.non_form_errors }}
+{% for option in options %}<fieldset>{{ option.as_p }}</fieldset>{% endfor %}
+<button type="submit">Save group and options</button>
+{% if group.pk %}<button name="action" value="delete" type="submit">Delete group and detach from items</button>{% endif %}
+</fieldset></form>
+{% endblock %}

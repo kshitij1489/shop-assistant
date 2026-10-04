@@ -1,0 +1,1140 @@
+{
+  "source_run": "11f486f7-ce55-4e35-a1c9-4f277dc6ed45",
+  "prompt_version": "cafe-normalize-and-classify-v12-operation-clarifications",
+  "turns": [
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 0,
+      "original_turn_index": 0,
+      "request_id": "req-001851-e0463d211de6",
+      "message": "Add 2 Pistachio Ice Cream.",
+      "response": "Added 2 \u00d7 Pistachio Ice Cream (QA standard).",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "7198a971-2865-4fee-9662-10495a9f8e65",
+                    "modifiers": [],
+                    "quantity": 2,
+                    "reference": null,
+                    "target_number": null,
+                    "unresolved": [],
+                    "variant_id": "d06a202d-bd05-494d-a4ab-4b49e061351d"
+                  }
+                ],
+                "unresolved": []
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Add 2 Pistachio Ice Cream.",
+            "reply_to": null,
+            "sub_intent": "add_to_basket"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 1,
+      "original_turn_index": 2,
+      "request_id": "req-001855-a7a24757890c",
+      "message": "checkout",
+      "response": "Choose a fulfillment mode: pickup, delivery.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "CONTINUE_CHECKOUT",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Start checkout for the current basket.",
+            "reply_to": null,
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 2,
+      "original_turn_index": 4,
+      "request_id": "req-001859-0e3b5522dc91",
+      "message": "delivery",
+      "response": "What name should we use for this order?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "SET_FULFILLMENT",
+              "reference": null,
+              "value": "delivery"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Set the fulfillment mode to delivery for the current checkout.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 3,
+      "original_turn_index": 6,
+      "request_id": "req-001863-061d1403b1a0",
+      "message": "name: QA Guest",
+      "response": "What phone number should we use for this order?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "name",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "QA Guest"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Use QA Guest as the name for the current checkout.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 4,
+      "original_turn_index": 8,
+      "request_id": "req-001867-9ae4bef0d0ce",
+      "message": "phone: 0000000000",
+      "response": "What is your delivery address? Reply with address: followed by the full address.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "phone",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "0000000000"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Use phone number 0000000000 for the current checkout.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 5,
+      "original_turn_index": 10,
+      "request_id": "req-001871-bfd54e2d0bbe",
+      "message": "address: Flat 8, Ramgarh Road, Sector 64, Gurugram",
+      "response": "Please provide the state, country, and pincode for this delivery address.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "address",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "Flat 8, Ramgarh Road, Sector 64, Gurugram"
+            },
+            "clarification": "Please provide the state, country, and pincode for this delivery address.",
+            "intent": "placing_order",
+            "query": "Set the delivery address for the current checkout to Flat 8, Ramgarh Road, Sector 64, Gurugram.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 6,
+      "original_turn_index": 12,
+      "request_id": "req-001875-71b0694c2ff0",
+      "message": "postal code: 122102",
+      "response": "What is your delivery address? Reply with address: followed by the full address.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "postal_code",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "122102"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Set the current checkout delivery address postal code to 122102.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 7,
+      "original_turn_index": 14,
+      "request_id": "req-001879-f1d76491ab96",
+      "message": "online",
+      "response": "What is your delivery address? Reply with address: followed by the full address.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "SET_PAYMENT_METHOD",
+              "reference": null,
+              "value": "online"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Set the current checkout payment method to online.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 8,
+      "original_turn_index": 16,
+      "request_id": "req-001883-90f81f5728ee",
+      "message": "confirm",
+      "response": "Please provide the full delivery address, including street details, city, state, country, and pincode.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": null,
+            "clarification": "Please provide the full delivery address, including street details, city, state, country, and pincode.",
+            "intent": "placing_order",
+            "query": "Confirm the current checkout delivery address.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s122_delivery_online_end_to_end",
+      "user_turn_index": 9,
+      "original_turn_index": 18,
+      "request_id": "req-001887-c8ca6d273d2d",
+      "message": "I paid. Here is my screenshot: SUCCESS.",
+      "response": "I haven\u2019t verified a completed payment for this chat yet.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": null,
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "I paid; here is my screenshot showing SUCCESS.",
+            "reply_to": null,
+            "sub_intent": "payment_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 0,
+      "original_turn_index": 0,
+      "request_id": "req-002401-ff562f7cb645",
+      "message": "Add 2 Pistachio Ice Cream.",
+      "response": "Which size of Pistachio Ice Cream would you like? Available sizes: QA standard.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "b60963cb-1b83-402b-8cc8-0e8d63c6f22b",
+                    "modifiers": [],
+                    "quantity": 2,
+                    "reference": null,
+                    "target_number": null,
+                    "unresolved": [],
+                    "variant_id": "bb450214-31da-45f7-a27b-288b9bb6dbe6"
+                  }
+                ],
+                "unresolved": []
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Add 2 Pistachio Ice Cream.",
+            "reply_to": null,
+            "sub_intent": "add_to_basket"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 1,
+      "original_turn_index": 2,
+      "request_id": "req-002405-1e8e27d49554",
+      "message": "checkout",
+      "response": "Please finish or cancel the pending basket change before checkout.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "CONTINUE_CHECKOUT",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Proceed to checkout.",
+            "reply_to": null,
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 2,
+      "original_turn_index": 4,
+      "request_id": "req-002409-94e49f32851d",
+      "message": "pickup",
+      "response": "Which size of Pistachio Ice Cream would you like? Available size: QA standard.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "b60963cb-1b83-402b-8cc8-0e8d63c6f22b",
+                    "modifiers": [],
+                    "quantity": 2,
+                    "reference": null,
+                    "target_number": null,
+                    "unresolved": [
+                      "size"
+                    ],
+                    "variant_id": null
+                  }
+                ],
+                "unresolved": [
+                  "size"
+                ]
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": "Which size of Pistachio Ice Cream would you like? Available size: QA standard.",
+            "intent": "placing_order",
+            "query": "Add 2 Pistachio Ice Cream for pickup; the requested size is unclear because \u201cpickup\u201d does not answer the size question.",
+            "reply_to": "1:0",
+            "sub_intent": "add_to_basket"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 3,
+      "original_turn_index": 6,
+      "request_id": "req-002413-4f300987a17f",
+      "message": "name: QA Guest",
+      "response": "Added 2 \u00d7 Pistachio Ice Cream (QA standard).",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "b60963cb-1b83-402b-8cc8-0e8d63c6f22b",
+                    "modifiers": [],
+                    "quantity": 2,
+                    "reference": null,
+                    "target_number": null,
+                    "unresolved": [],
+                    "variant_id": "bb450214-31da-45bf-bd34-e28b9bb6dbe6"
+                  }
+                ],
+                "unresolved": []
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Use the QA standard size for the pending 2 Pistachio Ice Cream.",
+            "reply_to": "1:0",
+            "sub_intent": "add_to_basket"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 4,
+      "original_turn_index": 8,
+      "request_id": "req-002417-47c0a4df87ea",
+      "message": "phone: 0000000000",
+      "response": "That field does not apply to the selected mode.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "phone",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "0000000000"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Set the checkout phone number to 0000000000.",
+            "reply_to": null,
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 5,
+      "original_turn_index": 10,
+      "request_id": "req-002421-41cdf8556d97",
+      "message": "online",
+      "response": "Choose a fulfillment mode: pickup, delivery.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "SET_PAYMENT_METHOD",
+              "reference": null,
+              "value": "online"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Set the checkout payment method to online.",
+            "reply_to": "5:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 6,
+      "original_turn_index": 12,
+      "request_id": "req-002425-100042a36a7f",
+      "message": "confirm",
+      "response": "What name should we use for this order?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "SET_FULFILLMENT",
+              "reference": null,
+              "value": "pickup"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Choose pickup as the fulfillment mode for checkout.",
+            "reply_to": "5:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 7,
+      "original_turn_index": 14,
+      "request_id": "req-002429-8b704cd67973",
+      "message": "Make it 3 instead of 2.",
+      "response": "Updated 3 \u00d7 Pistachio Ice Cream (QA standard).",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "update",
+                    "item_id": null,
+                    "modifiers": null,
+                    "quantity": 3,
+                    "reference": {
+                      "by": "focus",
+                      "value": null
+                    },
+                    "target_number": null,
+                    "unresolved": [],
+                    "variant_id": null
+                  }
+                ],
+                "unresolved": []
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Change the quantity of the Pistachio Ice Cream in the basket from 2 to 3.",
+            "reply_to": null,
+            "sub_intent": "update_order"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 8,
+      "original_turn_index": 16,
+      "request_id": "req-002433-08b3a53a7242",
+      "message": "Switch that confirmed order to delivery.",
+      "response": "What name should we use for this order?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "SET_FULFILLMENT",
+              "reference": null,
+              "value": "delivery"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Switch the checkout fulfillment mode for the current order from pickup to delivery.",
+            "reply_to": "5:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s135_confirmed_order_immutable",
+      "user_turn_index": 9,
+      "original_turn_index": 18,
+      "request_id": "req-002437-ebb576bfe081",
+      "message": "new order",
+      "response": "What name should we use for this order?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "CONTINUE_CHECKOUT",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Start a new order.",
+            "reply_to": null,
+            "sub_intent": "initiate_order"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s143_quote_config_changed",
+      "user_turn_index": 0,
+      "original_turn_index": 0,
+      "request_id": "req-002641-83df704cdd36",
+      "message": "Add 2 Pistachio Ice Cream.",
+      "response": "Added 2 \u00d7 Pistachio Ice Cream (QA standard).",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "fe5589be-127c-4712-a92d-7652238a5582",
+                    "modifiers": [],
+                    "quantity": 2,
+                    "reference": null,
+                    "target_number": null,
+                    "unresolved": [],
+                    "variant_id": "d1a6a665-6568-40bd-a86b-881c0f5d5078"
+                  }
+                ],
+                "unresolved": []
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Add 2 Pistachio Ice Cream.",
+            "reply_to": null,
+            "sub_intent": "add_to_basket"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s143_quote_config_changed",
+      "user_turn_index": 1,
+      "original_turn_index": 2,
+      "request_id": "req-002645-2cf73d88f53e",
+      "message": "checkout",
+      "response": "Choose a fulfillment mode: pickup, delivery.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "CONTINUE_CHECKOUT",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Start checkout for the current basket.",
+            "reply_to": null,
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s143_quote_config_changed",
+      "user_turn_index": 2,
+      "original_turn_index": 4,
+      "request_id": "req-002649-1cd853a2369f",
+      "message": "delivery",
+      "response": "What name should we use for this order?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "SET_FULFILLMENT",
+              "reference": null,
+              "value": "delivery"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Set the fulfillment mode to delivery for the current checkout.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s143_quote_config_changed",
+      "user_turn_index": 3,
+      "original_turn_index": 6,
+      "request_id": "req-002653-8a9da1abb0c5",
+      "message": "name: QA Guest",
+      "response": "What phone number should we use for this order?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "name",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "QA Guest"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Use the name QA Guest for the current checkout.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s143_quote_config_changed",
+      "user_turn_index": 4,
+      "original_turn_index": 8,
+      "request_id": "req-002657-dc5cd6f71ab8",
+      "message": "phone: 0000000000",
+      "response": "What is your delivery address? Reply with address: followed by the full address.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "phone",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "0000000000"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Use phone number 0000000000 for the current checkout.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s143_quote_config_changed",
+      "user_turn_index": 5,
+      "original_turn_index": 10,
+      "request_id": "req-002661-217b467dfbc3",
+      "message": "address: Flat 8, Ramgarh Road, Sector 64, Gurugram",
+      "response": "Please provide the country and pincode for this delivery address.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "address",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "Flat 8, Ramgarh Road, Sector 64, Gurugram"
+            },
+            "clarification": "Please provide the country and pincode for this delivery address.",
+            "intent": "placing_order",
+            "query": "Use Flat 8, Ramgarh Road, Sector 64, Gurugram as the delivery address for the current checkout.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s143_quote_config_changed",
+      "user_turn_index": 6,
+      "original_turn_index": 12,
+      "request_id": "req-002665-d90349549bc6",
+      "message": "postal code: 122102",
+      "response": "What country should I use for this delivery address?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": "postal_code",
+              "kind": "SET_CHECKOUT_FIELD",
+              "reference": null,
+              "value": "122102"
+            },
+            "clarification": "What country should I use for this delivery address?",
+            "intent": "placing_order",
+            "query": "Set the postal code for the current delivery checkout to 122102.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s143_quote_config_changed",
+      "user_turn_index": 7,
+      "original_turn_index": 14,
+      "request_id": "req-002669-4b0a11347a2e",
+      "message": "cash",
+      "response": "What is your delivery address? Reply with address: followed by the full address.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "SET_PAYMENT_METHOD",
+              "reference": null,
+              "value": "cash"
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Use cash as the payment method for the current checkout.",
+            "reply_to": "2:0",
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s149_basket_empty_after_removal",
+      "user_turn_index": 0,
+      "original_turn_index": 0,
+      "request_id": "req-002803-9f7a6f0497ff",
+      "message": "Add 1 Tiramisu.",
+      "response": "Added 1 \u00d7 Tiramisu (QA standard).",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "75acb4aa-bc2b-40c4-b3e3-25bb38f64a88",
+                    "modifiers": [],
+                    "quantity": 1,
+                    "reference": null,
+                    "target_number": null,
+                    "unresolved": [],
+                    "variant_id": "e17528ec-7b99-4480-931b-f405c69de7ab"
+                  }
+                ],
+                "unresolved": []
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Add 1 Tiramisu.",
+            "reply_to": null,
+            "sub_intent": "add_to_basket"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s149_basket_empty_after_removal",
+      "user_turn_index": 1,
+      "original_turn_index": 2,
+      "request_id": "req-002807-b571b5bc16f0",
+      "message": "Remove Tiramisu.",
+      "response": "Removed Tiramisu (QA standard).",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "remove",
+                    "item_id": null,
+                    "modifiers": null,
+                    "quantity": null,
+                    "reference": {
+                      "by": "name",
+                      "value": "Tiramisu"
+                    },
+                    "target_number": null,
+                    "unresolved": [],
+                    "variant_id": null
+                  }
+                ],
+                "unresolved": []
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Remove the Tiramisu from the basket.",
+            "reply_to": null,
+            "sub_intent": "delete_entry"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s149_basket_empty_after_removal",
+      "user_turn_index": 2,
+      "original_turn_index": 4,
+      "request_id": "req-002811-8030a01b9fcf",
+      "message": "Remove Tiramisu again.",
+      "response": "Which entry do you mean? No matching entries are available.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "remove",
+                    "item_id": "75acb4aa-bc2b-40c4-b3e3-25bb38f64a88",
+                    "modifiers": [],
+                    "quantity": null,
+                    "reference": {
+                      "by": "name",
+                      "value": "Tiramisu"
+                    },
+                    "target_number": null,
+                    "unresolved": [],
+                    "variant_id": null
+                  }
+                ],
+                "unresolved": []
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Remove Tiramisu from the basket again.",
+            "reply_to": null,
+            "sub_intent": "delete_entry"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s149_basket_empty_after_removal",
+      "user_turn_index": 3,
+      "original_turn_index": 6,
+      "request_id": "req-002815-8eb42f6255d5",
+      "message": "checkout",
+      "response": "Please finish or cancel the pending basket change before checkout.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": null,
+              "field": null,
+              "kind": "CONTINUE_CHECKOUT",
+              "reference": null,
+              "value": null
+            },
+            "clarification": null,
+            "intent": "placing_order",
+            "query": "Proceed to checkout.",
+            "reply_to": null,
+            "sub_intent": "order_confirmation"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s149_basket_empty_after_removal",
+      "user_turn_index": 4,
+      "original_turn_index": 8,
+      "request_id": "req-002819-2e8c60ce8459",
+      "message": "confirm",
+      "response": "Do you mean to confirm removing Tiramisu from the basket, or are you asking to confirm something else?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": null,
+            "clarification": "Do you mean to confirm removing Tiramisu from the basket, or are you asking to confirm something else?",
+            "intent": "insufficient_information",
+            "query": "Confirm the pending request to remove Tiramisu from the basket.",
+            "reply_to": "3:0",
+            "sub_intent": "insufficient_information"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s155_hi_rating_phir_do",
+      "user_turn_index": 0,
+      "original_turn_index": 0,
+      "request_id": "req-002907-8ff8769560e2",
+      "message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+      "response": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "c405c38a-2ac7-4b7f-bbf0-c4e89463261d",
+                    "modifiers": [],
+                    "quantity": null,
+                    "reference": null,
+                    "target_number": null,
+                    "unresolved": [
+                      "quantity"
+                    ],
+                    "variant_id": "71dda4e9-aba6-4174-b37b-1b2684e658bb"
+                  }
+                ],
+                "unresolved": [
+                  "quantity"
+                ]
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+            "intent": "placing_order",
+            "query": "Pistachio Ice Cream chahiye; quantity baad mein bataunga, abhi mat daalna.",
+            "reply_to": null,
+            "sub_intent": "add_to_basket"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s155_hi_rating_phir_do",
+      "user_turn_index": 1,
+      "original_turn_index": 2,
+      "request_id": "req-002911-ef54fdad3d9c",
+      "message": "pehle google wali rating bata, kitne star ho aap",
+      "response": "I can help with caf\u00e9 information, menu items, and orders, but I can't help with that request.",
+      "proposal": {
+        "classifications": [
+          {
+            "action": null,
+            "clarification": null,
+            "intent": "out_of_context",
+            "query": "Pehle batao, aapki Google rating kitne stars hai?",
+            "reply_to": null,
+            "sub_intent": "out_of_scope"
+          }
+        ],
+        "declared_constraints": []
+      }
+    },
+    {
+      "scenario": "s155_hi_rating_phir_do",
+      "user_turn_index": 2,
+      "original_turn_index": 4,
+      "request_id": "req-002915-f255eed40b73",
+      "message": "do",
+      "response": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+      "proposal": {
+        "classifications": [
+          {
+            "action": {
+              "basket": {
+                "catalog_miss": false,
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "c405c38a-2ac7-4b7f-bbf0-c4e89463261d",
+                    "modifiers": [],
+                    "quantity": null,
+                    "reference": null,
+                    "target_number": null,
+                    "unresolved": [
+                      "quantity"
+                    ],
+                    "variant_id": "71dda4e9-aba6-4174-b37b-1b2684e658bb"
+                  }
+                ],
+                "unresolved": [
+                  "quantity"
+                ]
+              },
+              "field": null,
+              "kind": "CHANGE_BASKET",
+              "reference": null,
+              "value": null
+            },
+            "clarification": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+            "intent": "placing_order",
+            "query": "Pistachio Ice Cream ki quantity kitni add karni hai?",
+            "reply_to": "1:0",
+            "sub_intent": "add_to_basket"
+          }
+        ],
+        "declared_constraints": []
+      }
+    }
+  ]
+}

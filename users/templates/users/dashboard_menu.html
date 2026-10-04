@@ -1,0 +1,88 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+<p><a href="{% url 'tenant:modifiers' %}">Manage modifier groups and options</a></p>
+<h2 style="margin-top:0">Menu</h2>
+<p><a href="{% url 'tenant:menu_source' %}">Menu source: {% if external_menu %}External{% else %}Local{% endif %}</a></p>
+{% if external_menu %}<p>This menu is managed by your connected application. Product and price edits are disabled here.</p>{% endif %}
+<p class="muted">Cards show name, category & availability; click a card to view/edit details.</p>
+{% if external_menu %}
+<p class="muted">Menu answers and ordering use the synchronized catalog. Ordering pauses if the source data becomes too old.</p>
+{% else %}
+<p class="muted">Catalog changes apply to ordering immediately. Publish the updated chatbot knowledge from the <a href="{% url 'tenant:tenant_knowledge' %}">Knowledge page</a> to update menu answers.</p>
+{% endif %}
+
+{% if not external_menu %}
+<details class="importer" open>
+  <summary>Categories</summary>
+  <div>
+    <p class="muted">Lower order numbers appear first. Inactive categories hide their products from the customer menu. Deleting a category keeps its products as uncategorized and uses each product’s availability setting.</p>
+    {% for category in categories %}
+      <div class="form-row">
+        <form class="form-row" method="post" action="{% url 'tenant:tenant_menu_category_update' category.id %}">
+          {% csrf_token %}
+          <label>Name <input name="name" value="{{ category.name }}" maxlength="255" required></label>
+          <label>Order <input type="number" name="sort_order" value="{{ category.sort_order }}" min="0" required></label>
+          <label><input type="checkbox" name="is_active" {% if category.is_active %}checked{% endif %}> Active</label>
+          <button class="btn primary" type="submit">Save</button>
+        </form>
+        <form class="form-row" method="post" action="{% url 'tenant:tenant_menu_category_delete' category.id %}">
+          {% csrf_token %}
+          <button class="btn" type="submit">Delete category</button>
+        </form>
+      </div>
+    {% empty %}<p class="muted">No categories yet.</p>{% endfor %}
+    <form class="form-row" method="post" action="{% url 'tenant:tenant_menu_category_add' %}">
+      {% csrf_token %}
+      <label>Name <input name="name" placeholder="e.g. Coffee" maxlength="255" required></label>
+      <label>Order <input type="number" name="sort_order" value="0" min="0" required></label>
+      <label><input type="checkbox" name="is_active" checked> Active</label>
+      <button class="btn primary" type="submit">Add category</button>
+    </form>
+  </div>
+</details>
+
+<!-- NEW: Import JSON → DB (the per-item array you provided) -->
+<details class="importer" open>
+  <summary>Import Menu JSON (per-item array) → Upsert DB</summary>
+  <div>
+    <form method="post" action="{% url 'tenant:tenant_menu_ingest_json' %}" class="stack">
+      {% csrf_token %}
+      <label for="menu-items-json">Menu JSON</label>
+      <textarea id="menu-items-json" class="json" name="menu_items_json" placeholder='{"menu_items": [ ... ]}' spellcheck="false">{{ sample_menu_json|default:"" }}</textarea>
+      <div class="actions">
+        <button type="button" class="btn" onclick="(function(t){try{const o=JSON.parse(t.value); t.value=JSON.stringify(o,null,2);}catch(e){alert('Invalid JSON: '+e.message)}})(this.form.menu_items_json)">Validate JSON</button>
+        <button type="submit" class="btn primary">Import & Upsert</button>
+        <small class="muted">Understands fields like: availability.quantity, pricing (sizes), portion_and_size, dietary_preferences, allergens, ingredients, nutrition, preparation, recommendations, specialty_items, source_quality, pairings, flavor_profile, menu_category.</small>
+      </div>
+    </form>
+  </div>
+</details>
+
+{% endif %}
+<!-- Item cards (no details/expanded UI; just links) -->
+<div class="menu-grid">
+  {% for item in menu_items %}
+    <article class="card card-flush">
+      <a href="{% url 'tenant:tenant_menu_item_detail' item.id %}" style="display:block; text-decoration:none; color:inherit">
+        <div class="card-head">
+          <div class="name">{{ item.name }}</div>
+          {% if item.is_available and item.category_fk.is_active or item.is_available and not item.category_fk %}
+            <span class="badge on">Available</span>
+          {% else %}
+            <span class="badge off">Unavailable</span>
+          {% endif %}
+        </div>
+        <div style="padding:0 1rem 1rem;">
+          <div class="muted" style="font-size:.9rem;">
+            {{ item.category_fk.name|default:"uncategorized" }} · Qty: {{ item.quantity }}{% if item.description %} · {{ item.description }}{% endif %}
+          </div>
+        </div>
+      </a>
+    </article>
+  {% empty %}
+    <p class="muted">No menu items yet.</p>
+  {% endfor %}
+</div>
+
+
+{% endblock %}

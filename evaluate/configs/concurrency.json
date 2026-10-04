@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "generated-on-start",
+  "base_url": "http://127.0.0.1:8000",
+  "dataset_directory": "test_data",
+  "scenario_plan_version": "dataset-setup-v2-text-address",
+  "models": {
+    "chat": "gpt-6-luna",
+    "translate": "gpt-6-luna",
+    "analytics": "gpt-6-luna",
+    "judge": null
+  },
+  "seed": 0,
+  "repetitions": 1,
+  "timeout_seconds": 30.0,
+  "isolation": "disposable_tenant",
+  "runner": {
+    "workload": "full",
+    "max_live_calls": 1000,
+    "max_requests": 1000,
+    "concurrency": 4,
+    "ramp_up": 10.0,
+    "warm_up_sessions": 4,
+    "max_provider_sessions": 1
+  }
+}

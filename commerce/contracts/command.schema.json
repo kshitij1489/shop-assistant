@@ -1,0 +1,1002 @@
+{
+  "$defs": {
+    "Customer": {
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Id"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "phone": {
+          "title": "Phone",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "phone"
+      ],
+      "title": "Customer",
+      "type": "object"
+    },
+    "Fee": {
+      "additionalProperties": true,
+      "properties": {
+        "subtotal_minor": {
+          "minimum": 0,
+          "title": "Subtotal Minor",
+          "type": "integer"
+        },
+        "discount_minor": {
+          "minimum": 0,
+          "title": "Discount Minor",
+          "type": "integer"
+        },
+        "tax_minor": {
+          "minimum": 0,
+          "title": "Tax Minor",
+          "type": "integer"
+        },
+        "net_minor": {
+          "minimum": 0,
+          "title": "Net Minor",
+          "type": "integer"
+        },
+        "total_minor": {
+          "minimum": 0,
+          "title": "Total Minor",
+          "type": "integer"
+        },
+        "taxes": {
+          "items": {
+            "$ref": "#/$defs/Tax"
+          },
+          "title": "Taxes",
+          "type": "array"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subtotal_minor",
+        "discount_minor",
+        "tax_minor",
+        "net_minor",
+        "total_minor",
+        "taxes",
+        "code"
+      ],
+      "title": "Fee",
+      "type": "object"
+    },
+    "Fulfillment": {
+      "additionalProperties": true,
+      "properties": {
+        "fulfillment_id": {
+          "minLength": 1,
+          "title": "Fulfillment Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fulfillment_id"
+      ],
+      "title": "Fulfillment",
+      "type": "object"
+    },
+    "Line": {
+      "additionalProperties": true,
+      "properties": {
+        "subtotal_minor": {
+          "minimum": 0,
+          "title": "Subtotal Minor",
+          "type": "integer"
+        },
+        "discount_minor": {
+          "minimum": 0,
+          "title": "Discount Minor",
+          "type": "integer"
+        },
+        "tax_minor": {
+          "minimum": 0,
+          "title": "Tax Minor",
+          "type": "integer"
+        },
+        "net_minor": {
+          "minimum": 0,
+          "title": "Net Minor",
+          "type": "integer"
+        },
+        "total_minor": {
+          "minimum": 0,
+          "title": "Total Minor",
+          "type": "integer"
+        },
+        "taxes": {
+          "items": {
+            "$ref": "#/$defs/Tax"
+          },
+          "title": "Taxes",
+          "type": "array"
+        },
+        "line_id": {
+          "minLength": 1,
+          "title": "Line Id",
+          "type": "string"
+        },
+        "item_id": {
+          "minLength": 1,
+          "title": "Item Id",
+          "type": "string"
+        },
+        "item_variant_id": {
+          "minLength": 1,
+          "title": "Item Variant Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        },
+        "unit_price": {
+          "title": "Unit Price",
+          "type": "string"
+        },
+        "unit_minor": {
+          "minimum": 0,
+          "title": "Unit Minor",
+          "type": "integer"
+        },
+        "modifiers": {
+          "items": {
+            "$ref": "#/$defs/Modifier"
+          },
+          "title": "Modifiers",
+          "type": "array"
+        }
+      },
+      "required": [
+        "subtotal_minor",
+        "discount_minor",
+        "tax_minor",
+        "net_minor",
+        "total_minor",
+        "taxes",
+        "line_id",
+        "item_id",
+        "item_variant_id",
+        "name",
+        "quantity",
+        "unit_price",
+        "unit_minor",
+        "modifiers"
+      ],
+      "title": "Line",
+      "type": "object"
+    },
+    "Modifier": {
+      "additionalProperties": true,
+      "properties": {
+        "option_id": {
+          "minLength": 1,
+          "title": "Option Id",
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        },
+        "unit_price": {
+          "title": "Unit Price",
+          "type": "string"
+        },
+        "unit_minor": {
+          "minimum": 0,
+          "title": "Unit Minor",
+          "type": "integer"
+        },
+        "subtotal_minor": {
+          "minimum": 0,
+          "title": "Subtotal Minor",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "option_id",
+        "quantity",
+        "unit_price",
+        "unit_minor",
+        "subtotal_minor"
+      ],
+      "title": "Modifier",
+      "type": "object"
+    },
+    "OrderReconcile": {
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "command_id": {
+          "format": "uuid",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "lease_token": {
+          "format": "uuid",
+          "title": "Lease Token",
+          "type": "string"
+        },
+        "lease_until": {
+          "format": "date-time",
+          "title": "Lease Until",
+          "type": "string"
+        },
+        "attempt": {
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "type": {
+          "const": "order.reconcile",
+          "title": "Type",
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/OrderReconcileData"
+        }
+      },
+      "required": [
+        "schema_version",
+        "command_id",
+        "idempotency_key",
+        "lease_token",
+        "lease_until",
+        "attempt",
+        "type",
+        "data"
+      ],
+      "title": "OrderReconcile",
+      "type": "object"
+    },
+    "OrderReconcileData": {
+      "additionalProperties": true,
+      "properties": {
+        "accepted_order_id": {
+          "format": "uuid",
+          "title": "Accepted Order Id",
+          "type": "string"
+        },
+        "order_id": {
+          "format": "uuid",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "original_command_id": {
+          "format": "uuid",
+          "title": "Original Command Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "accepted_order_id",
+        "order_id",
+        "original_command_id"
+      ],
+      "title": "OrderReconcileData",
+      "type": "object"
+    },
+    "OrderSubmit": {
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "command_id": {
+          "format": "uuid",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "lease_token": {
+          "format": "uuid",
+          "title": "Lease Token",
+          "type": "string"
+        },
+        "lease_until": {
+          "format": "date-time",
+          "title": "Lease Until",
+          "type": "string"
+        },
+        "attempt": {
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "type": {
+          "const": "order.submit",
+          "title": "Type",
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/OrderSubmitData"
+        }
+      },
+      "required": [
+        "schema_version",
+        "command_id",
+        "idempotency_key",
+        "lease_token",
+        "lease_until",
+        "attempt",
+        "type",
+        "data"
+      ],
+      "title": "OrderSubmit",
+      "type": "object"
+    },
+    "OrderSubmitData": {
+      "additionalProperties": true,
+      "properties": {
+        "accepted_order_id": {
+          "format": "uuid",
+          "title": "Accepted Order Id",
+          "type": "string"
+        },
+        "order_id": {
+          "format": "uuid",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "snapshot_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Hash",
+          "type": "string"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/Snapshot"
+        },
+        "payment_method": {
+          "enum": [
+            "cash",
+            "online"
+          ],
+          "title": "Payment Method",
+          "type": "string"
+        },
+        "payments": {
+          "items": {
+            "$ref": "#/$defs/PaymentReference"
+          },
+          "title": "Payments",
+          "type": "array"
+        },
+        "reservations": {
+          "items": {
+            "$ref": "#/$defs/ReservationReference"
+          },
+          "title": "Reservations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "accepted_order_id",
+        "order_id",
+        "snapshot_hash",
+        "snapshot",
+        "payment_method",
+        "payments",
+        "reservations"
+      ],
+      "title": "OrderSubmitData",
+      "type": "object"
+    },
+    "PaymentCreate": {
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "command_id": {
+          "format": "uuid",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "lease_token": {
+          "format": "uuid",
+          "title": "Lease Token",
+          "type": "string"
+        },
+        "lease_until": {
+          "format": "date-time",
+          "title": "Lease Until",
+          "type": "string"
+        },
+        "attempt": {
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "type": {
+          "const": "payment.create",
+          "title": "Type",
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/PaymentCreateData"
+        }
+      },
+      "required": [
+        "schema_version",
+        "command_id",
+        "idempotency_key",
+        "lease_token",
+        "lease_until",
+        "attempt",
+        "type",
+        "data"
+      ],
+      "title": "PaymentCreate",
+      "type": "object"
+    },
+    "PaymentCreateData": {
+      "additionalProperties": true,
+      "properties": {
+        "payment_id": {
+          "format": "uuid",
+          "title": "Payment Id",
+          "type": "string"
+        },
+        "order_id": {
+          "format": "uuid",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exponent": {
+          "enum": [
+            0,
+            2
+          ],
+          "title": "Exponent",
+          "type": "integer"
+        },
+        "amount_minor": {
+          "minimum": 0,
+          "title": "Amount Minor",
+          "type": "integer"
+        },
+        "customer": {
+          "$ref": "#/$defs/Customer"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires At"
+        }
+      },
+      "required": [
+        "payment_id",
+        "order_id",
+        "currency",
+        "exponent",
+        "amount_minor",
+        "customer"
+      ],
+      "title": "PaymentCreateData",
+      "type": "object"
+    },
+    "PaymentReconcile": {
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "command_id": {
+          "format": "uuid",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "lease_token": {
+          "format": "uuid",
+          "title": "Lease Token",
+          "type": "string"
+        },
+        "lease_until": {
+          "format": "date-time",
+          "title": "Lease Until",
+          "type": "string"
+        },
+        "attempt": {
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "type": {
+          "const": "payment.reconcile",
+          "title": "Type",
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/PaymentReconcileData"
+        }
+      },
+      "required": [
+        "schema_version",
+        "command_id",
+        "idempotency_key",
+        "lease_token",
+        "lease_until",
+        "attempt",
+        "type",
+        "data"
+      ],
+      "title": "PaymentReconcile",
+      "type": "object"
+    },
+    "PaymentReconcileData": {
+      "additionalProperties": true,
+      "properties": {
+        "payment_id": {
+          "format": "uuid",
+          "title": "Payment Id",
+          "type": "string"
+        },
+        "external_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "External Id"
+        }
+      },
+      "required": [
+        "payment_id",
+        "external_id"
+      ],
+      "title": "PaymentReconcileData",
+      "type": "object"
+    },
+    "PaymentReference": {
+      "additionalProperties": true,
+      "properties": {
+        "payment_id": {
+          "format": "uuid",
+          "title": "Payment Id",
+          "type": "string"
+        },
+        "external_id": {
+          "title": "External Id",
+          "type": "string"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "captured_minor": {
+          "minimum": 0,
+          "title": "Captured Minor",
+          "type": "integer"
+        },
+        "refunded_minor": {
+          "minimum": 0,
+          "title": "Refunded Minor",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "payment_id",
+        "external_id",
+        "provider",
+        "currency",
+        "captured_minor",
+        "refunded_minor"
+      ],
+      "title": "PaymentReference",
+      "type": "object"
+    },
+    "PaymentRefund": {
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "command_id": {
+          "format": "uuid",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "format": "uuid",
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "lease_token": {
+          "format": "uuid",
+          "title": "Lease Token",
+          "type": "string"
+        },
+        "lease_until": {
+          "format": "date-time",
+          "title": "Lease Until",
+          "type": "string"
+        },
+        "attempt": {
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "type": {
+          "const": "payment.refund",
+          "title": "Type",
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/PaymentRefundData"
+        }
+      },
+      "required": [
+        "schema_version",
+        "command_id",
+        "idempotency_key",
+        "lease_token",
+        "lease_until",
+        "attempt",
+        "type",
+        "data"
+      ],
+      "title": "PaymentRefund",
+      "type": "object"
+    },
+    "PaymentRefundData": {
+      "additionalProperties": true,
+      "properties": {
+        "payment_id": {
+          "format": "uuid",
+          "title": "Payment Id",
+          "type": "string"
+        },
+        "external_id": {
+          "minLength": 1,
+          "title": "External Id",
+          "type": "string"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exponent": {
+          "enum": [
+            0,
+            2
+          ],
+          "title": "Exponent",
+          "type": "integer"
+        },
+        "target_refunded_minor": {
+          "minimum": 0,
+          "title": "Target Refunded Minor",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "payment_id",
+        "external_id",
+        "currency",
+        "exponent",
+        "target_refunded_minor"
+      ],
+      "title": "PaymentRefundData",
+      "type": "object"
+    },
+    "Pricing": {
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exponent": {
+          "enum": [
+            0,
+            2
+          ],
+          "title": "Exponent",
+          "type": "integer"
+        },
+        "rounding": {
+          "const": "HALF_UP_PER_LINE_LARGEST_REMAINDER",
+          "title": "Rounding",
+          "type": "string"
+        },
+        "policy": {
+          "additionalProperties": true,
+          "title": "Policy",
+          "type": "object"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/Line"
+          },
+          "title": "Lines",
+          "type": "array"
+        },
+        "fees": {
+          "items": {
+            "$ref": "#/$defs/Fee"
+          },
+          "title": "Fees",
+          "type": "array"
+        },
+        "subtotal_minor": {
+          "minimum": 0,
+          "title": "Subtotal Minor",
+          "type": "integer"
+        },
+        "discount_code": {
+          "title": "Discount Code",
+          "type": "string"
+        },
+        "discount_minor": {
+          "minimum": 0,
+          "title": "Discount Minor",
+          "type": "integer"
+        },
+        "tax_minor": {
+          "minimum": 0,
+          "title": "Tax Minor",
+          "type": "integer"
+        },
+        "total_minor": {
+          "minimum": 0,
+          "title": "Total Minor",
+          "type": "integer"
+        },
+        "location_id": {
+          "format": "uuid",
+          "title": "Location Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "currency",
+        "exponent",
+        "rounding",
+        "policy",
+        "lines",
+        "fees",
+        "subtotal_minor",
+        "discount_code",
+        "discount_minor",
+        "tax_minor",
+        "total_minor",
+        "location_id"
+      ],
+      "title": "Pricing",
+      "type": "object"
+    },
+    "ReservationReference": {
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "stock_id": {
+          "format": "uuid",
+          "title": "Stock Id",
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "stock_id",
+        "quantity"
+      ],
+      "title": "ReservationReference",
+      "type": "object"
+    },
+    "Snapshot": {
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "order_id": {
+          "format": "uuid",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "tenant_id": {
+          "minLength": 1,
+          "title": "Tenant Id",
+          "type": "string"
+        },
+        "location_id": {
+          "format": "uuid",
+          "title": "Location Id",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "customer": {
+          "$ref": "#/$defs/Customer"
+        },
+        "fulfillment": {
+          "$ref": "#/$defs/Fulfillment"
+        },
+        "instructions": {
+          "title": "Instructions",
+          "type": "string"
+        },
+        "pricing": {
+          "$ref": "#/$defs/Pricing"
+        }
+      },
+      "required": [
+        "schema_version",
+        "order_id",
+        "tenant_id",
+        "location_id",
+        "source",
+        "customer",
+        "fulfillment",
+        "instructions",
+        "pricing"
+      ],
+      "title": "Snapshot",
+      "type": "object"
+    },
+    "Tax": {
+      "additionalProperties": true,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "rate": {
+          "title": "Rate",
+          "type": "string"
+        },
+        "inclusive": {
+          "title": "Inclusive",
+          "type": "boolean"
+        },
+        "amount_minor": {
+          "minimum": 0,
+          "title": "Amount Minor",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "rate",
+        "inclusive",
+        "amount_minor"
+      ],
+      "title": "Tax",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "order.reconcile": "#/$defs/OrderReconcile",
+      "order.submit": "#/$defs/OrderSubmit",
+      "payment.create": "#/$defs/PaymentCreate",
+      "payment.reconcile": "#/$defs/PaymentReconcile",
+      "payment.refund": "#/$defs/PaymentRefund"
+    },
+    "propertyName": "type"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/PaymentCreate"
+    },
+    {
+      "$ref": "#/$defs/PaymentReconcile"
+    },
+    {
+      "$ref": "#/$defs/PaymentRefund"
+    },
+    {
+      "$ref": "#/$defs/OrderSubmit"
+    },
+    {
+      "$ref": "#/$defs/OrderReconcile"
+    }
+  ]
+}

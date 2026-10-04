@@ -1,0 +1,173 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "scenario_instance_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Scenario Instance Id",
+      "type": "string"
+    },
+    "attempt": {
+      "minimum": 1,
+      "title": "Attempt",
+      "type": "integer"
+    },
+    "event_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "original_turn_index": {
+      "minimum": 0,
+      "title": "Original Turn Index",
+      "type": "integer"
+    },
+    "user_turn_index": {
+      "minimum": 0,
+      "title": "User Turn Index",
+      "type": "integer"
+    },
+    "request_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Request Id",
+      "type": "string"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "sent_message": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sent Message"
+    },
+    "response_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Response Text"
+    },
+    "response_error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Response Error"
+    },
+    "http_status": {
+      "anyOf": [
+        {
+          "maximum": 599,
+          "minimum": 100,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Http Status"
+    },
+    "elapsed_ms": {
+      "minimum": 0,
+      "title": "Elapsed Ms",
+      "type": "number"
+    },
+    "snapshot_ids": {
+      "items": {
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+        "type": "string"
+      },
+      "title": "Snapshot Ids",
+      "type": "array"
+    },
+    "branch": {
+      "enum": [
+        "matched",
+        "mismatch",
+        "not_applicable"
+      ],
+      "title": "Branch",
+      "type": "string"
+    },
+    "transport_error": {
+      "anyOf": [
+        {
+          "enum": [
+            "timeout",
+            "connection",
+            "invalid_response"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transport Error"
+    },
+    "warm_up": {
+      "default": false,
+      "title": "Warm Up",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "run_id",
+    "scenario_id",
+    "scenario_instance_id",
+    "attempt",
+    "event_id",
+    "original_turn_index",
+    "user_turn_index",
+    "request_id",
+    "message",
+    "response_text",
+    "http_status",
+    "elapsed_ms",
+    "snapshot_ids",
+    "branch"
+  ],
+  "title": "TurnEvidence",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:studio-desk:evaluate:1.0.0:turn_evidence"
+}

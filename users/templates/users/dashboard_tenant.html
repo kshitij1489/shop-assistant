@@ -1,0 +1,55 @@
+{% extends "users/base_tenant.html" %}
+{% block tenant_content %}
+<div class="dashboard-home">
+  <section class="dashboard-intro">
+    <h1>Welcome, {{ request.user.username }}</h1>
+    <p>This is your dashboard — manage your chatbot operations and customer engagement.</p>
+  </section>
+
+<section class="dashboard-section">
+  <div class="menu-grid">
+    <a href="{% url 'tenant:tenant_chats' %}" class="card">
+      <h3>Chats</h3>
+      <p>View and Manage Chats, Live.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_analytics' %}" class="card">
+      <h3>Analytics</h3>
+      <p>View chatbot performance and user insights.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_orders' %}" class="card">
+      <h3>Orders</h3>
+      <p>Check order history, fulfillment, and revenue.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_menu' %}" class="card">
+      <h3>Menu</h3>
+      <p>View or update your menu items and pricing.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_activity' %}" class="card">
+      <h3>Activity</h3>
+      <p>View webhook logs and recent chat sessions.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_campaigns' %}" class="card">
+      <h3>Campaigns</h3>
+      <p>Send WhatsApp, Telegram, or email messages.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_users' %}" class="card">
+      <h3>Users</h3>
+      <p>Manage customer or conversation history.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_knowledge' %}" class="card">
+      <h3>Knowledge</h3>
+      <p>Upload or edit your chatbot's knowledge base.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_billing' %}" class="card">
+      <h3>Billing</h3>
+      <p>Check plans, invoices, and payment history.</p>
+    </a>
+    <a href="{% url 'tenant:tenant_settings' %}" class="card">
+      <h3>Settings</h3>
+      <p>Manage WhatsApp, Telegram, and email settings.</p>
+    </a>
+  </div>
+</section>
+
+</div>
+{% endblock %}

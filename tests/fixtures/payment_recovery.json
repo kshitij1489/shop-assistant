@@ -1,0 +1,213 @@
+[
+  {
+    "id": "retry",
+    "text": "Retry the payment link.",
+    "context": {
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": true,
+      "checkout": {
+        "mode": "pickup",
+        "payment_method": "online"
+      },
+      "recent_exchange": [
+        {
+          "role": "assistant",
+          "text": "Your order is reserved while the payment provider prepares a secure payment link. Please try payment again shortly."
+        }
+      ]
+    },
+    "route": "placing_order/order_payment",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "RECOVER_PAYMENT"
+        }
+      }
+    ]
+  },
+  {
+    "id": "resend",
+    "text": "Can you send me the link again?",
+    "context": {
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": true,
+      "checkout": {
+        "mode": "pickup",
+        "payment_method": "online"
+      },
+      "recent_exchange": [
+        {
+          "role": "assistant",
+          "text": "Your order is reserved while the payment provider prepares a secure payment link. Please try payment again shortly."
+        }
+      ]
+    },
+    "route": "placing_order/order_payment",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "RECOVER_PAYMENT"
+        }
+      }
+    ]
+  },
+  {
+    "id": "resume",
+    "text": "I want to finish paying for my order.",
+    "context": {
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": true,
+      "checkout": {
+        "mode": "pickup",
+        "payment_method": "online"
+      },
+      "recent_exchange": [
+        {
+          "role": "assistant",
+          "text": "Your order is reserved while the payment provider prepares a secure payment link. Please try payment again shortly."
+        }
+      ]
+    },
+    "route": "placing_order/order_payment",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "RECOVER_PAYMENT"
+        }
+      }
+    ]
+  },
+  {
+    "id": "hindi",
+    "text": "पेमेंट का लिंक फिर से भेज दीजिए।",
+    "context": {
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": true,
+      "checkout": {
+        "mode": "pickup",
+        "payment_method": "online"
+      },
+      "recent_exchange": [
+        {
+          "role": "assistant",
+          "text": "Your order is reserved while the payment provider prepares a secure payment link. Please try payment again shortly."
+        }
+      ]
+    },
+    "route": "placing_order/order_payment",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "RECOVER_PAYMENT"
+        }
+      }
+    ]
+  },
+  {
+    "id": "russian",
+    "text": "Пришлите ссылку на оплату ещё раз.",
+    "context": {
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": true,
+      "checkout": {
+        "mode": "pickup",
+        "payment_method": "online"
+      },
+      "recent_exchange": [
+        {
+          "role": "assistant",
+          "text": "Your order is reserved while the payment provider prepares a secure payment link. Please try payment again shortly."
+        }
+      ]
+    },
+    "route": "placing_order/order_payment",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "RECOVER_PAYMENT"
+        }
+      }
+    ]
+  },
+  {
+    "id": "payment_claim",
+    "text": "I already paid.",
+    "context": {
+      "basket": [],
+      "open_requests": [],
+      "active_pending_id": null,
+      "has_placed_order": true,
+      "checkout": {
+        "mode": "pickup",
+        "payment_method": "online"
+      },
+      "recent_exchange": [
+        {
+          "role": "assistant",
+          "text": "Your order is reserved while the payment provider prepares a secure payment link. Please try payment again shortly."
+        }
+      ]
+    },
+    "route": "placing_order/payment_confirmation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "start_checkout",
+    "text": "I want to pay.",
+    "context": {
+      "has_placed_order": false,
+      "open_requests": [],
+      "basket": [
+        {
+          "item_number": 1,
+          "name": "Coffee",
+          "size": "Regular",
+          "quantity": 1
+        }
+      ]
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "action": {
+          "kind": "CONTINUE_CHECKOUT"
+        }
+      }
+    ]
+  }
+]

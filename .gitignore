@@ -1,0 +1,26 @@
+# Python and local tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.test-reports/
+.ipynb_checkpoints/
+.DS_Store
+
+# Local configuration and certificates
+.env
+.env.*
+!.env.example
+!.env.*.example
+/nginx/certs/
+
+# Runtime artifacts
+*.log
+*.sqlite3
+*.sqlite3-journal
+celerybeat-schedule*
+staticfiles/
+/mock_services/.state/

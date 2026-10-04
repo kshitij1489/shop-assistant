@@ -1,0 +1,10 @@
+# Optional resource limits; the base file is independently runnable.
+services:
+  web:
+    mem_limit: 2g
+    stop_grace_period: 45s
+  celery_worker:
+    mem_limit: 4g
+    stop_grace_period: 45s
+  celery_beat:
+    mem_limit: 512m

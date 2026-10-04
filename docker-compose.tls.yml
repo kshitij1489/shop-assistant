@@ -1,0 +1,9 @@
+# Use with -f docker-compose.yml -f docker-compose.tls.yml.
+services:
+  nginx:
+    ports:
+      - "${HTTPS_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/default.tls.conf:/etc/nginx/templates/default.conf.template:ro
+      - ${LETSENCRYPT_DIR:-/etc/letsencrypt}:/etc/letsencrypt:ro
+      - ${CERTBOT_DIR:-/var/www/certbot}:/var/www/certbot:ro

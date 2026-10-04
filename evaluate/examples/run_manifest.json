@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "sample-run",
+  "application": {
+    "commit": "0000000000000000000000000000000000000000",
+    "working_tree_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+    "dirty": false,
+    "fingerprint_policy": "git-tracked-and-unignored-v1"
+  },
+  "dataset_hashes": {
+    "session_query_sets.json": "e523ab3dc8f4435fb325f1515832c3a1833e154f7fc5b6229d9b725c3a60a3a4",
+    "qa_test_cases.json": "101ae5c387beaac01d05bfdc8fe861647481ad605a1da47ca947fbfc5dc9ef05",
+    "01_cafe_knowledge.json": "a9dea90ee8f8c0c5f1dc2479be3f8ad0981d76818c671ce6f4d07b0a3ce31459",
+    "02_menu_knowledge.json": "21f429a1fa05ebfb1fc5e6d56bc526195f0a37dc4f0731674ea5d19b9a925698",
+    "03_ordering_knowledge.json": "1e828755fd17532d285003a50937ce52498891dabfa36029457d62cf238ba70f",
+    "knowledge_base.json": "01ce2895a8c6c422ba02a77eceba1e5c78aa6b894df35d979da314952140ab8a"
+  },
+  "configuration_hash": "e782b29c174ea4d1c718f3ad12cc7f74b4118f4c4e2276fe22c011e55ff6cb20",
+  "scenario_plan_hash": "d27791d34b83e1aadd9bf7ad474180e4921ac95c5d4346dedadc2cd254b2fbb2",
+  "scenario_plan_version": "baseline-v1",
+  "models": {
+    "chat": "gpt-6-luna",
+    "translate": "gpt-6-luna",
+    "analytics": "gpt-6-luna",
+    "judge": null
+  },
+  "scenario_ids": [
+    "sessions:s129_checkout_price_changed"
+  ],
+  "created_at": "2026-09-29T08:30:00+00:00"
+}

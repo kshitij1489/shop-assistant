@@ -1,0 +1,13 @@
+.analytics-header { margin-bottom: 1rem; }
+.search-wrap { width: 100%; }
+.search-bar { display: flex; align-items: center; gap: .75rem; }
+.search-bar input { flex: 1; min-width: 0; }
+.search-bar .icon { width: 18px; height: 18px; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 1rem; margin: 1rem 0; }
+.summary-value { font-weight: 700; font-size: 1.1rem; }
+.tabs { display: flex; gap: .5rem; margin-top: 1.5rem; border-bottom: 1px solid var(--ui-border); }
+.tab-btn.active { background: var(--ui-primary); color: #fff; border-color: var(--ui-primary); }
+.panel { margin-top: 1rem; }
+.empty-state { color: var(--ui-muted); padding: 1.5rem; text-align: center; }
+.debug { margin-top: .75rem; font-size: .875rem; }
+.chart-frame { position: relative; height: 260px; min-width: 0; }

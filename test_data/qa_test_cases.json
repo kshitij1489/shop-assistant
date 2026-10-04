@@ -1,0 +1,262 @@
+[
+  {
+    "id": "hours",
+    "synthetic": true,
+    "intent": "information_about_the_cafe",
+    "sub_intent": "location_and_hours",
+    "question": "Are you open on Mondays?",
+    "expected_facts": [
+      "Monday is closed."
+    ],
+    "must_not": [
+      "Do not infer holiday closure."
+    ]
+  },
+  {
+    "id": "closing",
+    "synthetic": true,
+    "intent": "information_about_the_cafe",
+    "sub_intent": "location_and_hours",
+    "question": "What time do you close on Sunday?",
+    "expected_facts": [
+      "23:30 Asia/Kolkata, per published hours."
+    ],
+    "must_not": [
+      "Do not answer 23:00 from the older fixture."
+    ]
+  },
+  {
+    "id": "directions",
+    "synthetic": true,
+    "intent": "information_about_the_cafe",
+    "sub_intent": "location_and_hours",
+    "question": "Send me your address and Google Maps link.",
+    "expected_facts": [
+      "2173, Ramgarh Road, Sector 64, Gurugram, Haryana 122102, India",
+      "https://maps.app.goo.gl/xwPvNhttGsFBMVcY8"
+    ],
+    "must_not": []
+  },
+  {
+    "id": "rating",
+    "synthetic": true,
+    "intent": "information_about_the_cafe",
+    "sub_intent": "location_and_hours",
+    "question": "What is your Google rating?",
+    "expected_facts": [
+      "Rating was not verified."
+    ],
+    "must_not": [
+      "Do not invent a rating or review count."
+    ]
+  },
+  {
+    "id": "contact",
+    "synthetic": true,
+    "intent": "order_enquiry",
+    "sub_intent": "general_order_enquiry",
+    "question": "How can I contact customer care?",
+    "expected_facts": [
+      "+917428846234",
+      "info@dachnona.com"
+    ],
+    "must_not": []
+  },
+  {
+    "id": "tour",
+    "synthetic": true,
+    "intent": "information_about_the_cafe",
+    "sub_intent": "events_and_tours",
+    "question": "How much is a factory visit? Is it two hours?",
+    "expected_facts": [
+      "Listed price is INR 1000.",
+      "Duration and price basis need confirmation.",
+      "https://www.dachnona.com/book-online"
+    ],
+    "must_not": [
+      "Do not claim INR 500, 2 hours or weekend-only slots."
+    ]
+  },
+  {
+    "id": "wifi",
+    "synthetic": true,
+    "intent": "information_about_the_cafe",
+    "sub_intent": "amenities",
+    "question": "What is the Wi-Fi password?",
+    "expected_facts": [
+      "Explain that the Wi-Fi password is unknown or unavailable in the supplied knowledge. Asking staff is optional."
+    ],
+    "must_not": [
+      "Do not invent or disclose a Wi-Fi password."
+    ]
+  },
+  {
+    "id": "price",
+    "synthetic": true,
+    "intent": "menu_items",
+    "sub_intent": "pricing",
+    "question": "How much is Pistachio Ice Cream?",
+    "expected_facts": [
+      "Published listing price is INR 460.",
+      "Serving size is not verified."
+    ],
+    "must_not": [
+      "Do not attach an invented scoop or tub size."
+    ]
+  },
+  {
+    "id": "stock",
+    "synthetic": true,
+    "intent": "menu_items",
+    "sub_intent": "availability",
+    "question": "Can I get ten tubs of vanilla right now?",
+    "expected_facts": [
+      "Vanilla is listed; live inventory is unknown."
+    ],
+    "must_not": [
+      "Do not infer quantity 10 from the old fixture."
+    ]
+  },
+  {
+    "id": "eggless",
+    "synthetic": true,
+    "intent": "menu_items",
+    "sub_intent": "dietary_preferences",
+    "question": "Do you have eggless desserts?",
+    "expected_facts": [
+      "New York Baked Cheesecake and Tres Leches are explicitly described as eggless."
+    ],
+    "must_not": [
+      "Do not label the whole menu eggless."
+    ]
+  },
+  {
+    "id": "allergy",
+    "synthetic": true,
+    "intent": "menu_items",
+    "sub_intent": "allergens",
+    "question": "Is pistachio ice cream safe with a nut allergy?",
+    "expected_facts": [
+      "Pistachio is an explicitly named ingredient.",
+      "No allergen-free assurance is supported."
+    ],
+    "must_not": [
+      "Do not claim nut-free or safe."
+    ]
+  },
+  {
+    "id": "nutrition",
+    "synthetic": true,
+    "intent": "menu_items",
+    "sub_intent": "nutrition",
+    "question": "How many calories are in 100 g of vanilla?",
+    "expected_facts": [
+      "No verified nutrition table is included."
+    ],
+    "must_not": [
+      "Do not reuse 210 kcal from the old fixture."
+    ]
+  },
+  {
+    "id": "sugar",
+    "synthetic": true,
+    "intent": "menu_items",
+    "sub_intent": "dietary_preferences",
+    "question": "Are your dates ice creams sugar-free?",
+    "expected_facts": [
+      "The published claim is dates-sweetened with no added sugar."
+    ],
+    "must_not": [
+      "Do not turn that into a sugar-free or medical suitability claim."
+    ]
+  },
+  {
+    "id": "radius",
+    "synthetic": true,
+    "intent": "location_based",
+    "sub_intent": "verify_address_for_delivery",
+    "question": "I am 12 km away. Will you deliver?",
+    "expected_facts": [
+      "The policy’s radius and fee bands conflict; check address serviceability at checkout."
+    ],
+    "must_not": [
+      "Do not guarantee delivery from the fee table alone."
+    ]
+  },
+  {
+    "id": "delivery",
+    "synthetic": true,
+    "intent": "order_enquiry",
+    "sub_intent": "general_order_enquiry",
+    "question": "What is your minimum delivery order and ETA?",
+    "expected_facts": [
+      "Published minimum INR 700; estimated 45–60 minutes.",
+      "Confirm current checkout terms."
+    ],
+    "must_not": [
+      "Do not promise an exact arrival time."
+    ]
+  },
+  {
+    "id": "refund",
+    "synthetic": true,
+    "intent": "order_enquiry",
+    "sub_intent": "refund_and_cancellation",
+    "question": "Will I automatically get a refund today?",
+    "expected_facts": [
+      "Direct the customer to contact the store immediately, regardless of whether an order record or receipt is available. Include configured store contact details when available; otherwise give a direct store-contact instruction without inventing a number.",
+      "Explain that this chat cannot resolve placed-order disputes or edit, cancel, refund or replace a placed order. Store staff assess available remedies and timing. No action has been taken through chat.",
+      "Ask the customer to share order details directly with the store. Do not collect an order ID, item details, name or phone in chat to investigate or arrange a remedy.",
+      "No automatic or same-day refund is approved; store staff must advise on eligibility and timing."
+    ],
+    "must_not": [
+      "Do not promise same-day or automatic refunds.",
+      "Do not claim an order, basket, payment or customer profile was changed, or that a refund or replacement was approved or initiated.",
+      "Do not claim staff were contacted, a ticket was opened, or a callback was arranged; do not promise remedy eligibility or timing.",
+      "Do not require an order lookup or receipt clarification before directing the customer to the store."
+    ]
+  },
+  {
+    "id": "order_status",
+    "synthetic": true,
+    "intent": "order_enquiry",
+    "sub_intent": "order_status_tracking",
+    "question": "Has my order been delivered?",
+    "expected_facts": [
+      "A live order record or support check is required."
+    ],
+    "must_not": [
+      "Do not fabricate order status."
+    ]
+  },
+  {
+    "id": "special_requests_store_contact",
+    "synthetic": true,
+    "intent": "placing_order",
+    "sub_intent": "special_requests",
+    "question": "Please write birthday on the lid and add no extra sugar.",
+    "expected_facts": [
+      "Sorry, we cannot take special requests through the chatbot. Please contact the store directly for any special requests.",
+      "Complete the request with a store referral; basket and checkout remain unchanged."
+    ],
+    "must_not": [
+      "Do not collect further details or create a pending task.",
+      "Do not claim the request was saved, scheduled, accepted, or sent to staff."
+    ]
+  },
+  {
+    "id": "order_scheduling_store_contact",
+    "synthetic": true,
+    "intent": "placing_order",
+    "sub_intent": "order_scheduling",
+    "question": "Can you schedule my order for tomorrow at 7 pm?",
+    "expected_facts": [
+      "Sorry, we cannot schedule orders through the chatbot. Please contact the store directly to arrange a scheduled order.",
+      "Complete the request with a store referral; basket and checkout remain unchanged."
+    ],
+    "must_not": [
+      "Do not collect further details or create a pending task.",
+      "Do not claim the request was saved, scheduled, accepted, or sent to staff."
+    ]
+  }
+]

@@ -1,0 +1,61 @@
+{% extends "users/base_tenant.html" %}
+{% block title %}Upload Knowledge JSON{% endblock %}
+
+{% block tenant_content %}
+<div style="max-width:900px;margin:0 auto">
+  <h1 style="font-size:1.5rem;font-weight:600;margin-bottom:1rem">Upload Knowledge JSON</h1>
+
+  <form id="uploadForm" method="post" action="" onsubmit="return confirmAndValidate()">
+    {% csrf_token %}
+
+    <div class="card" style="margin-bottom:.75rem">
+      <label for="dtype" style="display:block;margin-bottom:.35rem">DType</label>
+      <select id="dtype" name="dtype" required class="full" style="padding:.6rem;border:1px solid #e5e7eb;border-radius:.5rem">
+        {% for val,label in dtypes %}
+          <option value="{{ val }}" {% if selected_dtype == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <p style="color:#6b7280;margin:.5rem 0 0">All uploaded entries will be saved under this dtype.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:.75rem">
+      <label for="json_blob" style="display:block;margin-bottom:.35rem">JSON Input</label>
+      <textarea id="json_blob" name="json_blob" class="mono" placeholder='{
+  "intent_1": {
+    "sub_intent_1": { "foo": "bar" },
+    "sub_intent_2": { "x": 1 }
+  },
+  "intent_2": {
+    "sub_intent_3": { "y": true }
+  }
+}'></textarea>
+      <div class="btn-row" style="margin-top:.75rem">
+        <button type="button" class="btn" onclick="formatJSON()">Format</button>
+        <button type="button" class="btn" onclick="validateJSON()">Validate</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+      <p id="helper" style="color:#6b7280;margin-top:.5rem">
+        Structure: <code>{ "intent": { "sub_intent": { ...payload... } } }</code>
+      </p>
+    </div>
+  </form>
+</div>
+
+<script>
+function formatJSON(){
+  const ta = document.getElementById("json_blob");
+  try{ ta.value = JSON.stringify(JSON.parse(ta.value || "{}"), null, 2); alert("Formatted."); }
+  catch(e){ alert("Invalid JSON: " + e.message); }
+}
+function validateJSON(){
+  const ta = document.getElementById("json_blob");
+  try{ JSON.parse(ta.value || "{}"); alert("Valid JSON."); }
+  catch(e){ alert("Invalid JSON: " + e.message); }
+}
+function confirmAndValidate(){
+  const ta = document.getElementById("json_blob");
+  try{ JSON.parse(ta.value || "{}"); } catch(e){ alert("JSON is invalid: " + e.message); return false; }
+  return confirm("Save all entries? This will upsert rows for the selected dtype.");
+}
+</script>
+{% endblock %}

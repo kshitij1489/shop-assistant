@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0.0",
+  "version": "baseline-v1",
+  "contract_hash": "d678c2aad8ddc45175b810f08f2133d58fe002d3cbeddcfb1c795f880938fd6d",
+  "default_clock": {
+    "at": "2026-09-29T14:00:00+05:30",
+    "timezone": "Asia/Kolkata"
+  },
+  "profiles": {
+    "knowledge_only": {
+      "source_hash": "12c3a7d6c3d23924e90b83f0fad087efb1a32bd845d48809afb39c8a16c1aac9",
+      "review_ref": "evaluate/datasets/README.md#baseline-v1",
+      "extends": [],
+      "defaults": {
+        "catalog": "none",
+        "stock": "none",
+        "customer": "browser_guest",
+        "address_lookup": "unavailable",
+        "payment": "unavailable"
+      },
+      "required_capabilities": [
+        "knowledge_import",
+        "freeze_clock"
+      ]
+    },
+    "catalog_sandbox": {
+      "source_hash": "f692638c346f93ac50a52999ece8ec69b4f3d7d4acba6a15b612c9b9db012b55",
+      "review_ref": "evaluate/datasets/README.md#baseline-v1",
+      "extends": [],
+      "defaults": {
+        "catalog": "published_synthetic",
+        "variant_name": "QA standard",
+        "stock": "none",
+        "payment": "unavailable",
+        "payment_methods": [
+          "cash"
+        ],
+        "modes": [
+          "pickup",
+          "delivery"
+        ],
+        "scheduling": false,
+        "preparation_minutes": 30,
+        "delivery_minimum_minor": 70000,
+        "delivery_fee_minor": 10000,
+        "pickup_minimum_minor": 0,
+        "pickup_fee_minor": 0,
+        "tax_basis_points": 0,
+        "discounts": false,
+        "modifiers": false,
+        "currency": "INR",
+        "hours": "tuesday_sunday_12_00_23_30",
+        "required_pickup": [
+          "name",
+          "phone"
+        ],
+        "required_delivery": [
+          "name",
+          "phone",
+          "address",
+          "postal_code"
+        ]
+      },
+      "required_capabilities": [
+        "knowledge_import",
+        "freeze_clock",
+        "catalog_seed",
+        "checkout_settings"
+      ]
+    },
+    "address_sandbox": {
+      "source_hash": "8371823f97c8a172ce69b46bd6beb3235b6a9d2e6556d7cff705ce57a18b71c6",
+      "review_ref": "evaluate/datasets/README.md#baseline-v1",
+      "extends": [],
+      "defaults": {
+        "customer": "authenticated_synthetic",
+        "address_lookup": "complete_supplied_only"
+      },
+      "required_capabilities": [
+        "knowledge_import",
+        "freeze_clock",
+        "address_stubs",
+        "authenticated_website_customer"
+      ]
+    },
+    "checkout_sandbox": {
+      "source_hash": "ac5fc93d2d2b484b1ca37cb37ab82e706a459b9c2b75843a5b58bcecaf799dc4",
+      "review_ref": "evaluate/datasets/README.md#baseline-v1",
+      "extends": [
+        "catalog_sandbox"
+      ],
+      "defaults": {
+        "payment": "fake_adapter",
+        "payment_methods": [
+          "cash",
+          "online"
+        ],
+        "allowed_postal_codes": [
+          "122102"
+        ],
+        "contact_fixture": "qa_guest_dummy_no_notifications"
+      },
+      "required_capabilities": [
+        "fake_payment_adapter",
+        "checkout_settings"
+      ]
+    }
+  },
+  "scenarios": {},
+  "supported_capabilities": [],
+  "fixture_hashes": {}
+}

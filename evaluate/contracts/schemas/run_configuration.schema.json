@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "ModelNames": {
+      "additionalProperties": false,
+      "properties": {
+        "chat": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Chat",
+          "type": "string"
+        },
+        "translate": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Translate",
+          "type": "string"
+        },
+        "analytics": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "title": "Analytics",
+          "type": "string"
+        },
+        "judge": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Judge"
+        }
+      },
+      "required": [
+        "chat",
+        "translate",
+        "analytics"
+      ],
+      "title": "ModelNames",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "base_url": {
+      "default": "http://127.0.0.1:8000",
+      "title": "Base Url",
+      "type": "string"
+    },
+    "dataset_directory": {
+      "default": "test_data",
+      "minLength": 1,
+      "title": "Dataset Directory",
+      "type": "string"
+    },
+    "scenario_plan_version": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+      "title": "Scenario Plan Version",
+      "type": "string"
+    },
+    "models": {
+      "$ref": "#/$defs/ModelNames"
+    },
+    "seed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "repetitions": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Repetitions",
+      "type": "integer"
+    },
+    "timeout_seconds": {
+      "default": 30.0,
+      "exclusiveMinimum": 0,
+      "maximum": 300,
+      "title": "Timeout Seconds",
+      "type": "number"
+    },
+    "isolation": {
+      "const": "disposable_tenant",
+      "default": "disposable_tenant",
+      "title": "Isolation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "scenario_plan_version",
+    "models"
+  ],
+  "title": "RunConfiguration",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:studio-desk:evaluate:1.0.0:run_configuration"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "sample-run",
+  "base_url": "http://127.0.0.1:8000",
+  "dataset_directory": "test_data",
+  "scenario_plan_version": "baseline-v1",
+  "models": {
+    "chat": "gpt-6-luna",
+    "translate": "gpt-6-luna",
+    "analytics": "gpt-6-luna",
+    "judge": null
+  },
+  "seed": 0,
+  "repetitions": 1,
+  "timeout_seconds": 30.0,
+  "isolation": "disposable_tenant"
+}

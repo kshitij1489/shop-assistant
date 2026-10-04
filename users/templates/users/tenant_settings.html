@@ -1,0 +1,284 @@
+{% extends "users/base_tenant.html" %}
+{% load static %}
+
+{% block tenant_content %}
+<div class="settings-tabs" role="tablist" aria-label="Settings" data-settings-tabs>
+    <a role="tab" id="settings-tab-checkout" href="?tab=checkout" data-tab="checkout" aria-controls="settings-panel-checkout" aria-selected="{% if active_tab == 'checkout' %}true{% else %}false{% endif %}">Checkout</a>
+    <a role="tab" id="settings-tab-hours" href="?tab=hours" data-tab="hours" aria-controls="settings-panel-hours" aria-selected="{% if active_tab == 'hours' %}true{% else %}false{% endif %}">Opening hours</a>
+    <a role="tab" id="settings-tab-contact" href="?tab=contact" data-tab="contact" aria-controls="settings-panel-contact" aria-selected="{% if active_tab == 'contact' %}true{% else %}false{% endif %}">Business details</a>
+    <a role="tab" id="settings-tab-integrations" href="?tab=integrations" data-tab="integrations" aria-controls="settings-panel-integrations" aria-selected="{% if active_tab == 'integrations' %}true{% else %}false{% endif %}">Integrations</a>
+</div>
+
+<form method="post" id="checkout-settings-form">
+    {% csrf_token %}
+    <input type="hidden" name="section" value="checkout">
+    <input type="hidden" name="settings_tab" value="{% if active_tab == 'hours' %}hours{% else %}checkout{% endif %}">
+
+    <div id="settings-panel-checkout" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-checkout"{% if active_tab != 'checkout' %} hidden{% endif %}>
+        <p>Choose fulfillment modes, required details, payment methods and fees. Saving applies changes in both Checkout and Opening hours and enables configurable checkout for new orders. Existing confirmed orders keep their original details.</p>
+        <p><a href="/commerce/settings/">Commerce pricing, stock policy and reconciliation</a></p>
+        {% include "users/partials/checkout_settings_errors.html" %}
+        {% for title, fields in checkout_form.panels.checkout %}
+        <fieldset>
+            <legend>{{ title }}</legend>
+            {% for field in fields %}
+            <div class="form-group" id="{{ field.auto_id }}_group" tabindex="-1">
+                {{ field.errors }}
+                {{ field.label_tag }} {{ field }}
+                {% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+            </div>
+            {% endfor %}
+        </fieldset>
+        {% endfor %}
+        <button type="submit">Save checkout and hours</button>
+    </div>
+
+    <div id="settings-panel-hours" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-hours"{% if active_tab != 'hours' %} hidden{% endif %}>
+        <p>Saving applies changes in both Checkout and Opening hours and enables configurable checkout for new orders. Turn off 24-hour opening to enter a weekly schedule, and leave a day empty when closed.</p>
+        {% include "users/partials/checkout_settings_errors.html" %}
+        {% for title, fields in checkout_form.panels.hours %}
+        <fieldset>
+            <legend>{{ title }}</legend>
+            {% for field in fields %}
+            <div class="form-group" id="{{ field.auto_id }}_group" tabindex="-1">
+                {{ field.errors }}
+                {{ field.label_tag }} {{ field }}
+                {% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+            </div>
+            {% endfor %}
+        </fieldset>
+        {% endfor %}
+        <button type="submit">Save checkout and hours</button>
+    </div>
+</form>
+
+<div id="settings-panel-contact" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-contact"{% if active_tab != 'contact' %} hidden{% endif %}>
+    <p>Manage and save your business name, store address, and WhatsApp number separately.</p>
+    <form method="post" id="profile-settings-form">
+        {% csrf_token %}
+        <input type="hidden" name="section" value="profile">
+        <fieldset>
+            <legend>Business name</legend>
+            <div class="form-group">
+                {{ profile_form.display_name.errors }}
+                {{ profile_form.display_name.label_tag }}
+                {{ profile_form.display_name }}
+                <p class="help-text">The public link stays <strong>{{ tenant.slug }}</strong> when this name changes.</p>
+            </div>
+            <button type="submit">Save name</button>
+        </fieldset>
+    </form>
+    <form method="post" id="contact-settings-form" data-cities-url="{% url 'tenant:site_location_cities' %}">
+        {% csrf_token %}
+        <input type="hidden" name="section" value="contact">
+        {{ location_form.non_field_errors }}
+        {{ location_form.city_place_id }}
+        {{ location_form.city_place_id.errors }}
+        <fieldset>
+            <legend>Store address</legend>
+            {% if tenant.address and not tenant.city_place_id %}
+            <p>Previous address: {{ tenant.address }}</p>
+            <p class="help-text">Select a city and enter your street address and postal code to update it.</p>
+            {% endif %}
+            <div class="form-group city-search">
+                {{ location_form.city.errors }}
+                {{ location_form.city.label_tag }} {{ location_form.city }}
+                <ul id="city-suggestions" role="listbox" aria-label="City suggestions" hidden></ul>
+                <p id="city-status" class="help-text" role="status" aria-live="polite">Type at least two characters of a city, optionally followed by its country.</p>
+                <small>© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a></small>
+            </div>
+            <div class="form-group">{{ location_form.state.errors }}{{ location_form.state.label_tag }} {{ location_form.state }}</div>
+            <div class="form-group">{{ location_form.country.errors }}{{ location_form.country.label_tag }} {{ location_form.country }}</div>
+            <div class="form-group">{{ location_form.street_address_1.errors }}{{ location_form.street_address_1.label_tag }} {{ location_form.street_address_1 }}</div>
+            <div class="form-group">{{ location_form.street_address_2.errors }}{{ location_form.street_address_2.label_tag }} {{ location_form.street_address_2 }}</div>
+            <div class="form-group">{{ location_form.postal_code.errors }}{{ location_form.postal_code.label_tag }} {{ location_form.postal_code }}</div>
+        </fieldset>
+        <button type="submit">Save store address</button>
+    </form>
+    <form method="post" id="whatsapp-settings-form">
+        {% csrf_token %}
+        <input type="hidden" name="section" value="whatsapp">
+        {{ whatsapp_form.non_field_errors }}
+        <fieldset>
+            <legend>WhatsApp</legend>
+            {{ whatsapp_form.whatsapp_number.errors }}
+            {{ whatsapp_form.whatsapp_number.label_tag }} {{ whatsapp_form.whatsapp_number }}
+
+        </fieldset>
+        <button type="submit">Save WhatsApp number</button>
+    </form>
+</div>
+
+<div id="settings-panel-integrations" class="settings-panel stack" role="tabpanel" aria-labelledby="settings-tab-integrations"{% if active_tab != 'integrations' %} hidden{% endif %}>
+    <form method="post" id="integrations-settings-form">
+        {% csrf_token %}
+        <input type="hidden" name="section" value="integrations">
+        <fieldset>
+            <legend>Telegram</legend>
+            <p>Saving a bot token registers the Telegram webhook.</p>
+            <label for="telegram_chat_id">Telegram Chat ID:</label>
+            <input type="text" id="telegram_chat_id" name="telegram_chat_id"
+                   value="{{ tenant.telegram_chat_id|default_if_none:'' }}" placeholder="12345678"
+                   class="form-group">
+
+            <label for="telegram_bot_token">Telegram Bot Token:</label>
+            <input type="text" id="telegram_bot_token" name="telegram_bot_token"
+                   value="{{ tenant.telegram_bot_token|default_if_none:'' }}" placeholder="e.g. 123456:ABC-DEF..."
+                   class="form-group">
+        </fieldset>
+        <button type="submit">Save Telegram settings</button>
+    </form>
+
+    <section class="card" aria-labelledby="jwt-settings-title">
+        <h3 id="jwt-settings-title">JWT Token for Website Integration</h3>
+        <button id="generate-token-button" type="button">Generate Token</button>
+        <button id="copy-token-button" type="button" hidden>Copy to Clipboard</button>
+        <div id="token-container" hidden>
+            <pre id="jwt-token-display"></pre>
+            <p class="help-text">This token will auto-hide in <span id="expire-timer">15</span> seconds.</p>
+        </div>
+    </section>
+</div>
+
+<script src="{% static 'users/js/site_location.js' %}" defer></script>
+<style>
+    #city-suggestions { list-style: none; margin: 0; padding: 0; border: 1px solid #aaa; max-height: 16rem; overflow-y: auto; }
+    #city-suggestions li { padding: .65rem; cursor: pointer; }
+    #city-suggestions li[aria-selected="true"], #city-suggestions li:hover { background: #e8eef8; color: #182438; }
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tablist = document.querySelector("[data-settings-tabs]");
+    if (tablist) {
+        const tabs = Array.from(tablist.querySelectorAll("[role='tab']"));
+        const checkoutForm = document.getElementById("checkout-settings-form");
+        const checkoutTabInput = document.querySelector("#checkout-settings-form [name='settings_tab']");
+
+        function selectSettingsTab(tab, updateHistory) {
+            tabs.forEach(function (item) {
+                const selected = item === tab;
+                item.setAttribute("aria-selected", selected ? "true" : "false");
+                item.tabIndex = selected ? 0 : -1;
+                const panel = document.getElementById(item.getAttribute("aria-controls"));
+                if (panel) panel.hidden = !selected;
+            });
+            if (checkoutTabInput && (tab.dataset.tab === "checkout" || tab.dataset.tab === "hours")) {
+                checkoutTabInput.value = tab.dataset.tab;
+            }
+            if (updateHistory) {
+                const url = new URL(window.location.href);
+                url.searchParams.set("tab", tab.dataset.tab);
+                history.replaceState(null, "", url);
+            }
+        }
+
+        // Leave all navigation links reachable if JavaScript is unavailable.
+        selectSettingsTab(tabs.find(tab => tab.getAttribute("aria-selected") === "true") || tabs[0], false);
+
+        // Native validation cannot focus controls in a hidden panel. Reveal the
+        // first invalid control before asking the browser to show its message.
+        checkoutForm.noValidate = true;
+        checkoutForm.addEventListener("submit", function (event) {
+            const invalid = checkoutForm.querySelector("input:invalid, select:invalid, textarea:invalid");
+            if (!invalid) return;
+            event.preventDefault();
+            const panel = invalid.closest("[role='tabpanel']");
+            const tab = tabs.find(item => item.getAttribute("aria-controls") === panel.id);
+            selectSettingsTab(tab, true);
+            invalid.reportValidity();
+        });
+
+        checkoutForm.addEventListener("click", function (event) {
+            const link = event.target.closest("[data-settings-error]");
+            if (!link) return;
+            event.preventDefault();
+            selectSettingsTab(tabs.find(tab => tab.dataset.tab === link.dataset.settingsError), true);
+            const group = document.getElementById(link.hash.slice(1));
+            const control = group.querySelector("input, select, textarea") || group;
+            control.focus();
+        });
+
+        tablist.addEventListener("click", function (event) {
+            const tab = event.target.closest("[role='tab']");
+            if (!tab || !tablist.contains(tab)) return;
+            if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            selectSettingsTab(tab, true);
+        });
+
+        tablist.addEventListener("keydown", function (event) {
+            const current = tabs.indexOf(document.activeElement);
+            if (current < 0) return;
+            const movements = { ArrowRight: 1, ArrowLeft: -1, Home: "first", End: "last" };
+            if (!(event.key in movements)) return;
+            event.preventDefault();
+            let next;
+            if (movements[event.key] === "first") next = tabs[0];
+            else if (movements[event.key] === "last") next = tabs[tabs.length - 1];
+            else next = tabs[(current + movements[event.key] + tabs.length) % tabs.length];
+            selectSettingsTab(next, true);
+            next.focus();
+        });
+    }
+
+    const generateBtn = document.getElementById("generate-token-button");
+    const copyBtn = document.getElementById("copy-token-button");
+    const tokenDisplay = document.getElementById("jwt-token-display");
+    const tokenContainer = document.getElementById("token-container");
+    const timerText = document.getElementById("expire-timer");
+    if (!generateBtn) return;
+
+    generateBtn.addEventListener("click", function () {
+        fetch("{% url 'tenant:generate_jwt_token' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Request failed");
+            return response.json();
+        })
+        .then(data => {
+            if (!data.token) throw new Error("Token not received");
+            tokenDisplay.textContent = data.token;
+            tokenContainer.hidden = false;
+            copyBtn.hidden = false;
+
+            let countdown = 15;
+            timerText.textContent = countdown;
+            const interval = setInterval(() => {
+                countdown--;
+                timerText.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    tokenContainer.hidden = true;
+                    copyBtn.hidden = true;
+                }
+            }, 1000);
+        })
+        .catch(err => {
+            tokenDisplay.textContent = "Error generating token.";
+            tokenContainer.hidden = false;
+            copyBtn.hidden = true;
+            console.error(err);
+        });
+    });
+
+    copyBtn.addEventListener("click", function () {
+        const token = tokenDisplay.textContent;
+        navigator.clipboard.writeText(token)
+            .then(() => alert("Token copied to clipboard!"))
+            .catch(() => alert("Failed to copy token."));
+    });
+
+    document.querySelectorAll("[data-toggle-visibility]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const target = document.getElementById(btn.dataset.toggleVisibility);
+            if (target) target.type = target.type === "password" ? "text" : "password";
+        });
+    });
+});
+</script>
+{% endblock %}

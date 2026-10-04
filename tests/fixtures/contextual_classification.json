@@ -1,0 +1,1971 @@
+[
+  {
+    "id": "size-paraphrase",
+    "text": "The bigger cup sounds right.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "p17",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add a latte",
+          "question": "Which size for your latte?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {}
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Which size for your latte?"
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "p17",
+    "clarify": false
+  },
+  {
+    "id": "size-hindi",
+    "text": "बड़ा वाला कर दो",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "p17",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add a latte",
+          "question": "Which size for your latte?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {}
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Which size for your latte?"
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "p17",
+    "clarify": false
+  },
+  {
+    "id": "size-spanish",
+    "text": "El grande, por favor.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "p17",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add a latte",
+          "question": "Which size for your latte?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {}
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Which size for your latte?"
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "p17",
+    "clarify": false
+  },
+  {
+    "id": "mixed-detour",
+    "text": "Large please; also, when do you shut?",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "p17",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add a latte",
+          "question": "Which size for your latte?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {}
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Which size for your latte?"
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "p17",
+    "clarify": false,
+    "expected_units": [
+      {},
+      {
+        "sub_intent": "location_and_hours",
+        "reply_to": null
+      }
+    ]
+  },
+  {
+    "id": "address-yes",
+    "text": "हाँ, वही ठीक है",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "address-4",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Use Home",
+          "question": "Should I use Home?",
+          "missing_fields": [
+            "confirmation"
+          ]
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Should I use Home?",
+      "saved_addresses": [
+        {
+          "id": "home",
+          "label": "Home"
+        }
+      ]
+    },
+    "route": "location_based/confirm_delivery_address",
+    "reply_to": "address-4",
+    "clarify": false
+  },
+  {
+    "id": "address-no",
+    "text": "No, use a different address.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "address-4",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Use Home",
+          "question": "Should I use Home?",
+          "missing_fields": [
+            "confirmation"
+          ]
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Should I use Home?",
+      "saved_addresses": [
+        {
+          "id": "home",
+          "label": "Home"
+        }
+      ]
+    },
+    "route": "location_based/deny_delivery_address",
+    "reply_to": "address-4",
+    "clarify": false
+  },
+  {
+    "id": "quantity",
+    "text": "Let’s make that a pair.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [
+        {
+          "item_number": 1,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Large",
+          "quantity": 3
+        }
+      ],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/update_order",
+    "reply_to": null,
+    "clarify": false
+  },
+  {
+    "id": "decrement",
+    "text": "Take just one latte off the order, leave the rest.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [
+        {
+          "item_number": 1,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Large",
+          "quantity": 3
+        }
+      ],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/delete_entry",
+    "reply_to": null,
+    "clarify": false
+  },
+  {
+    "id": "ambiguous",
+    "text": "Could you take that out?",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [
+        {
+          "item_number": 1,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Large",
+          "quantity": 3
+        },
+        {
+          "item_number": 2,
+          "item_id": "brownie",
+          "name": "Brownie",
+          "quantity": 1,
+          "size": "Classic"
+        }
+      ],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/delete_entry",
+    "reply_to": null,
+    "clarify": true
+  },
+  {
+    "id": "conditional",
+    "text": "Put a brownie on there, but help me decide which kind first.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": true,
+    "expected_unit_count": 1
+  },
+  {
+    "id": "conditional-batch",
+    "text": "Add a brownie once we pick a flavor, then check me out.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": true,
+    "expected_unit_count": 1
+  },
+  {
+    "id": "bare-yes",
+    "text": "Sure, go ahead.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": null,
+    "reply_to": null,
+    "clarify": true
+  },
+  {
+    "id": "recommendation",
+    "text": "I’ll take the one you suggested.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [
+        {
+          "item_id": "latte",
+          "name": "Latte"
+        }
+      ],
+      "recent_exchange": [
+        {
+          "user": "Suggest a coffee",
+          "assistant": "Try our Latte."
+        }
+      ],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": null,
+    "query_contains": [
+      "Latte"
+    ],
+    "note": "The item is known but size is unresolved; either classifier or order extraction may ask for size."
+  },
+  {
+    "id": "completed-thanks",
+    "text": "Lovely, cheers!",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [
+        {
+          "item_number": 1,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Large",
+          "quantity": 3
+        }
+      ],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_completed_request": {
+        "intent_type": "placing_order",
+        "main_query": "Add latte",
+        "response": "Added latte.",
+        "is_complete": true
+      }
+    },
+    "route": "general/thanks",
+    "reply_to": null,
+    "clarify": false
+  },
+  {
+    "id": "pending-cancel",
+    "text": "Forget this size question, keep my basket as it is.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "p17",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add a latte",
+          "question": "Which size for your latte?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {}
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Which size for your latte?"
+    },
+    "route": "general/cancel_and_abort",
+    "reply_to": "p17",
+    "clarify": false
+  },
+  {
+    "id": "unavailable-candidate",
+    "text": "Add a lemon tart.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": false,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": false
+  },
+  {
+    "id": "unknown-referent",
+    "text": "Make it two",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/update_order",
+    "reply_to": null,
+    "clarify": true
+  },
+  {
+    "id": "duplicate-names",
+    "text": "Add the house blend.",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "a",
+          "name": "House blend",
+          "variants": [
+            {
+              "id": "beans",
+              "name": "Beans"
+            }
+          ]
+        },
+        {
+          "item_id": "b",
+          "name": "House blend",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            }
+          ]
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": true
+  },
+  {
+    "id": "tea-store",
+    "text": "वही केतली वाली चाहिए",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "chai",
+          "name": "Masala chai",
+          "variants": [
+            {
+              "id": "cup",
+              "name": "Cup"
+            },
+            {
+              "id": "pot",
+              "name": "Pot",
+              "aliases": [
+                "केतली"
+              ]
+            }
+          ]
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "tea-9",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add masala chai",
+          "question": "Cup or pot?",
+          "missing_fields": [
+            "variant"
+          ]
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Cup or pot?"
+    },
+    "route": "placing_order/customize_confirmation",
+    "reply_to": "tea-9",
+    "clarify": false
+  },
+  {
+    "id": "no-replay-detour",
+    "text": "Do you have Wi-Fi?",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            },
+            {
+              "id": "large",
+              "name": "Large"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "classic",
+              "name": "Classic"
+            },
+            {
+              "id": "walnut",
+              "name": "Walnut"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "open_requests": [
+        {
+          "id": "p17",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Add a latte",
+          "question": "Which size for your latte?",
+          "missing_fields": [
+            "variant"
+          ],
+          "details": {}
+        }
+      ],
+      "basket": [],
+      "recommendations": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "has_placed_order": false,
+      "last_assistant_question": "Which size for your latte?"
+    },
+    "route": "information_about_the_cafe/amenities",
+    "reply_to": null,
+    "clarify": false
+  },
+  {
+    "id": "checkout-pickup",
+    "text": "I can swing by and collect it myself",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "Choose delivery, pickup or dine-in.",
+          "missing_fields": [
+            "mode"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "mode",
+        "has_quote": false
+      },
+      "last_assistant_question": "Choose delivery, pickup or dine-in.",
+      "declared_constraints": []
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "expected_queries": [
+      "pickup"
+    ]
+  },
+  {
+    "id": "checkout-dine-in",
+    "text": "Nos quedamos a comer aquí",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "Choose delivery, pickup or dine-in.",
+          "missing_fields": [
+            "mode"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "mode",
+        "has_quote": false
+      },
+      "last_assistant_question": "Choose delivery, pickup or dine-in.",
+      "declared_constraints": []
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "expected_queries": [
+      "dine-in"
+    ]
+  },
+  {
+    "id": "checkout-name",
+    "text": "Use Alice for the order",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "What name should we use for this order?",
+          "missing_fields": [
+            "name"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "name",
+        "has_quote": false
+      },
+      "last_assistant_question": "What name should we use for this order?",
+      "declared_constraints": []
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "expected_queries": [
+      "name: Alice"
+    ]
+  },
+  {
+    "id": "checkout-name-hindi",
+    "text": "मेरा नाम अनाया है",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "What name should we use for this order?",
+          "missing_fields": [
+            "name"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "name",
+        "has_quote": false
+      },
+      "last_assistant_question": "What name should we use for this order?",
+      "declared_constraints": []
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "expected_queries": [
+      "name: अनाया"
+    ]
+  },
+  {
+    "id": "checkout-phone",
+    "text": "Please reach me at +44 7700 900123",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "What phone number should we use?",
+          "missing_fields": [
+            "phone"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "phone",
+        "has_quote": false
+      },
+      "last_assistant_question": "What phone number should we use?",
+      "declared_constraints": []
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "expected_queries": [
+      "phone: +44 7700 900123"
+    ]
+  },
+  {
+    "id": "checkout-table",
+    "text": "We are sitting at B-12",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "What is your table identifier?",
+          "missing_fields": [
+            "table_id"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "table_id",
+        "has_quote": false
+      },
+      "last_assistant_question": "What is your table identifier?",
+      "declared_constraints": []
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "expected_queries": [
+      "table: B-12"
+    ]
+  },
+  {
+    "id": "checkout-payment",
+    "text": "नकद दूँगा",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "Choose cash or online.",
+          "missing_fields": [
+            "payment_method"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "payment_method",
+        "has_quote": false
+      },
+      "last_assistant_question": "Choose cash or online.",
+      "declared_constraints": []
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "expected_queries": [
+      "cash"
+    ],
+    "routes": [
+      "placing_order/order_payment",
+      "placing_order/order_confirmation"
+    ]
+  },
+  {
+    "id": "checkout-address",
+    "text": "42 Main Street",
+    "context": {
+      "open_requests": [
+        {
+          "id": "checkout-1",
+          "intent": "placing_order",
+          "sub_intent": "order_confirmation",
+          "query": "checkout",
+          "question": "What is your delivery address?",
+          "missing_fields": [
+            "address"
+          ],
+          "details": {
+            "checkout": true
+          }
+        }
+      ],
+      "active_pending_id": "checkout-1",
+      "checkout": {
+        "awaiting": "address",
+        "has_quote": false
+      },
+      "last_assistant_question": "What is your delivery address?",
+      "declared_constraints": []
+    },
+    "route": "location_based/confirm_delivery_address",
+    "reply_to": "checkout-1",
+    "clarify": false,
+    "expected_queries": [
+      "address: 42 Main Street"
+    ],
+    "routes": [
+      "location_based/confirm_delivery_address",
+      "placing_order/order_confirmation"
+    ]
+  },
+  {
+    "id": "dietary-menu-question",
+    "text": "Do you have vegan brownies?",
+    "context": {
+      "open_requests": [],
+      "declared_constraints": [],
+      "catalog": [
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            }
+          ],
+          "modifier_groups": [
+            {
+              "id": "sugar",
+              "name": "Sugar",
+              "options": [
+                {
+                  "id": "no-sugar",
+                  "name": "No sugar"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "route": "menu_items/dietary_preferences",
+    "reply_to": null,
+    "clarify": false,
+    "declares": false
+  },
+  {
+    "id": "allergen-menu-question",
+    "text": "Does the brownie contain milk?",
+    "context": {
+      "open_requests": [],
+      "declared_constraints": [],
+      "catalog": [
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            }
+          ],
+          "modifier_groups": [
+            {
+              "id": "sugar",
+              "name": "Sugar",
+              "options": [
+                {
+                  "id": "no-sugar",
+                  "name": "No sugar"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "route": "menu_items/allergens",
+    "reply_to": null,
+    "clarify": false,
+    "declares": false
+  },
+  {
+    "id": "declared-vegan",
+    "text": "I am vegan; what can I eat?",
+    "context": {
+      "open_requests": [],
+      "declared_constraints": [],
+      "catalog": [
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            }
+          ],
+          "modifier_groups": [
+            {
+              "id": "sugar",
+              "name": "Sugar",
+              "options": [
+                {
+                  "id": "no-sugar",
+                  "name": "No sugar"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "route": "menu_items/dietary_preferences",
+    "reply_to": null,
+    "clarify": false,
+    "declares": true
+  },
+  {
+    "id": "declared-allergy",
+    "text": "I have a milk allergy. What can I order?",
+    "context": {
+      "open_requests": [],
+      "declared_constraints": [],
+      "catalog": [
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            }
+          ],
+          "modifier_groups": [
+            {
+              "id": "sugar",
+              "name": "Sugar",
+              "options": [
+                {
+                  "id": "no-sugar",
+                  "name": "No sugar"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "route": "menu_items/allergens",
+    "reply_to": null,
+    "clarify": false,
+    "declares": true
+  },
+  {
+    "id": "declared-allergy-with-order",
+    "text": "Add a brownie. I have a milk allergy.",
+    "context": {
+      "open_requests": [],
+      "declared_constraints": [],
+      "catalog": [
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            }
+          ],
+          "modifier_groups": [
+            {
+              "id": "sugar",
+              "name": "Sugar",
+              "options": [
+                {
+                  "id": "no-sugar",
+                  "name": "No sugar"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "route": null,
+    "reply_to": null,
+    "clarify": false,
+    "declares": true
+  },
+  {
+    "id": "customization-not-requirement",
+    "text": "Add a small latte with no sugar.",
+    "context": {
+      "open_requests": [],
+      "declared_constraints": [],
+      "catalog": [
+        {
+          "item_id": "brownie",
+          "name": "Brownie",
+          "variants": [
+            {
+              "id": "regular",
+              "name": "Regular"
+            }
+          ],
+          "modifier_groups": []
+        },
+        {
+          "item_id": "latte",
+          "name": "Latte",
+          "variants": [
+            {
+              "id": "small",
+              "name": "Small"
+            }
+          ],
+          "modifier_groups": [
+            {
+              "id": "sugar",
+              "name": "Sugar",
+              "options": [
+                {
+                  "id": "no-sugar",
+                  "name": "No sugar"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "route": "placing_order/add_to_basket",
+    "reply_to": null,
+    "clarify": false,
+    "declares": false
+  },
+  {
+    "id": "checkout-start",
+    "text": "checkout",
+    "context": {
+      "open_requests": [],
+      "basket": [
+        {
+          "item_number": 1,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Large",
+          "quantity": 1
+        }
+      ],
+      "declared_constraints": []
+    },
+    "route": "placing_order/order_confirmation",
+    "reply_to": null,
+    "clarify": false,
+    "expected_queries": [
+      "checkout"
+    ]
+  },
+  {
+    "id": "basket-selection-question",
+    "text": "Remove one of the coffees, but let me choose which one first.",
+    "context": {
+      "basket": [
+        {
+          "item_number": 4,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Small",
+          "quantity": 1
+        },
+        {
+          "item_number": 9,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Large",
+          "quantity": 2
+        }
+      ],
+      "open_requests": [],
+      "declared_constraints": []
+    },
+    "route": "placing_order/delete_entry",
+    "reply_to": null,
+    "clarify": true,
+    "clarification_contains": [
+      "#4",
+      "#9"
+    ]
+  },
+  {
+    "id": "basket-selection-number",
+    "text": "9",
+    "context": {
+      "basket": [
+        {
+          "item_number": 4,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Small",
+          "quantity": 1
+        },
+        {
+          "item_number": 9,
+          "item_id": "latte",
+          "name": "Latte",
+          "size": "Large",
+          "quantity": 2
+        }
+      ],
+      "open_requests": [
+        {
+          "id": "remove-1",
+          "intent": "placing_order",
+          "sub_intent": "delete_entry",
+          "query": "Remove a coffee",
+          "question": "Which entry should I remove? #4 Latte Small; #9 Latte Large. Reply with the entry number.",
+          "missing_fields": [
+            "clarification"
+          ],
+          "details": {
+            "original_request": "Remove a coffee"
+          }
+        }
+      ],
+      "active_pending_id": "remove-1",
+      "declared_constraints": []
+    },
+    "route": "placing_order/delete_entry",
+    "reply_to": "remove-1",
+    "clarify": false,
+    "query_contains": [
+      "9"
+    ]
+  },
+  {
+    "id": "s155-hinglish-quantity-after-rating-detour",
+    "text": "do",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "pistachio",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "QA standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "has_placed_order": false,
+      "declared_constraints": [],
+      "locale": null,
+      "last_assistant_message": "Google Maps par café ki rating available information mein verify nahi ho saki.",
+      "last_assistant_question": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+      "recent_exchange": [
+        {
+          "user": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "assistant": "Pistachio Ice Cream ki kitni quantity add karni hai?"
+        },
+        {
+          "user": "pehle google wali rating bata, kitne star ho aap",
+          "assistant": "Google Maps par café ki rating available information mein verify nahi ho saki."
+        }
+      ],
+      "open_requests": [
+        {
+          "id": "p1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Pistachio Ice Cream chahiye; quantity baad mein bataunga, abhi mat daalna.",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "basket_effect_status": "not_applied",
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pistachio",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "reference": null,
+                    "unresolved": [
+                      "quantity"
+                    ]
+                  }
+                ],
+                "unresolved": [
+                  "quantity"
+                ],
+                "catalog_miss": false
+              }
+            }
+          }
+        }
+      ],
+      "active_pending_id": "p1"
+    },
+    "reply_to": "p1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "reply_to": "p1",
+        "clarification": null,
+        "action": {
+          "kind": "CHANGE_BASKET",
+          "basket": {
+            "lines": [
+              {
+                "action": "add",
+                "item_id": "pistachio",
+                "variant_id": "standard",
+                "quantity": 2,
+                "unresolved": []
+              }
+            ],
+            "unresolved": []
+          }
+        }
+      }
+    ],
+    "routes": [
+      "placing_order/add_to_basket",
+      "placing_order/customize_confirmation"
+    ]
+  },
+  {
+    "id": "s155-google-rating-is-cafe-information",
+    "text": "pehle google wali rating bata, kitne star ho aap",
+    "context": {
+      "catalog": [
+        {
+          "item_id": "pistachio",
+          "name": "Pistachio Ice Cream",
+          "variants": [
+            {
+              "id": "standard",
+              "name": "QA standard"
+            }
+          ],
+          "modifier_groups": []
+        }
+      ],
+      "catalog_complete": true,
+      "basket": [],
+      "has_placed_order": false,
+      "declared_constraints": [],
+      "locale": null,
+      "last_assistant_message": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+      "last_assistant_question": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+      "recent_exchange": [
+        {
+          "user": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "assistant": "Pistachio Ice Cream ki kitni quantity add karni hai?"
+        }
+      ],
+      "open_requests": [
+        {
+          "id": "p1",
+          "intent": "placing_order",
+          "sub_intent": "add_to_basket",
+          "query": "Pistachio Ice Cream chahiye; quantity baad mein bataunga, abhi mat daalna.",
+          "original_message": "pista ice cream chahiye, quantity baad mein bataunga, abhi mat daalna",
+          "question": "Pistachio Ice Cream ki kitni quantity add karni hai?",
+          "missing_fields": [
+            "clarification"
+          ],
+          "basket_effect_status": "not_applied",
+          "details": {
+            "action_proposal": {
+              "kind": "CHANGE_BASKET",
+              "basket": {
+                "lines": [
+                  {
+                    "action": "add",
+                    "item_id": "pistachio",
+                    "variant_id": "standard",
+                    "quantity": null,
+                    "modifiers": [],
+                    "reference": null,
+                    "unresolved": [
+                      "quantity"
+                    ]
+                  }
+                ],
+                "unresolved": [
+                  "quantity"
+                ],
+                "catalog_miss": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "route": "information_about_the_cafe/about_the_brand",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1
+  }
+]
