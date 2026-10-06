@@ -1,7 +1,8 @@
 """Conversation routing only. Nodes never access the session store or retry work."""
-from chatbot_core.llm.streaming import final_reply
+from chatbot_core.llm.streaming import final_reply, publish_reply
 from chatbot_core.llm.replies import join_replies
-from ..reply_language import localize_reply
+from ..reply_renderer import render_reply
+from ..reply_evidence import ordering_reply_evidence
 import logging
 from copy import deepcopy
 from functools import lru_cache
@@ -25,9 +26,10 @@ from .order_context import classification_context
 from chatbot_core.logic.action_resolver import NeedsClarification, TerminalRejection
 from chatbot_core.logic.outcomes import TaskOutcome
 from chatbot_core.logic.cafe.catalog import catalog_names, load_catalog
-from .actions import (action_route, bind_action, compatible_followup,
-                      ordering_evidence, required_routes, requires_action)
-from .pending import allowed_intent, resumable_pending, valid_pending
+from .actions import (CLARIFICATION_ROUTES, action_route, bind_action, compatible_followup,
+                      ordering_evidence, required_routes, requires_action, unresolved_item_answer)
+from .pending import (CLARIFICATION_LIMIT_REASON, MAX_CLARIFICATION_QUESTIONS, allowed_intent,
+                      resumable_pending, restore_clarification_budget, spend_clarification, valid_pending)
 from .task_matching import explicit_classification, redundant_address_selection, unsupported_size_answer
 
 
@@ -49,6 +51,8 @@ def prepare_followup(state: ConversationState):
     # Scope redirects are terminal, including entries saved by older handlers.
     # Remove them before normalization can use a stale reply as pending context.
     pending_queries = valid_pending(original, state)
+    for request in pending_queries:
+        restore_clarification_budget(request)
     previous = original[index] if index is not None and 0 <= index < len(original) else None
     index = next((i for i, intent in enumerate(pending_queries) if intent is previous), None)
     question = main_query = ""
@@ -134,15 +138,28 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
     index = next((i for i, pending in enumerate(state['pending_queries'])
                   if str(pending.query_id) == reply_to), None)
     replied = state['pending_queries'][index] if index is not None else None
+    # Naming a saved address for deletion/default management is not a request to
+    # select it for delivery. Let the classified handler resolve its own target.
+    if (classified_route[0] == 'location_based'
+            and classified_route[1] in {'delete_delivery_address', 'set_default_delivery_address'}
+            and proposal is not None and proposal.kind == 'SELECT_ADDRESS'):
+        proposal = None
     if redundant_address_selection(proposal, classified_route, state):
         proposal = None
-    if proposal is not None:
+    if unresolved_item_answer(proposal, classified_route, replied) and not clarification:
+        # The customer answered the task's question with nothing usable. Repeat
+        # that question through the clarify path so its budget is counted once.
+        clarification = replied.get_followup_question() or 'Please specify the item, size and quantity.'
+    clarification_only = bool(clarification and classified_route in CLARIFICATION_ROUTES
+                              and (proposal is None or requires_action(*action_route(proposal))))
+    if proposal is not None and not clarification_only:
         main_intent, sub_intent = action_route(proposal)
-    catalog = catalog_names(runtime.context.tenant.api_key) if proposal and proposal.kind == 'CHANGE_BASKET' else ()
+    catalog = (catalog_names(runtime.context.tenant.api_key)
+               if proposal and proposal.kind == 'CHANGE_BASKET' and not clarification_only else ())
     if replied is not None and not compatible_followup(proposal, (main_intent, sub_intent), replied, catalog=catalog):
         index = None
     try:
-        if proposal is not None:
+        if proposal is not None and not clarification_only:
             resolved = bind_action(proposal, state, catalog=catalog,
                                    text=ordering_evidence(replied if index is not None else None,
                                                           state['query'], rewrite))
@@ -153,7 +170,7 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
     except TerminalRejection as exc:
         rejection = str(exc)
     configuration = active_configuration()
-    routes = {(main_intent, sub_intent)} | (required_routes(proposal) if proposal else set())
+    routes = {(main_intent, sub_intent)} | (required_routes(proposal) if proposal and not clarification_only else set())
     unavailable = {route for route in routes if
                    (configuration is None and route not in CONTROL_ROUTES)
                    or (configuration is not None and not configuration.allows(*route))}
@@ -163,26 +180,61 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
         action_kind=proposal.kind if proposal else None,
         configuration_version=configuration.version if configuration else None,
         required_routes=routes, unavailable_routes=unavailable)
+    proposed_routes = required_routes(proposal) if proposal else set()
+    described_action = resolved.proposal if resolved is not None else proposal
+    response_context = {
+        'query': sentence,
+        'rephrased_sentence': rewrite,
+        'classified_route': classified_route,
+        'effective_route': (main_intent, sub_intent),
+        'proposed_action': proposal.kind if proposal else None,
+        'requested_item_ids': list(dict.fromkeys(
+            line.item_id for line in described_action.basket.lines
+            if line.item_id and line.action != 'remove'))
+            if described_action and described_action.basket else [],
+        'clarification_only': clarification_only,
+        'capabilities': {
+            'required_routes': sorted(routes), 'unavailable_routes': sorted(unavailable),
+            'proposed_action_routes': sorted(proposed_routes),
+            'proposed_action_allowed': (not any(
+                (configuration is None and route not in CONTROL_ROUTES)
+                or (configuration is not None and not configuration.allows(*route))
+                for route in proposed_routes)) if proposal else None,
+        },
+    }
+
+    def result(**values):
+        return {'current_response_context': response_context,
+                'basket_before_intent': deepcopy(state['basket'].items), **values}
+
     if unavailable:
-        return {'resolution': 'unavailable', 'current_reply': 'That service is currently unavailable at this café.'}
+        # An answered conversational clarification is no longer pending when its
+        # now-specific request is unavailable. Do not repeat its old question.
+        if index is not None and (replied.intent_type, replied.sub_intent) in CLARIFICATION_ROUTES:
+            state['pending_queries'].pop(index)
+        return result(resolution='unavailable', current_reply='That service is currently unavailable at this café.')
     if reply_to is not None and replied is None:
         # An earlier unit may have completed this request. Never replay it.
         if not (state['checklist'].get('order_id') and proposal and proposal.kind in {
                 'CONTINUE_CHECKOUT', 'CONFIRM_ORDER', 'RECOVER_PAYMENT'}):
-            return {'resolution': 'unavailable', 'current_reply': 'That request has already finished. Please start a new request.'}
+            response_context['reason'] = 'request_already_finished'
+            return result(resolution='unavailable', current_reply='That request has already finished. Please start a new request.')
     if (not rejection and index is not None and proposal is not None and proposal.kind == 'CHANGE_BASKET'
             and unsupported_size_answer(proposal, replied, state['query'],
                                         load_catalog(runtime.context.tenant.api_key))):
         # Do not replace the saved proposal or spend its clarification budget on
         # unrelated text. The customer can still answer after this turn.
-        return {'resolution': 'unavailable', 'current_reply': '', 'question_intent': replied}
+        response_context['reason'] = 'answer_does_not_resolve_pending_choice'
+        response_context['task_id'] = str(replied.query_id)
+        return result(resolution='unavailable', current_reply='', question_intent=replied)
     if rejection:
         rejected = (state['pending_queries'].pop(index) if index is not None else
                     create_intent(runtime.context, f"{state['counter']}:{state['intent_index']}",
                                   sentence, main_intent, sub_intent))
         rejected.set_outcome(TaskOutcome.TERMINAL_REJECTION, rejection)
-        return {'resolution': 'unavailable', 'current_reply': rejection,
-                'history': (state['history'] + [{'query_obj': deepcopy(rejected.to_dict())}])[-200:]}
+        response_context['outcome'] = TaskOutcome.TERMINAL_REJECTION.value
+        return result(resolution='unavailable', current_reply=rejection,
+                      history=(state['history'] + [{'query_obj': deepcopy(rejected.to_dict())}])[-200:])
     intent = create_intent(runtime.context, f"{state['counter']}:{state['intent_index']}",
                            sentence, main_intent, sub_intent)
     intent.original_query = state['query']
@@ -197,7 +249,7 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
         pending = state['pending_queries'][index] if index is not None else intent
         pending.rephrased_sentence = rewrite
         pending.response_language = intent.response_language
-        pending.ignored_count += 1
+        # Count only the final selected question, alongside handler questions.
         pending.set_outcome(TaskOutcome.NEEDS_CLARIFICATION, clarification)
         pending.missing_fields = ['clarification']
         pending.basket_item.setdefault('original_request', pending.original_query)
@@ -209,17 +261,18 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
         if not resumable_pending(pending, state):
             if index is not None:
                 state['pending_queries'].pop(index)
-            return {'resolution': 'unavailable', 'current_reply': pending.response,
-                    'history': (state['history'] + [{'query_obj': deepcopy(pending.to_dict())}])[-200:]}
+            response_context['outcome'] = pending.outcome.value
+            return result(resolution='unavailable', current_reply=pending.response,
+                          history=(state['history'] + [{'query_obj': deepcopy(pending.to_dict())}])[-200:])
         # Repeated clarification is still unfinished work, not a rejection.
         if index is None:
             state['pending_queries'].append(pending)
-        return {'resolution': 'clarify', 'current_reply': '', 'question_intent': pending}
+        return result(resolution='clarify', current_reply='', question_intent=pending)
     if (main_intent, sub_intent) == ('general', 'cancel_and_abort'):
-        return {'resolution': 'cancel', 'active_intent': intent, 'matched_followup_index': index}
+        return result(resolution='cancel', active_intent=intent, matched_followup_index=index)
     resolution = 'pause' if (main_intent, sub_intent) == ('general', 'wait') else 'new'
-    return {'resolution': resolution, 'active_intent': intent, 'matched_followup_index': index,
-            'paused_intent': None}
+    return result(resolution=resolution, active_intent=intent, matched_followup_index=index,
+                  paused_intent=None)
 
 
 def after_resolution(state: ConversationState) -> Literal["cancel_pending", "pause_pending", "match_followup", "collect_reply"]:
@@ -301,8 +354,8 @@ def _business_update(state, reply):
 
 
 def stream_original_reply(state):
-    return (state['checklist'].get('response_language', 'en') == 'en'
-            and state['intent_index'] == len(state['classifications']) - 1)
+    # Handler text is evidence for the final composer, not the delivered wording.
+    return False
 
 
 def process_followup(state: ConversationState, runtime: Runtime[ConversationContext]):
@@ -313,7 +366,6 @@ def process_followup(state: ConversationState, runtime: Runtime[ConversationCont
         pending.response_language = state['active_intent'].response_language
         pending.resolved_action = state['active_intent'].resolved_action
         pending.checkout_blocker = getattr(state['active_intent'], 'checkout_blocker', None)
-        pending.ignored_count = 0
         reply, _ = pending.process_followup(state["active_intent"], *_business_arguments(state, runtime.context))
         return _business_update(state, reply)
 
@@ -329,16 +381,25 @@ def collect_reply(state: ConversationState):
     pending = state["pending_queries"]
     history = state["history"]
     next_intent = state["next_intent"]
+    fact = dict(state.get('current_response_context', {}))
+    fact.update(verified_result=state['current_reply'],
+                outcome=fact.get('outcome', 'needs_clarification' if state['resolution'] == 'clarify'
+                                 else state['resolution']),
+                business_handler_ran=state['resolution'] not in {'unavailable', 'clarify'},
+                basket_changed=state['basket'].items != state.get('basket_before_intent', state['basket'].items))
     if state["resolution"] in {"cancel", "unavailable", "clarify"}:
         if state['current_reply']:
             replies.append(state["current_reply"])
         if state['resolution'] == 'clarify':
+            fact['task_id'] = str(state['question_intent'].query_id)
             history = (history + [{'query_obj': deepcopy(state['question_intent'].to_dict())}])[-200:]
     else:
         incoming = state["active_intent"]
         is_followup = state["resolution"] == "followup"
         index = state["matched_followup_index"]
         processed = pending[index] if is_followup else incoming
+        fact['task_id'] = str(processed.query_id)
+        fact['outcome'] = processed.outcome.value
         if processed.handoff_to:
             # Preserve the existing rule: the last requested handoff is queued.
             target = processed.build_handoff_intent()
@@ -346,6 +407,8 @@ def collect_reply(state: ConversationState):
                 next_intent = target
             else:
                 replies.append("That service is currently unavailable at this café.")
+                fact['handoff'] = {'outcome': 'unavailable',
+                                   'route': (target.intent_type, target.sub_intent)}
         # Retain resolved answers for the next history-based question,
         # including tasks restored from older sessions.
         recorded = processed if processed.intent_type in {
@@ -374,6 +437,7 @@ def collect_reply(state: ConversationState):
     if state['resolution'] not in {'cancel', 'unavailable', 'clarify'} and not processed.is_complete:
         question_intent = processed
     return {"question_intent": question_intent, "replies": replies, "pending_queries": pending, "history": history,
+            "response_facts": [*state.get('response_facts', []), fact],
             "next_intent": next_intent, "intent_index": state["intent_index"] + 1}
 
 
@@ -385,27 +449,84 @@ def choose_followup(state: ConversationState):
     pending = list(state["pending_queries"])
     if state["next_intent"]:
         pending.append(state["next_intent"])
-    # A topic change suspends unfinished work; only completion or cancellation
-    # removes it. ignored_count is not a safe expiry policy for user actions.
+    # Apply the budget once, only to a question selected for this reply.
     pending = valid_pending(pending, state)
     response = join_replies(state["replies"])
     awaiting = None
     delivered_question = ''
+    facts = list(state.get('response_facts', []))
+    history = list(state['history'])
     candidate = state.get('question_intent') or state.get('next_intent')
     if candidate in pending and candidate is not state.get('paused_intent'):
         delivered_question = candidate.get_followup_question()
         if delivered_question:
-            if not response.endswith(delivered_question):
-                response = join_replies([response, delivered_question])
-            awaiting = pending.index(candidate)
+            # A guessed size rejected for lack of user evidence must not spend
+            # the task's budget. Use its latest result so a later, valid unit in
+            # the same turn can still advance the task normally.
+            latest = next((fact for fact in reversed(facts)
+                           if fact.get('task_id') == str(candidate.query_id)), {})
+            preserve_budget = latest.get('reason') == 'answer_does_not_resolve_pending_choice'
+            if preserve_budget or spend_clarification(candidate):
+                if not response.endswith(delivered_question):
+                    response = join_replies([response, delivered_question])
+                awaiting = pending.index(candidate)
+            else:
+                # Some handlers include their question in the returned result.
+                # Remove it before replacing this task's next step with closure.
+                if response.endswith(delivered_question):
+                    response = response[:-len(delivered_question)].rstrip()
+                response = join_replies([response, candidate.response])
+                pending.remove(candidate)
+                delivered_question = ''
+                closure = {
+                    'task_id': str(candidate.query_id),
+                    'query': candidate.main_query, 'outcome': candidate.outcome.value,
+                    'reason': CLARIFICATION_LIMIT_REASON,
+                    'clarifications_delivered': MAX_CLARIFICATION_QUESTIONS,
+                    'verified_result': candidate.response,
+                    'business_handler_ran': False, 'basket_changed': False,
+                }
+                # Replace stale question instructions for this task. Other
+                # operations in the same turn retain their own execution facts.
+                facts = [fact for fact in facts if fact.get('task_id') != str(candidate.query_id)]
+                facts.append(closure)
+            # Save the delivered count/terminal outcome, not the earlier draft.
+            record = next((i for i in range(len(history) - 1, -1, -1)
+                           if str(history[i].get('query_obj', {}).get('query_id')) == str(candidate.query_id)), None)
+            if record is not None:
+                history[record] = {**history[record], 'query_obj': deepcopy(candidate.to_dict())}
+            else:
+                history = (history + [{'query_obj': deepcopy(candidate.to_dict())}])[-200:]
     elif candidate in pending:
         awaiting = pending.index(candidate)
     elif state.get('previous_followup') in pending:
         awaiting = pending.index(state['previous_followup'])
-    response, delivered_question = localize_reply(
-        response, delivered_question, state['checklist'].get('response_language', 'en'))
     return {'pending_queries': pending, 'awaiting_followup_index': awaiting,
+            'response_facts': facts, 'history': history,
             'response': response, 'delivered_question': delivered_question}
+
+
+def render_response(state: ConversationState, runtime: Runtime[ConversationContext]):
+    index = state['awaiting_followup_index']
+    pending = state['pending_queries'][index] if index is not None else None
+    question = state.get('delivered_question', '')
+    response, delivered_question = render_reply(
+        query=state['query'],
+        previous_message=state['checklist'].get('last_assistant_message', ''),
+        previous_question=state['checklist'].get('last_assistant_question', ''),
+        facts=state.get('response_facts', []), response=state['response'], question=question,
+        followup={'outcome': pending.outcome.value, 'missing_fields': pending.missing_fields,
+                  'route': (pending.intent_type, pending.sub_intent)} if pending else {},
+        evidence=ordering_reply_evidence(runtime.context.tenant.api_key, state.get('response_facts', [])),
+        language=state['checklist'].get('response_language', 'en'))
+    if pending is not None and delivered_question:
+        # Next-turn classification and task restoration see the question actually sent.
+        if pending.response == question:
+            pending.response = delivered_question
+        pending.follow_up_question[-1:] = [delivered_question]
+    publish_reply(response)
+    return {'response': response, 'delivered_question': delivered_question,
+            'pending_queries': state['pending_queries']}
 
 
 @lru_cache(maxsize=1)
@@ -413,7 +534,7 @@ def get_conversation_graph():
     builder = StateGraph(ConversationState, context_schema=ConversationContext)
     for node in (prepare_followup, classify_intents, resolve_intent,
                  cancel_pending, pause_pending, match_followup, process_followup, process_new_query,
-                 collect_reply, choose_followup):
+                 collect_reply, choose_followup, render_response):
         builder.add_node(node.__name__, node, retry_policy=None)
     builder.add_edge(START, "prepare_followup")
     builder.add_edge("prepare_followup", "classify_intents")
@@ -424,6 +545,7 @@ def get_conversation_graph():
     for node in ("cancel_pending", "process_followup", "process_new_query"):
         builder.add_edge(node, "collect_reply")
     builder.add_conditional_edges("collect_reply", after_collection)
-    builder.add_edge("choose_followup", END)
+    builder.add_edge("choose_followup", "render_response")
+    builder.add_edge("render_response", END)
     # Redis owns persistence. No checkpoint/resume or graph-level retry policy.
     return builder.compile(checkpointer=False)

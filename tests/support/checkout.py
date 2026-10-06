@@ -13,6 +13,8 @@ from tests.support.runtime import classification_result, enable_legacy_capabilit
 class CheckoutFixture:
     def setUp(self):
         super().setUp()
+        from tests.support.replies import install_reply_renderer
+        self.renderer = install_reply_renderer(self)
         self.tenant = TenantInfo.objects.create(display_name='Checkout Cafe', approval_status='APPROVED')
         enable_legacy_capabilities(self.tenant)
         self.customer = Customer.objects.create(tenant=self.tenant, name='Guest', phone='1234567890')

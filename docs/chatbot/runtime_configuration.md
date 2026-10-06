@@ -61,3 +61,8 @@ reserve inventory.
 For an external menu, uploaded `menu_items` documents are replaced by generated
 catalog knowledge. A stale or unavailable menu contributes a status instead of
 old uploaded prices. Checkout still revalidates prices and rules on its own.
+
+Retrieval does not change routing and does not authorize an action. Query
+expansion is not factual evidence. History can resolve a reference and cannot
+authorize repeating an action. A missing or omitted stock row does not mean the
+item is sold out.

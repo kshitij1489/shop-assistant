@@ -37,7 +37,9 @@ not own. Evidence is on the `evaluation_evidence` volume at
 
 Preflight checks migrations, adapter TLS, the worker, and a recent scheduler
 heartbeat. It does not call a model. Restart web, worker, and scheduler after
-Python changes.
+Python changes. The development web process uses `--noreload`, so a file edit
+cannot restart it during a measured run. Evaluation controls do not flush
+development Redis.
 
 ## Live run
 
@@ -82,3 +84,14 @@ publish only after review.
 
 Delivery scenarios use typed street text and tenant coverage. They do not call
 a geocoder. Changed prompts or expected answers need a new run.
+
+Do not replay a completed or ambiguous request in its original session. A
+timeout after the request was sent is not retried there; a later attempt uses a
+new identity. Do not reuse a run directory that already contains `summary.json`,
+overwrite saved evidence, or edit a saved report. Missing diagnostics stay
+missing. A semantic judgment cannot clear a deterministic failure, and missing
+money or cost is unknown rather than zero or a pass. Do not infer success from
+polite prose when stored state contradicts it. A payment URL that exists only
+in state is not proof it was delivered. Do not seed state to make an assertion
+pass. Scenario plans reject path escapes and must not contain Python, shell,
+arbitrary HTTP bodies, or executable prose.

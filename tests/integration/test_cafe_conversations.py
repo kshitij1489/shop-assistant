@@ -113,7 +113,7 @@ class ConversationContract:
 
     def test_new_query_handoff_is_saved_without_executing_target(self):
         response, _ = self.send(["handoff"], platform="whatsapp")
-        self.assertEqual(response, "handoff reply Confirm order?")
+        self.assertEqual(response, "handoff reply. Confirm order?")
         pending, index = self.store(platform="whatsapp").get_ongoing_queries()
         self.assertEqual(index, 0)
         self.assertEqual((pending[0].tenant, pending[0].chat_id, pending[0].platform), (1, "same-user", "whatsapp"))
@@ -127,7 +127,7 @@ class ConversationContract:
         self.send(["ask"])
         self.reply_to_pending = True
         response, _ = self.send(["handoff"])
-        self.assertEqual(response, "followup reply Confirm order?")
+        self.assertEqual(response, "followup reply. Confirm order?")
         pending, index = self.store().get_ongoing_queries()
         self.assertEqual((len(pending), index, pending[0].sub_intent), (1, 0, "confirm"))
 
@@ -355,7 +355,7 @@ class ConversationContract:
             response, _ = self.send_classified_with_general([
                 ("Wait", "general", "wait", None, None), ("large", "scripted", "large", None, None),
             ])
-        self.assertEqual(response, "General reply. Need quantity How many?")
+        self.assertEqual(response, "General reply. Need quantity. How many?")
         pending, index = self.store().get_ongoing_queries()
         self.assertEqual((len(pending), index, pending[0].ignored_count), (1, 0, 0))
 
@@ -384,7 +384,7 @@ class ConversationContract:
             return "Need quantity", intent.query_id
         with patch.object(ScriptedIntent, "process_followup", process):
             response, _ = self.send(["large"])
-        self.assertEqual(response, "Need quantity How many?")
+        self.assertEqual(response, "Need quantity. How many?")
         pending, index = self.store().get_ongoing_queries()
         self.assertEqual((len(pending), index), (2, 1))
         self.assertEqual(pending[0].get_followup_question(), "Which size?")

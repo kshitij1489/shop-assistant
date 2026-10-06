@@ -42,6 +42,9 @@ class ConversationState(TypedDict, total=False):
     resolution: Literal["cancel", "followup", "new", "pause", "unavailable", "clarify"]
     current_reply: str
     replies: list[str]
+    current_response_context: dict
+    response_facts: list[dict]
+    basket_before_intent: list[dict]
     next_intent: BaseIntent | None
     skip_followup_prompt: tuple[object, bool]
     response: str | list[str]

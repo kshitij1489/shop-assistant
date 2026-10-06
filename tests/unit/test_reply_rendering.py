@@ -4,6 +4,7 @@ from django.test import SimpleTestCase
 from chatbot_core.llm.replies import join_replies
 from chatbot_core.llm.streaming import final_reply, invoke_reply, reply_stream
 from chatbot_core.logic.cafe.reply_language import localize_reply
+from chatbot_core.logic.cafe.reply_renderer import render_reply
 from chatbot_core.logic.cafe.workflow.graph import stream_original_reply
 from tests.support.llm import ProviderHarness
 
@@ -16,11 +17,56 @@ class ReplyCompositionTests(SimpleTestCase):
                          'Total INR 10.50\nhttps://cafe.example/pay?id=123. Thank you.')
         self.assertEqual(join_replies(['नमस्ते।', 'Bonjour !']), 'नमस्ते। Bonjour !')
 
-    def test_localized_turn_does_not_stream_intermediate_english_replies(self):
-        state = {'checklist': {'response_language': 'es'}, 'intent_index': 0, 'classifications': [()]}
-        self.assertFalse(stream_original_reply(state))
-        state['checklist']['response_language'] = 'en'
-        self.assertTrue(stream_original_reply(state))
+    def test_handler_wording_is_not_streamed_before_final_composition(self):
+        for language in ('es', 'en'):
+            with self.subTest(language=language):
+                state = {'checklist': {'response_language': language}, 'intent_index': 0,
+                         'classifications': [()]}
+                self.assertFalse(stream_original_reply(state))
+
+
+class ReplyRendererTests(ProviderHarness, SimpleTestCase):
+    """Exercise the real composer independently of graph presentation stubs."""
+
+    def render(self, response='Added 2 × Coffee at INR 100.00.', question=''):
+        return render_reply(query='Two coffees', previous_message='', previous_question='',
+                            facts=[{'verified_result': response, 'basket_changed': True}],
+                            response=response, question=question, followup={}, language='es')
+
+    def test_composes_verified_facts_in_one_presentation_call(self):
+        import json
+        self.payload = {'response': 'Añadido 2 × Coffee a INR 100.00.', 'question': ''}
+        self.assertEqual(self.render(), (self.payload['response'], ''))
+        self.assertEqual(len(self.requests), 1)
+        context = json.loads(self.requests[0]['messages'][1]['content'])
+        self.assertEqual(context['language'], 'es')
+        self.assertEqual(context['verified_reply'], 'Added 2 × Coffee at INR 100.00.')
+        self.assertTrue(context['workflow_results'][0]['basket_changed'])
+        self.assertIsNone(context['permitted_followup'])
+
+    def test_translates_selected_question_and_keeps_it_at_end_of_reply(self):
+        question = 'How many Coffee would you like?'
+        self.payload = {'response': '¿Cuántos Coffee quieres?', 'question': '¿Cuántos Coffee quieres?'}
+        self.assertEqual(self.render(question, question),
+                         (self.payload['response'], self.payload['question']))
+
+    def test_invalid_composition_falls_back_without_retry(self):
+        for response, question in (
+                ('Added 3 × Coffee at INR 100.00.', ''),
+                ('Added 2 × Coffee at INR 90.00.', ''),
+                ('Added 2 × Coffee at INR 100.00. Name?', 'Name?')):
+            with self.subTest(response=response):
+                self.payload = {'response': response, 'question': question}
+                before = len(self.requests)
+                with self.assertLogs('chatbot_core.logic.cafe.reply_renderer', 'ERROR'):
+                    self.assertEqual(self.render(), ('Added 2 × Coffee at INR 100.00.', ''))
+                self.assertEqual(len(self.requests) - before, 1)
+
+    def test_provider_failure_preserves_verified_reply_and_question(self):
+        self.status = 500
+        with self.assertLogs('chatbot_core.logic.cafe.reply_renderer', 'ERROR'):
+            self.assertEqual(self.render('Which size?', 'Which size?'), ('Which size?', 'Which size?'))
+        self.assertEqual(len(self.requests), 1)
 
 
 class ReplyLanguageTests(ProviderHarness, SimpleTestCase):

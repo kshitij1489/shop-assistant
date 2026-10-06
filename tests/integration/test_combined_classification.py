@@ -13,6 +13,7 @@ from chatbot_core.logic.cafe.session.memory import MemorySessionStore, _session_
 from tests.support.conversations import ScriptedIntent
 from tests.support.runtime import install_runtime_fixture
 from tests.support.llm import ProviderHarness
+from tests.support.replies import verified_reply
 
 
 class CombinedWorkflowTests(ProviderHarness, SimpleTestCase):
@@ -85,7 +86,7 @@ class CombinedWorkflowTests(ProviderHarness, SimpleTestCase):
         self.output(('ask', 'ask'))
         self.payload['response_language'] = 'hi-Latn'
         self.payload['classifications'][0]['rephrased_sentence'] = 'Choose a size for the pending latte'
-        with patch.object(self.graph, 'localize_reply', side_effect=lambda reply, question, lang: (reply, question)):
+        with patch.object(self.graph, 'render_reply', side_effect=verified_reply):
             self.runner.run_conversation(self.tenant, store, 'latte chahiye')
             pending = store.get_ongoing_queries()[0][-1]
             self.assertEqual(pending.rephrased_sentence, 'Choose a size for the pending latte')

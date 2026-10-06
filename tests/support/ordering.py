@@ -35,6 +35,8 @@ def seed_evaluation_policy(tenant, *, commerce_enabled=False):
 class OrderingFixture:
     def setUp(self):
         super().setUp()
+        from tests.support.replies import install_reply_renderer
+        install_reply_renderer(self)
         self.tenant = TenantInfo.objects.create(slug="ordering", display_name="Cafe")
         from tests.support.runtime import enable_legacy_capabilities
         enable_legacy_capabilities(self.tenant)

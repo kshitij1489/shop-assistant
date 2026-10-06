@@ -45,7 +45,7 @@ def remember_invalidated_quote(draft, previous):
 
 
 PROMPTS = {
-    'name': 'What name should we use for this order?',
+    'name': 'What recepient name should we use for this order?',
     'phone': 'What phone number should we use for this order?',
     'address': 'What is your delivery address? Reply with address: followed by the full address.',
     'postal_code': 'What is your delivery postal code?',

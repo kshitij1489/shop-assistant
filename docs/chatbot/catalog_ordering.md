@@ -35,7 +35,8 @@ variant only. Modifier charges are added once. A proposal over a tenant cap is
 rejected and the basket is left unchanged. An existing over-limit basket can
 still be reduced. Checkout of that basket stays blocked until it is within the
 caps. A component price change requires the customer to review the basket
-before a new total is charged.
+before a new total is charged. Until that review, the unplaced basket keeps its
+stored prices. A placed order is not repriced from later catalog changes.
 
 Checkout validates rules and prices again and writes `OrderItemAddon` rows.
 The chat does not announce a stock count. A saved selection that no longer

@@ -50,31 +50,6 @@ class InsufficientInformationTests(ClarificationHarness, SimpleTestCase):
         self.assertEqual(intent.main_query, 'that {thing} "please"')
         self.assertEqual(intent.follow_up_reply, [intent.main_query])
 
-    def test_clarification_budget_survives_serialization_and_stops_without_a_question(self):
-        intent = self.intent()
-        intent.process_query(*self.arguments)
-        with patch.object(base, "get_intent", return_value=InsufficientInformationIntent):
-            restored = base.BaseIntent.from_dict(deepcopy(intent.to_dict()))
-        restored.process_followup(self.intent("still unclear"), *self.arguments)
-        response, followup_id = restored.process_followup(self.intent("again"), *self.arguments)
-        self.assertEqual(response, restored.EXHAUSTED_RESPONSE)
-        self.assertIsNone(followup_id)
-        self.assertTrue(restored.is_complete)
-        self.assertEqual(restored.follow_up_question, [])
-        self.assertEqual(restored.follow_up_reply, ["still unclear", "again"])
-        self.assertEqual(restored.platform, "telegram")
-        self.assertEqual(len(self.requests), 2)
-        self.assertEqual(restored.process_query(*self.arguments), (response, None))
-        self.assertEqual(restored.process_followup(self.intent(), *self.arguments), (response, None))
-        self.assertEqual(len(self.requests), 2)
-
-    def test_old_session_over_budget_finishes_immediately(self):
-        intent = self.intent(follow_up_question=["old"] * 4)
-        self.assertEqual(intent.process_query(*self.arguments)[0], intent.EXHAUSTED_RESPONSE)
-        self.assertTrue(intent.is_complete)
-        self.assertEqual(intent.follow_up_question, [])
-        self.factory.assert_not_called()
-
     def test_blank_or_non_text_input_uses_fallback_without_provider(self):
         for query in ("", " \n ", None, 12, []):
             with self.subTest(query=query):
@@ -164,12 +139,32 @@ class InsufficientInformationGraphTests(ClarificationHarness, SimpleTestCase):
                 self.assertEqual(reply, 'Could you clarify?')
                 self.assertEqual(len(pending), 1)
                 self.assertEqual(pending[0].ignored_count, turn + 1)
+                self.assertEqual(pending[0].basket_item['clarification_budget']['delivered'], turn + 1)
                 reply_to = str(pending[0].query_id)
                 self.session.set_ongoing_queries([base.BaseIntent.from_dict(pending[0].to_dict())], index)
             else:
                 self.assertIn('start again', reply)
                 self.assertEqual(pending, [])
+                ended = self.session.get_history()[-1]['query_obj']
+                self.assertEqual(ended['outcome'], 'terminal_rejection')
+                self.assertEqual(ended['follow_up_question'], [])
+                self.assertFalse(self.session.get_checklist().get('last_assistant_question'))
         self.assertEqual(before, self.session.get_basket().to_dict())
+        self.factory.assert_not_called()
+
+    def test_old_session_over_budget_closes_at_delivery_without_handler_call(self):
+        pending = self.intent(follow_up_question=['Old question?'] * 4, query_id='legacy')
+        self.session.set_ongoing_queries([pending], 0)
+        before = self.session.get_basket().to_dict()
+        with patch.object(InsufficientInformationIntent, 'process_followup') as handler:
+            reply, _ = self.send(reply_to='legacy')
+        self.assertIn('start again', reply)
+        self.assertEqual(self.session.get_ongoing_queries(), ([], None))
+        ended = self.session.get_history()[-1]['query_obj']
+        self.assertEqual(ended['outcome'], 'terminal_rejection')
+        self.assertEqual(ended['follow_up_question'], [])
+        self.assertEqual(self.session.get_basket().to_dict(), before)
+        handler.assert_not_called()
         self.factory.assert_not_called()
 
     def test_empty_classification_preserves_pending_and_business_state(self):

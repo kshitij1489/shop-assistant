@@ -12,7 +12,6 @@ from chatbot_core.logic.cafe.catalog import load_catalog, positive_integer, vali
 from chatbot_core.logic.cafe.db_utils import create_order
 from chatbot_core.logic.cafe.intent_handler import base
 from chatbot_core.logic.cafe.intent_handler.placing_order import PlacingOrderIntent
-from chatbot_core.logic.cafe.intent_handler.insufficient_information import InsufficientInformationIntent
 from tests.support.actions import execute_change
 from chatbot_core.models import TenantInfo
 from orders.models import MenuItem, MenuItemVariant, AddonGroup, AddonItem, ItemAddonGroup, Customer, Order
@@ -443,31 +442,6 @@ class CatalogOrderingTests(TestCase):
         obj, reply = self.follow(obj, "large")
         self.assertTrue(obj.is_complete)
         self.assertEqual([x["quantity"] for x in self.basket.items], [2, 1])
-
-    def test_two_clarifications_then_terminal_no_mutation(self):
-        self.respond(self.proposal(unresolved=["Which size: Small or Large?"]))
-        obj = self.intent("grande latte")
-        self.assertIn("Which size", self.run_intent(obj))
-        obj, reply = self.follow(obj, "unsure")
-        self.assertFalse(obj.is_complete)
-        obj, reply = self.follow(obj, "still unsure")
-        self.assertTrue(obj.is_complete)
-        self.assertIn("unchanged", reply)
-        self.assertEqual(obj.basket_item, {})
-        self.assertEqual(obj.get_followup_question(), "")
-        self.assertEqual(self.basket.items, [])
-        self.latte.refresh_from_db()
-        self.assertEqual(self.latte.meta["aliases"], ["cafe latte"])
-
-    def test_generic_unclear_reply_consumes_same_clarification_budget(self):
-        obj = self.intent("latte")
-        self.run_intent(obj)
-        unclear = InsufficientInformationIntent(main_query="huh", sub_intent="insufficient_information", tenant=self.tenant.pk, chat_id="user")
-        unclear.platform = "telegram"
-        for _ in range(2):
-            obj.process_followup(unclear, self.basket, {}, {}, [], self.tenant.api_key, self.customer)
-        self.assertTrue(obj.is_complete)
-        self.assertFalse(self.basket.items)
 
     def test_missing_action_cannot_mutate(self):
         obj = self.intent("surprise custom latte")

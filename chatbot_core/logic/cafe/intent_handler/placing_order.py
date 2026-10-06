@@ -1,7 +1,8 @@
 """Ordering business actions; routing and persistence belong to the conversation graph.
 
 Pending item fields live in basket_item so BaseIntent/session round trips retain
-clarifications. Mutation results and payment links never pass through an LLM.
+clarifications. Handlers produce authoritative results; the final reply renderer
+can phrase them but cannot execute actions or change payment links and amounts.
 """
 import logging
 import re
@@ -63,8 +64,6 @@ class PlacingOrderIntent(BaseIntent):
         return self.set_outcome(TaskOutcome.TEMPORARILY_BLOCKED, response)
 
     def _ask(self, response):
-        attempts = self.basket_item.get("clarification_questions", 0)
-        self.basket_item["clarification_questions"] = attempts + 1
         self.response = response
         self.is_complete = False
         self.follow_up_question[:] = [response]
@@ -342,7 +341,8 @@ class PlacingOrderIntent(BaseIntent):
                 # removed ID as a stale reference rather than selecting another row.
                 removed = set(before) - {row['item_number'] for row in basket.items}
                 affected = set(changed) | removed
-                checklist['basket_focus'] = next(iter(affected)) if len(affected) == 1 else None
+                if affected:
+                    checklist['basket_focus'] = next(iter(affected)) if len(affected) == 1 else None
                 self.basket_item = {}
                 return self._finish(response)
             return self._ask('Please specify the item, size and customizations.')

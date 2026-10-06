@@ -550,7 +550,14 @@ class CheckoutTests(CheckoutFixture, TestCase):
                         self.assertIn('8pm', reply)
                         saved, index = store.get_ongoing_queries()
                         self.assertEqual((len(saved), index), (1, 0))
-                        self.assertEqual(saved[0].basket_item, fields)
+                        saved_fields = deepcopy(saved[0].basket_item)
+                        if sub_intent == 'add_to_basket':
+                            self.assertEqual(saved_fields.pop('clarification_budget'), {
+                                'delivered': 0,
+                                'progress': {'lines': [], 'unresolved': 0, 'catalog_miss': False},
+                            })
+                            self.assertEqual(saved[0].ignored_count, 0)
+                        self.assertEqual(saved_fields, fields)
                         self.assertEqual(saved[0].main_query, pending.main_query)
 
     def test_completed_order_can_start_fresh_order_in_same_chat(self):

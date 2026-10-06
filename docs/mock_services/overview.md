@@ -77,3 +77,12 @@ The location emulator in this process is for evaluation fixtures only.
 `LOCATION_EMULATOR_URL` must be a loopback `http` origin. Customer delivery
 addresses and production café lookup do not use it. See
 [site location](../site_location.md).
+
+The payment simulator does not advertise `payment.refund` and does not change
+`refunded_minor`. It has no `authorized` state and no partial capture. POS
+orders stay `accepted`; later fulfillment states are not emulated. An
+unsupported command fails without provider I/O. `restore_and_reconcile` is
+refused; clear the account's faults and run `reconcile_commerce`. Coverage and
+intent classification are not location-emulator controls: coverage is the
+tenant's `serviceable_pincodes` list. Bind addresses other than loopback
+(`127.0.0.1`, `localhost`), `0.0.0.0`, and `::` are rejected.

@@ -29,6 +29,8 @@ class WhatsAppIntegrationTests(TestCase):
         cls.runner = importlib.import_module("chatbot_core.logic.cafe.workflow.runner")
 
     def setUp(self):
+        from tests.support.replies import install_reply_renderer
+        install_reply_renderer(self)
         self.tenant = TenantInfo.objects.create(
             display_name="WhatsApp cafe", business_type="cafe", whatsapp_id="business-number",
             is_active=True, approval_status="APPROVED",

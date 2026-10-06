@@ -1,0 +1,921 @@
+[
+  {
+    "id": "s153-original",
+    "text": "haan yehi address theek hai, save kar de",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "hi-reversed",
+    "text": "save kar do, haan yahi address sahi hai",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "hi-devanagari",
+    "text": "हाँ, यही पता सही है, इसे सेव कर दो।",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "en-save",
+    "text": "Yes, that address is correct, save it.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "en-use",
+    "text": "That is right. Use it for delivery.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "en-store",
+    "text": "Please store it; the address you read back is correct.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "es-save",
+    "text": "Sí, esa dirección está bien, guárdala.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "fr-save",
+    "text": "Oui, cette adresse est correcte, enregistre-la.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "pt-save",
+    "text": "Sim, esse endereço está certo, pode salvar.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "ru-save",
+    "text": "Да, адрес правильный, сохрани его.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "ar-save",
+    "text": "نعم، هذا العنوان صحيح، احفظه.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "zh-save",
+    "text": "对，就是这个地址，保存吧。",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "detour-save",
+    "text": "Yes, the address is correct, save it.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      },
+      "last_assistant_message": "Your basket is empty.",
+      "last_completed_request": {
+        "intent_type": "placing_order",
+        "sub_intent": "check_order_cart",
+        "main_query": "Show my basket"
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "confirm-save-goodbye",
+    "text": "Yes, that address is correct, save it. Bye.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 2,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      },
+      {
+        "intent": "general",
+        "sub_intent": "goodbye",
+        "reply_to": null,
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "confirm-save-cart",
+    "text": "Yes, that address is right, save it. Show my basket.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 2,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      },
+      {
+        "intent": "placing_order",
+        "sub_intent": "check_order_cart",
+        "reply_to": null,
+        "clarification": null,
+        "action": {
+          "kind": "SHOW_CART"
+        }
+      }
+    ]
+  },
+  {
+    "id": "confirm-and-different-address",
+    "text": "Yes, that address is correct, save it. Also add another address: 19 Garden Street, Mumbai, Maharashtra, India, 400001.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 2,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "confirm_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      },
+      {
+        "intent": "location_based",
+        "sub_intent": "add_delivery_address",
+        "reply_to": null,
+        "clarification": null,
+        "action": null
+      }
+    ],
+    "rewrite_checks": [
+      {
+        "unit": 1,
+        "contains": [
+          "19",
+          "Garden Street",
+          "Mumbai",
+          "Maharashtra",
+          "India",
+          "400001"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "deny-save",
+    "text": "No, that address is wrong. Do not save it.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "sub_intent": "deny_delivery_address",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "correction-save",
+    "text": "Yes, save it, but the apartment is 8, not 7.",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ],
+    "routes": [
+      "location_based/confirm_delivery_address",
+      "location_based/update_delivery_address"
+    ],
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "8"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "hi-correction-save",
+    "text": "save kar do lekin apartment 7 nahi 8 hai",
+    "context": {
+      "open_requests": [
+        {
+          "id": "address-1",
+          "intent": "location_based",
+          "sub_intent": "confirm_delivery_address",
+          "query": "Delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+          "missing_fields": [],
+          "details": {}
+        }
+      ],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm your delivery address: Apartment 7, Lake Road, Delhi, Delhi, 110001, India.",
+      "address_draft": {
+        "street_address": "Apartment 7, Lake Road",
+        "city": "Delhi",
+        "state": "Delhi",
+        "country": "India",
+        "postal_code": "110001"
+      },
+      "location_confirmed": false,
+      "has_placed_order": false,
+      "basket": [],
+      "checkout": {
+        "fields": {},
+        "has_quote": false
+      }
+    },
+    "reply_to": "address-1",
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "location_based",
+        "reply_to": "address-1",
+        "clarification": null,
+        "action": null
+      }
+    ],
+    "routes": [
+      "location_based/confirm_delivery_address",
+      "location_based/update_delivery_address"
+    ],
+    "rewrite_checks": [
+      {
+        "unit": 0,
+        "contains": [
+          "8"
+        ]
+      }
+    ]
+  }
+]

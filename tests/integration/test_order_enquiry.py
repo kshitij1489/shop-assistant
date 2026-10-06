@@ -29,6 +29,8 @@ class OrderFixture:
                               external_order_id="RECEIPT-123")
         self.latest = self.order()
         self.arguments = ({"items": ["latte"]}, {"city": "Delhi"}, {"payment": False}, [], self.tenant.api_key, self.customer)
+        from tests.support.replies import install_reply_renderer
+        install_reply_renderer(self)
         self.provider = self.enterContext(patch("chatbot_core.llm.chains.get_chat_model", side_effect=AssertionError("Unexpected provider call")))
 
     def order(self, **kwargs):
@@ -393,7 +395,12 @@ class OrderEnquiryGraphTests(OrderFixture, TestCase):
         self.assertIn(str(self.latest.pk), self.send(("My previous order status?", "order_status_tracking")))
         saved, index = self.session.get_ongoing_queries()
         self.assertEqual(index, 0)
-        self.assertEqual(saved[0].to_dict(), pending.to_dict())
+        saved_task = deepcopy(saved[0].to_dict())
+        self.assertEqual(saved_task['basket_item'].pop('clarification_budget'), {
+            'delivered': 0,
+            'progress': {'lines': [], 'unresolved': 0, 'catalog_miss': False},
+        })
+        self.assertEqual(saved_task, pending.to_dict())
         self.assertEqual(self.session.get_basket().to_dict(), before)
         self.assertEqual(self.session.get_delivery_address(), {"city": "Delhi"})
 

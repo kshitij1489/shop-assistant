@@ -2,6 +2,8 @@
 from tests.support.runtime import classification_result
 from collections import OrderedDict
 import importlib
+import json
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
@@ -30,6 +32,8 @@ class RuntimeConfigurationTests(TestCase):
 
     def setUp(self):
         cache.clear()
+        from tests.support.replies import install_reply_renderer
+        install_reply_renderer(self)
         self.enterContext(patch.object(runtime, '_cache', OrderedDict()))
         from chatbot_core import knowledge_retrieval
         self.enterContext(patch.object(knowledge_retrieval, '_indexes', OrderedDict()))
@@ -200,6 +204,40 @@ class RuntimeConfigurationTests(TestCase):
         # independently of the schema's JSON content.
         self.assertNotEqual(schema_before.version, schema_after.version)
         self.assertEqual(schema_after['information_about_the_cafe']['pet_policy']['examples'], ['Can I bring my dog?'])
+
+    def test_classifier_embeds_only_published_tenant_descriptions_and_refreshes(self):
+        from chatbot_core.llm.schemas import NormalizedClassifiedMessages
+        from evaluate.datasets.loader import classification_documents
+        from tests.support.paths import REPOSITORY_ROOT
+
+        doc = classification_documents(REPOSITORY_ROOT / 'test_data', {('general', 'greeting')})[0]
+        self.topic(intent='general', sub='greeting', examples=['Hello cafe!'], **doc['payload'])
+        self.topic(intent='general', sub='thanks', enabled=False)
+        self.topic(tenant=self.other, intent='general', sub='greeting', description='Other tenant wording')
+        self.publish()
+        self.publish(self.other)
+        classifier = importlib.import_module('chatbot_core.logic.cafe.prompts.normalize_and_classify')
+        parsed = NormalizedClassifiedMessages.model_validate({'declared_constraints': [],
+            'classifications': [{'query': 'hi', 'rephrased_sentence': 'Hello', 'intent': 'general',
+                'sub_intent': 'greeting', 'reply_to': None, 'clarification': None, 'action': None}]})
+        with patch.object(classifier, 'structured_chain') as chain:
+            chain.return_value.invoke.return_value = {'parsed': parsed, 'parsing_error': None,
+                'raw': SimpleNamespace(response_metadata={}, additional_kwargs={})}
+            def prompt_schema():
+                classifier.normalize_and_classify('hi', tenant_key=str(self.tenant.pk))
+                system = chain.call_args.args[1]
+                return json.loads(system[len(classifier.SYSTEM_PROMPT):])
+
+            schema = prompt_schema()
+            self.assertEqual(schema['general']['greeting']['description'], doc['payload']['description'])
+            self.assertEqual(schema['general']['greeting']['examples'], ['Hello cafe!'])
+            self.assertNotIn('thanks', schema['general'])
+            self.assertNotIn('Other tenant wording', json.dumps(schema))
+            self.topic(intent='general', sub='greeting', description='New published greeting')
+            self.assertEqual(prompt_schema(), schema)  # Draft edit remains invisible.
+            self.publish()
+            self.assertEqual(prompt_schema()['general']['greeting']['description'], 'New published greeting')
+            self.assertEqual(chain.call_count, 2)  # Publication also invalidates the exact cache.
 
     def test_turn_uses_consistent_configuration_and_next_turn_refreshes(self):
         self.publish()

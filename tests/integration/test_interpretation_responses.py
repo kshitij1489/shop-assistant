@@ -45,15 +45,16 @@ class InterpretationResponseTests(CheckoutFixture, TestCase):
         self.assertEqual(len(self.store.get_ongoing_queries()[0]), 1)
 
     def test_localization_is_presentation_only_and_language_survives_short_reply(self):
-        with patch.object(graph, 'localize_reply', return_value=('Añadido 2 × Coffee (Regular).', '')) as localize:
+        with patch.object(graph, 'render_reply', return_value=('Añadido 2 × Coffee (Regular).', '')) as render:
             reply = self.send([self.row(quantity=2)], language='es', query='Añade dos Coffee')
         self.assertEqual(self.store.get_basket().items[0]['quantity'], 3)
         self.assertEqual(self.store.get_checklist()['last_assistant_message'], reply)
         self.assertEqual(self.store.get_checklist()['response_language'], 'es')
-        self.assertEqual(localize.call_args.args[2], 'es')
-        with patch.object(graph, 'localize_reply', return_value=('Añadido 1 × Coffee (Regular).', '')) as localize:
+        self.assertEqual(render.call_args.kwargs['language'], 'es')
+        self.assertTrue(render.call_args.kwargs['facts'][0]['basket_changed'])
+        with patch.object(graph, 'render_reply', return_value=('Añadido 1 × Coffee (Regular).', '')) as render:
             self.send([self.row()], query='Uno')
-        self.assertEqual(localize.call_args.args[2], 'es')
+        self.assertEqual(render.call_args.kwargs['language'], 'es')
         self.assertEqual(self.store.get_basket().items[0]['quantity'], 4)
 
     def test_repeated_read_only_answers_are_emitted_once(self):

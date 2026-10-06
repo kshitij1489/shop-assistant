@@ -73,6 +73,17 @@ def validate_output(case, parsed):
         errors.append('unit count')
     if 'expected_units' in case and not matches(rows, case['expected_units']):
         errors.append('typed decisions')
+    if 'expected_basket_targets' in case:
+        from chatbot_core.logic.action_resolver import resolve_action
+        try:
+            targets = [list(resolve_action(
+                row['action'], basket=case['context']['basket'],
+                focus=case['context'].get('basket_focus'),
+            ).basket_targets) for row in rows]
+            if targets != case['expected_basket_targets']:
+                errors.append('basket targets')
+        except (ValueError, KeyError, TypeError):
+            errors.append('basket targets')
     if 'response_language' in case and (parsed or {}).get('response_language') != case['response_language']:
         errors.append('response language')
     for check in case.get('rewrite_checks', []):
@@ -82,6 +93,8 @@ def validate_output(case, parsed):
                        (requirement if isinstance(requirement, list) else [requirement]))
                for requirement in check.get('contains', [])):
             errors.append(f'English rewrite (unit {index})')
+        if any(contains_literal(rewrite, word) for word in check.get('not_contains', [])):
+            errors.append(f'English rewrite contains another unit (unit {index})')
     return errors
 
 
@@ -125,7 +138,7 @@ def main():
     django.setup()
     from django.conf import settings
     from dotenv import dotenv_values
-    from chatbot_core.capabilities import CAPABILITIES
+    from evaluate.datasets.loader import classification_documents
     from chatbot_core.logic.cafe.prompts.normalize_and_classify_prompt import SYSTEM_PROMPT
     from chatbot_core.logic.cafe.prompts.normalize_and_classify import SYSTEM_ID
 
@@ -136,9 +149,12 @@ def main():
     settings.LLM_MODEL = args.model or config.get('LLM_MODEL') or 'gpt-6-luna'
     settings.LLM_TIMEOUT = 35
     settings.LLM_MAX_RETRIES = 0
-    schema = {name: {sub: sub for sub in capability.sub_intents}
-              for name, capability in CAPABILITIES.items()}
-    system = SYSTEM_PROMPT + json.dumps(schema, ensure_ascii=False, sort_keys=True)
+    schema = {}
+    for doc in classification_documents(ROOT / 'test_data'):
+        if doc['payload']['enabled']:
+            schema.setdefault(doc['intent'], {})[doc['sub_intent']] = {
+                'description': doc['payload']['description'], 'examples': doc['payload'].get('examples', [])}
+    system = SYSTEM_PROMPT + json.dumps(schema, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
     cases = json.loads(args.cases.read_text())
     with ThreadPoolExecutor(max_workers=max(1, min(args.workers, 4))) as pool:
         results = list(pool.map(lambda case: evaluate_case(case, system), cases))
@@ -148,8 +164,8 @@ def main():
               for key in ('input_tokens', 'output_tokens', 'total_tokens')}
     report = {
         'model': settings.LLM_MODEL, 'prompt_version': SYSTEM_ID,
-        'prompt_sha256': hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest(),
-        'catalog_configuration': 'synthetic café and tea; registered capability schema',
+        'prompt_sha256': hashlib.sha256(system.encode()).hexdigest(),
+        'catalog_configuration': 'synthetic café and tea; test_data intent descriptions',
         'provider_calls': len(results), 'tokens': totals,
         'median_latency_ms': statistics.median(row['latency_ms'] for row in results),
         'monetary_cost': None, 'cost_note': 'Provider billing rates were not supplied.',

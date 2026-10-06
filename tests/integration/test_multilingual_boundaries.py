@@ -18,7 +18,6 @@ class MultilingualBoundaryTests(CheckoutFixture, TestCase):
         self.store = self.graph_store()
         self.enterContext(patch.object(graph, 'enqueue_string'))
         self.enterContext(patch.object(runner, 'enqueue_string'))
-        self.enterContext(patch.object(graph, 'localize_reply', side_effect=lambda r, q, lang: (r, q)))
 
     def row(self, query, rewrite, *, action=None, intent='placing_order', topic='add_to_basket',
             reply_to=None, clarification=None):

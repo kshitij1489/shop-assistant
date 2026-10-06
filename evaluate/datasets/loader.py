@@ -65,6 +65,44 @@ def contained(root: Path, name: str) -> Path:
     return path
 
 
+def classification_documents(root: Path, routes=None) -> list[dict]:
+    """Load reviewed intent descriptions for evaluation and ordinary test fixtures.
+
+    Select only the scenario's routes; never invent missing descriptions or
+    enable extra capabilities just because they occur in the source file.
+    """
+    from chatbot_core.capabilities import CAPABILITIES
+
+    source = read_json(contained(Path(root), "intent_classification.json"))
+    if not isinstance(source, dict) or not source:
+        raise DatasetError("intent classification must contain intent objects")
+    documents = {}
+    for intent, topics in source.items():
+        capability = CAPABILITIES.get(intent)
+        if capability is None or not isinstance(topics, dict) or not topics:
+            raise DatasetError(f"invalid classification intent: {intent}")
+        for topic, value in topics.items():
+            if not capability.supports(topic):
+                raise DatasetError(f"unsupported classification route: {intent}/{topic}")
+            payload = {"description": value} if isinstance(value, str) else value
+            if (not isinstance(payload, dict)
+                    or payload.keys() - {"description", "examples", "enabled"}
+                    or not isinstance(payload.get("description"), str)
+                    or not payload["description"].strip()
+                    or type(payload.get("enabled", True)) is not bool
+                    or not isinstance(payload.get("examples", []), list)
+                    or any(not isinstance(v, str) or not v.strip() for v in payload.get("examples", []))):
+                raise DatasetError(f"invalid classification description: {intent}/{topic}")
+            documents[intent, topic] = dict(dtype="intent_classification", intent=intent,
+                sub_intent=topic, payload={"enabled": True, **payload})
+    selected = set(documents) if routes is None else set(routes)
+    missing = selected - documents.keys()
+    if missing:
+        raise DatasetError("missing classification descriptions: " +
+                           ", ".join("/".join(route) for route in sorted(missing)))
+    return [documents[route] for route in sorted(selected)]
+
+
 def resolve_pointer(root: Path, ref: str):
     filename, sep, pointer = ref.partition("#")
     if not sep or not pointer.startswith("/"):
@@ -155,7 +193,8 @@ def load_dataset(root: Path, plan: ScenarioPlan) -> DatasetBundle:
     all_ids = {scenario_id("sessions", s.id) for s in data.sessions} | {scenario_id("qa", q.id) for q in qa}
     if set(plan.scenarios) - all_ids:
         raise DatasetError("plan references unknown scenario IDs")
-    hashes = {name: file_hash(contained(root, name)) for name in ["session_query_sets.json", "qa_test_cases.json", *data.source_knowledge]}
+    classification_documents(root)
+    hashes = {name: file_hash(contained(root, name)) for name in ["session_query_sets.json", "qa_test_cases.json", "intent_classification.json", *data.source_knowledge]}
     if len(data.source_knowledge) != len(set(data.source_knowledge)):
         raise DatasetError("duplicate setup inputs")
     records = set()

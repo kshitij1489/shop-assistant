@@ -552,6 +552,8 @@ class LocationGraphTests(LocationFixture, TestCase):
         super().setUp()
         from chatbot_core.logic.cafe.session import redis_session
         from tests.support.conversations import FakeRedis
+        from tests.support.replies import install_reply_renderer
+        install_reply_renderer(self)
         self.redis_session = redis_session
         self.enterContext(patch.object(redis_session, "_redis", FakeRedis()))
         self.enterContext(patch.object(self.runner, "get_chat_ongoing_session", return_value=object()))

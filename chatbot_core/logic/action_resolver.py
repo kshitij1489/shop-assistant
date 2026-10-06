@@ -10,7 +10,8 @@ from chatbot_core.llm.schemas import ActionProposal, OrderModifier
 from chatbot_core.logic.catalog_match import competing_catalog_items
 
 __all__ = ['NeedsClarification', 'TerminalRejection', 'ResolvedAction', 'competing_catalog_items',
-           'ensure_unique_catalog_item', 'resolve_reference', 'validate_basket_targets', 'resolve_action']
+           'ensure_unique_catalog_item', 'resolve_reference', 'resolve_addition_source',
+           'validate_basket_targets', 'resolve_action', 'UNIDENTIFIED_ADDITION']
 
 
 class NeedsClarification(ValueError):
@@ -27,9 +28,11 @@ class ResolvedAction:
     target_id: str | None = None
     basket_targets: tuple[int | None, ...] = ()
     quote_fingerprint: str | None = None
+    preserved_basket_targets: tuple[int, ...] = ()
 
 
 MAX_LISTED_CATALOG_CHOICES = 8
+UNIDENTIFIED_ADDITION = 'Which menu item would you like to add?'
 
 
 def _words(value):
@@ -72,13 +75,30 @@ def resolve_reference(reference, entities, *, focus=None, missing_is_terminal=Fa
     raise NeedsClarification('Which entry do you mean?' + (f' {choices}.' if choices else ' No matching entries are available.'))
 
 
+def resolve_addition_source(reference, entities, *, focus=None):
+    """An addition may copy a basket row, but it never depends on one.
+
+    "Add that dessert" with nothing matching in the basket leaves the product
+    unidentified; the customer can still name a menu item, so this is unfinished
+    work rather than an impossible edit of an empty basket.
+    """
+    try:
+        return resolve_reference(reference, entities, focus=focus, missing_is_terminal=True)
+    except TerminalRejection as exc:
+        raise NeedsClarification(UNIDENTIFIED_ADDITION) from exc
+
+
 def validate_basket_targets(proposal, basket, *, focus=None):
-    """Reject impossible work even when another field still needs clarification."""
+    """Reject impossible work even when another field still needs clarification.
+
+    Only edits, removals and replacements need an existing entry. An addition
+    that references a missing basket row still asks which product to add.
+    """
     entities = [{'id': row['item_number'], 'name': ' '.join([
         row['name'], row.get('size', ''),
         *[m['name'] for m in row.get('modifiers', [])]])} for row in basket]
     for line in proposal.lines:
-        if line.action == 'add' and line.reference is None:
+        if line.action == 'add':
             continue
         if not entities:
             raise TerminalRejection('Your basket is empty. There is no entry to change or remove.')
@@ -115,11 +135,13 @@ def resolve_action(proposal, *, basket, addresses=(), focus=None, checkout=None,
         validate_basket_targets(action.basket, basket, focus=focus)
         if action.basket.unresolved or action.basket.catalog_miss:
             raise NeedsClarification(next(iter(action.basket.unresolved), 'Please specify the catalog item you mean.'))
-        if not action.basket.lines:
-            raise NeedsClarification('Which items would you like to change?')
         entities = [{'id': row['item_number'], 'name': ' '.join([
             row['name'], row.get('size', ''),
             *[m['name'] for m in row.get('modifiers', [])]])} for row in basket]
+        preserved = {resolve_reference(reference, entities, focus=focus, missing_is_terminal=True)
+                     for reference in action.basket.preserved_references}
+        if not action.basket.lines and not preserved:
+            raise NeedsClarification('Which items would you like to change?')
         targets = []
         for line in action.basket.lines:
             if isinstance(line.quantity, float):
@@ -131,8 +153,15 @@ def resolve_action(proposal, *, basket, addresses=(), focus=None, checkout=None,
             if picks_product and line.item_id is not None:
                 ensure_unique_catalog_item(line, text, catalog)
             number = None
-            if line.action != 'add' or line.reference is not None:
+            if line.action == 'add' and line.reference is not None:
+                number = resolve_addition_source(line.reference, entities, focus=focus)
+            elif line.action != 'add':
                 number = resolve_reference(line.reference, entities, focus=focus, missing_is_terminal=True)
+            if line.action != 'add' and number in preserved:
+                raise NeedsClarification(
+                    'The requested changes conflict with an item to keep unchanged. '
+                    'Which items should I change, and which should stay as they are?')
+            if number is not None:
                 source = next(row for row in basket if row['item_number'] == number)
                 if line.action != 'replace':
                     if line.item_id is not None and line.item_id != source['item_id']:
@@ -146,7 +175,8 @@ def resolve_action(proposal, *, basket, addresses=(), focus=None, checkout=None,
             # target_number from the model is deliberately overwritten.
             line.target_number = number if line.action != 'add' else None
             targets.append(number)
-        return ResolvedAction(action, basket_targets=tuple(targets))
+        return ResolvedAction(action, basket_targets=tuple(targets),
+                              preserved_basket_targets=tuple(sorted(preserved)))
     if kind == 'SELECT_ADDRESS':
         target = resolve_reference(action.reference, addresses)
         return ResolvedAction(action, target_id=str(target))

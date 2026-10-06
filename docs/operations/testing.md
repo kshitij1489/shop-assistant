@@ -32,6 +32,27 @@ node --test tests/frontend/chat_stream.test.cjs
 
 `--parallel` greater than 1 is rejected.
 
+For opt-in live checks of “remove X, keep Y”, run the synthetic multilingual
+fixture with the configured model. This calls the provider using `.env.dev`;
+results include typed actions and resolved basket targets. Offline tests alone
+do not establish language interpretation accuracy.
+
+```sh
+python scripts/evaluate_contextual.py --live --workers 1 \
+  --cases tests/fixtures/basket_preservation.json \
+  --output /tmp/basket-preservation-live.json
+```
+
+For address confirmation, this synthetic fixture checks that confirming and
+saving the same address produces one operation, while corrections, denials and
+independent requests keep their meaning:
+
+```sh
+python scripts/evaluate_contextual.py --live --workers 1 \
+  --cases tests/fixtures/address_confirmation.json \
+  --output /tmp/address-confirmation-live.json
+```
+
 ## PostgreSQL commerce
 
 Set `COMMERCE_TEST_PG_HOST` (default `127.0.0.1`), `COMMERCE_TEST_PG_PORT`

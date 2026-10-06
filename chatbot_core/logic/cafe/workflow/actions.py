@@ -18,10 +18,16 @@ ROUTES = {
     'CANCEL_PENDING_ACTION': ('general', 'cancel_and_abort'),
 }
 
+# These routes collect intent, rather than authorize the attached speculative action.
+CLARIFICATION_ROUTES = frozenset({
+    ('insufficient_information', 'insufficient_information'),
+    ('placing_order', 'insufficient_information_order'),
+})
+
 # Semantic route labels may execute through these canonical action routes.
 # This is a provisioning contract, not permission to bypass an unpublished route.
-# Keep it separate from action_route(): the model's action remains authoritative
-# at execution time, even when it disagrees with its classification label.
+# Keep it separate from action_route(): executable proposals select their action
+# route. Explicit clarification routes retain speculative proposals as context only.
 EXECUTION_DEPENDENCIES = {
     ('placing_order', 'initiate_order'): {
         ('placing_order', 'add_to_basket'), ROUTES['CONTINUE_CHECKOUT']},
@@ -119,10 +125,27 @@ def explicit_checkout_action(text):
     return None
 
 
+def unresolved_item_answer(proposal, route, pending):
+    """A reply addressed to an item task's question that supplies nothing usable.
+
+    It cannot fill the missing choice, so it repeats that task's question and
+    spends that task's clarification budget instead of opening a parallel
+    generic clarification. Replies without a task ID are not matched here.
+    """
+    return (pending is not None and proposal is None and route in CLARIFICATION_ROUTES
+            and pending.intent_type == 'placing_order'
+            and pending.sub_intent in pending.ITEM_ACTIONS | {'insufficient_information_order'})
+
+
 def compatible_followup(proposal, route, pending, *, catalog=()):
     """A model-supplied reply ID does not give another task ownership of a value."""
     if route == ('general', 'cancel_and_abort'):
         return True
+    if unresolved_item_answer(proposal, route, pending):
+        return True
+    if (pending.intent_type, pending.sub_intent) in CLARIFICATION_ROUTES:
+        return (route == (pending.intent_type, pending.sub_intent)
+                or proposal is not None and route[0] == pending.intent_type)
     if (pending.basket_item.get('checkout') or pending.intent_type == 'placing_order'
             and pending.sub_intent in {'order_confirmation', 'order_payment'}):
         if route[0] == 'location_based' and route[1] in {

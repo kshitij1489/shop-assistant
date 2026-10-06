@@ -20,6 +20,7 @@ from commerce.policy import evaluation_policy
 from orders.checkout_config import CheckoutPolicy
 from evaluate.contracts.interfaces import Blocked, Lease
 from evaluate.identity import canonical_hash
+from evaluate.datasets.loader import classification_documents, DatasetError
 from evaluate.fixtures.definitions import ADDRESS_CASES, address
 from evaluate.fixtures.capabilities import attest_publication, required_routes
 
@@ -196,14 +197,16 @@ class DjangoProvisioner:
                         raise Blocked('Duplicate knowledge input')
                     knowledge[intent, topic] = payload
                     TenantJSONDoc.objects.create(tenant=tenant, dtype='knowledge', intent=intent, sub_intent=topic, payload=payload)
-        from chatbot_core.capabilities import CAPABILITIES
         routes = required_routes(scenario, knowledge)
-        for intent, topic in sorted(routes):
-            if intent not in CAPABILITIES or not CAPABILITIES[intent].supports(topic):
-                raise Blocked(f'Dataset route has no implemented capability: {intent}/{topic}')
-            for dtype, payload in [('intent_classification', {'description': topic.replace('_', ' '), 'enabled': True}),
-                    ('response_intents', 'Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.')]:
-                TenantJSONDoc.objects.create(tenant=tenant, dtype=dtype, intent=intent, sub_intent=topic, payload=payload)
+        try:
+            classifications = classification_documents(root, routes)
+        except DatasetError as exc:
+            raise Blocked(f'Fixture classification invalid: {exc}') from exc
+        for document in classifications:
+            TenantJSONDoc.objects.create(tenant=tenant, **document)
+            TenantJSONDoc.objects.create(tenant=tenant, dtype='response_intents',
+                intent=document['intent'], sub_intent=document['sub_intent'],
+                payload='Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.')
         try:
             publication = publish_configuration(tenant.pk, expected_version=0)
         except ValidationError as exc:

@@ -51,7 +51,10 @@ closed:
 3. Wait at least the configured interval, then start workers.
 
 Prefer a hosted or self-hosted directory for production. Photon's public demo
-is not a configured default.
+is not a configured default. A Google place id is not a city selection; choose
+the city again from the suggestions, and the stored address stays until that
+save succeeds. Changing the free-text address in the master directory clears
+the previously validated street, city, state, country, and postal components.
 
 Provider references: [Photon](https://github.com/komoot/photon),
 [Photon API](https://github.com/komoot/photon/blob/master/docs/api-v1.md),

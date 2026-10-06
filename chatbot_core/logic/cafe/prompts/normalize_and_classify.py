@@ -16,7 +16,7 @@ from evaluate.controls.telemetry import observed
 from .normalize_and_classify_prompt import SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
-SYSTEM_ID = "cafe-normalize-and-classify-v18-interpreted-actions"
+SYSTEM_ID = "cafe-normalize-and-classify-v24-atomic-address-confirmation"
 FAILURE_REPLY = "Something wrong happened with your query, please ask again"
 
 
@@ -64,6 +64,8 @@ def normalize_and_classify(user_message, prev_system_message="", prev_user_sente
     if fault_active("classification", tenant_key):
         raise NormalizationClassificationError("Injected classification timeout")
     try:
+        # Read this tenant's published DB documents (UI-selected routes), including
+        # descriptions and examples. Drafts and disabled business routes stay out.
         schema = deepcopy(get_intent_classification_cache(tenant_key))
         # RuntimeConfiguration always permits these controls, even without
         # tenant documents. Supply the same routes to the model and validator.
@@ -79,7 +81,7 @@ def normalize_and_classify(user_message, prev_system_message="", prev_user_sente
         }
         if conversation_context:
             payload['conversation_context'] = deepcopy(conversation_context)
-        system = SYSTEM_PROMPT + json.dumps(schema, ensure_ascii=False, sort_keys=True)
+        system = SYSTEM_PROMPT + json.dumps(schema, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         identity = [SYSTEM_ID, tenant_key, model, getattr(schema, "version", 0), system, payload]
         key = SYSTEM_ID + ":" + hashlib.sha256(
             json.dumps(identity, ensure_ascii=False, sort_keys=True).encode("utf-8")

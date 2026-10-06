@@ -95,6 +95,56 @@ class CatalogAmbiguityTests(TestCase):
 
 
 class ActionResolverTests(TestCase):
+    def test_preservation_only_requires_valid_unambiguous_references(self):
+        basket = [{'item_number': 7, 'item_id': 'coffee', 'name': 'Coffee', 'quantity': 2}]
+        action = ActionProposal(kind='CHANGE_BASKET', basket={
+            'preserved_references': [{'by': 'name', 'value': 'Coffee'}],
+            'lines': [], 'unresolved': [], 'catalog_miss': False})
+        before = deepcopy(basket)
+        resolved = resolve_action(action, basket=basket)
+        self.assertEqual(resolved.basket_targets, ())
+        self.assertEqual(resolved.preserved_basket_targets, (7,))
+        self.assertEqual(basket, before)
+        with self.assertRaises(NeedsClarification):
+            resolve_action(action, basket=basket + [{**basket[0], 'item_number': 8}])
+        with self.assertRaises(TerminalRejection):
+            resolve_action(action, basket=[])
+        for fields in ({'preserved_references': []}, {'unresolved': ['Which coffee?']},
+                       {'catalog_miss': True}):
+            with self.subTest(fields=fields), self.assertRaises(NeedsClarification):
+                invalid = action.model_copy(deep=True)
+                invalid.basket = invalid.basket.model_copy(update=fields)
+                resolve_action(invalid, basket=basket)
+
+    def test_preservation_rejects_conflicting_changes_and_ambiguous_exceptions(self):
+        basket = [
+            {'item_number': 7, 'item_id': 'coffee', 'name': 'Coffee', 'quantity': 2},
+            {'item_number': 12, 'item_id': 'tea', 'name': 'Green Tea', 'quantity': 3},
+        ]
+        before = deepcopy(basket)
+        action = add_line(None)
+        line = action.basket.lines[0]
+        line.action = 'remove'
+        line.quantity = None
+        line.reference = EntityReference(by='name', value='Coffee')
+        action.basket.preserved_references = [EntityReference(by='name', value='Tea')]
+        self.assertEqual(resolve_action(action, basket=basket).basket_targets, (7,))
+        for operation in ('remove', 'update', 'replace'):
+            with self.subTest(operation=operation), self.assertRaises(NeedsClarification):
+                conflict = line.model_copy(deep=True)
+                conflict.action = operation
+                conflict.reference = EntityReference(by='id', value='12')
+                action.basket.lines = [line, conflict]
+                resolve_action(action, basket=basket)
+        action.basket.lines = [line]
+        duplicate = {'item_number': 18, 'item_id': 'black-tea', 'name': 'Black Tea', 'quantity': 1}
+        with self.assertRaises(NeedsClarification):
+            resolve_action(action, basket=basket + [duplicate])
+        action.basket.preserved_references = [EntityReference(by='id', value='99')]
+        with self.assertRaises(TerminalRejection):
+            resolve_action(action, basket=basket)
+        self.assertEqual(basket, before)
+
     def test_partial_names_are_unambiguous_across_different_catalogs(self):
         for names, target in [(['Classic Lamington', 'Tiramisu'], 'lamington'),
                               (['Linen Notebook', 'Fountain Pen'], 'notebook')]:

@@ -6,10 +6,11 @@ and modifier tables. There is no second menu.
 ## Configure and run
 
 1. Apply migrations. Save commerce settings (commerce can remain disabled) to
-   create a location, then create an active POS or menu connection with provider
-   `json_menu` and capability `catalog.write`. A menu-only connection does not
-   need order submission. One active POS connection per location still applies;
-   an existing POS adapter can add `catalog.write` instead of a second connection.
+   create a location, then create an active POS connection with provider
+   `json_menu` and capability `catalog.write`. A menu-only connection is still a
+   POS connection; it does not need order-submission capabilities. One active POS
+   connection per location still applies; an existing POS adapter can add
+   `catalog.write` instead of a second connection.
 2. In **Menu → Menu source**, choose **External menu**, that connection, and a
    maximum observation age (default 900 seconds). Ordering pauses until a fresh
    snapshot arrives. Switching back to local keeps the current catalog and

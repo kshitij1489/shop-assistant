@@ -48,7 +48,8 @@
     "expected_units": [
       {"intent": "information_about_the_cafe", "action": null},
       {"intent": "placing_order", "sub_intent": "order_channels_and_modes", "action": {"kind": "SET_FULFILLMENT", "value": "pickup"}}
-    ]
+    ],
+    "rewrite_checks": [{"unit": 0, "not_contains": ["pickup", "pick up", "collect", "pick it up"]}, {"unit": 1, "not_contains": ["Sunday", "hours", "open", "close"]}]
   },
   {
     "id": "explicit-checkout-with-pickup",
@@ -60,7 +61,8 @@
     "expected_units": [
       {"action": {"kind": "SET_FULFILLMENT", "value": "pickup"}},
       {"action": {"kind": "CONTINUE_CHECKOUT"}}
-    ]
+    ],
+    "rewrite_checks": [{"unit": 0, "not_contains": ["checkout", "check out"]}, {"unit": 1, "not_contains": ["pickup", "pick up", "collect", "pick it up"]}]
   },
   {
     "id": "hinglish-quantity-after-detour",
@@ -470,7 +472,8 @@
         "contains": [
           "large",
           "Latte"
-        ]
+        ],
+        "not_contains": ["close", "closing", "shut"]
       },
       {
         "unit": 1,
@@ -480,7 +483,8 @@
             "closing",
             "shut"
           ]
-        ]
+        ],
+        "not_contains": ["large", "variant"]
       }
     ]
   },

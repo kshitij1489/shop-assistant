@@ -1,11 +1,15 @@
 """Legacy published fixture used by existing business/workflow regression tests."""
 from chatbot_core.capabilities import CAPABILITIES
 from chatbot_core.models import TenantRuntimeConfiguration
+from evaluate.datasets.loader import classification_documents
+from tests.support.paths import REPOSITORY_ROOT
 
 
 def install_runtime_fixture(testcase, *, synthetic=True):
-    """Use a published bundle, including the explicit synthetic test capability."""
+    """Use published capabilities and deterministic presentation for graph tests."""
     from unittest.mock import patch
+    from tests.support.replies import install_reply_renderer
+    install_reply_renderer(testcase)
     testcase.enterContext(patch("chatbot_core.logic.cafe.catalog.load_catalog", return_value={}))
     from chatbot_core.capabilities import Capability
     from chatbot_core.runtime_configuration import RuntimeConfiguration
@@ -14,9 +18,10 @@ def install_runtime_fixture(testcase, *, synthetic=True):
     }))
     if synthetic:
         testcase.enterContext(patch.dict(CAPABILITIES, {'scripted': scripted, 'other_type': scripted}))
-    documents = [{'dtype': 'intent_classification', 'intent': name, 'sub_intent': topic,
+    documents = classification_documents(REPOSITORY_ROOT / 'test_data')
+    documents += [{'dtype': 'intent_classification', 'intent': name, 'sub_intent': topic,
                   'payload': {'description': topic, 'enabled': True}}
-                 for name, capability in CAPABILITIES.items() for topic in capability.sub_intents]
+                 for name in ('scripted', 'other_type') if synthetic for topic in scripted.sub_intents]
     testcase.enterContext(patch('chatbot_core.runtime_configuration.get_configuration',
         side_effect=lambda **kw: RuntimeConfiguration(str(kw.get('tenant_id', 1)),
             kw.get('api_key', 'tenant-1'), 'test-cafe', 1, documents)))
@@ -24,8 +29,7 @@ def install_runtime_fixture(testcase, *, synthetic=True):
 
 def enable_legacy_capabilities(tenant):
     # Equivalent to migration bootstrap for an already configured deployment.
-    documents = [{"dtype": "intent_classification", "intent": name, "sub_intent": topic, "payload": topic}
-                 for name, capability in CAPABILITIES.items() for topic in capability.sub_intents]
+    documents = classification_documents(REPOSITORY_ROOT / 'test_data')
     TenantRuntimeConfiguration.objects.create(tenant=tenant, version=1, documents=documents)
     from tests.support.ordering import seed_evaluation_policy
     seed_evaluation_policy(tenant)

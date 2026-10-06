@@ -78,7 +78,7 @@ def _kb_sig(
     """
     m = hashlib.sha256()
     m.update(json.dumps([main_intent, kb_info.get("identity"), (prompt_info or {}).get("identity")], default=str).encode())
-    m.update(b"cafebot-kb-v12-enumerate-dietary-lists")
+    m.update(b"cafebot-kb-v13-item-dietary-evidence")
     m.update(json.dumps([rephrased_sentence, response_language], ensure_ascii=False).encode())
     m.update(json.dumps([response_profile, previous_user_message]).encode())
     m.update((model or get_model_name()).encode())
@@ -178,6 +178,14 @@ def generate_response_from_knowledge(
             "Tenant instructions are guidance, not evidence for facts about items.\n"
             "Answer the current question concisely but completely, including each requested item, "
             "price, currency, size, and unit when documented. Do not invent missing details.\n"
+            "For each item-specific dietary or ingredient question, first locate the exact item "
+            "in the supplied evidence and check the field or list that makes the claim. "
+            "Keep free-from labels separate from contains-ingredient labels; membership in one "
+            "list must never be attributed to another. An explicit item label is evidence even "
+            "when the item name lacks that label or a typical recipe would differ. "
+            "General brand ingredients do not establish an individual item's ingredients. "
+            "Do not derive an opposite claim from a missing, null, or false free-from label. "
+            "Report conflicting item-specific claims as unverified.\n"
             "For a menu or an exhaustive list request, list all relevant documented items "
             "within the supplied coverage, explaining when it is partial; "
             "do not limit the answer to three examples or ask whether to show the menu. "

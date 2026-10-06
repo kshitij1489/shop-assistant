@@ -2,8 +2,9 @@
 from copy import deepcopy
 from datetime import datetime
 from .basket import Basket
-from .catalog import load_catalog, validate_selection
-from .ordering_limits import MAX_PROPOSAL_LINES, enforce_change
+from .catalog import load_catalog, selection_unit_total, validate_selection
+from .ordering_limits import MAX_PROPOSAL_LINES, enforce_change, format_minor, load_policy
+from commerce.pricing import minor
 from chatbot_core.llm.schemas import OrderProposal
 
 CONSTRAINT_DISCLOSURE = (
@@ -30,11 +31,19 @@ def apply_proposal(resolved, basket, api_key, *, declared_constraints=()):
         raise ValueError(proposal["unresolved"][0])
     if proposal["catalog_miss"]:
         raise ValueError("I couldn’t find every requested item. Please clarify the menu item names.")
-    if not proposal["lines"] or len(proposal["lines"]) > MAX_PROPOSAL_LINES:
+    if len(proposal["lines"]) > MAX_PROPOSAL_LINES:
         raise ValueError("Please specify the menu items and changes you would like.")
     if len(resolved.basket_targets) != len(proposal['lines']):
         raise ValueError('Every basket change must have a resolved target.')
+    if not proposal['lines']:
+        if not proposal['preserved_references'] or not resolved.preserved_basket_targets:
+            raise ValueError("Please specify the menu items and changes you would like.")
+        if any(basket.find_item_by_number(number) is None
+               for number in resolved.preserved_basket_targets):
+            raise ValueError('That basket entry is no longer available.')
+        return 'Your basket is unchanged.'
     catalog = load_catalog(api_key)
+    policy = load_policy(api_key=api_key)
     draft = Basket(deepcopy(basket.items), basket.counter)
     replies = []
     touched = set()
@@ -78,8 +87,18 @@ def apply_proposal(resolved, basket, api_key, *, declared_constraints=()):
         else:
             target.update(selection, _last_modified=datetime.utcnow().isoformat())
         description = ", ".join(f"{m['quantity']} × {m['name']}" for m in selection["modifiers"])
+        # The amount is established by selection validation, including modifiers;
+        # the response composer must retain it rather than infer a price from prose.
+        price = (f" at {policy.currency} "
+                 f"{format_minor(minor(selection_unit_total(selection), policy.exponent), policy.exponent)} each"
+                 if policy is not None else '')
         replies.append(f"{'Added' if action == 'add' else 'Updated'} {selection['quantity']} × "
-                       f"{selection['name']} ({selection['size']})" + (f" with {description}" if description else "") + ".")
+                       f"{selection['name']} ({selection['size']})" + (f" with {description}" if description else "")
+                       + price + ".")
+    # Also catch indirect edits, such as an addition merging into a retained row.
+    if any(draft.find_item_by_number(number) != basket.find_item_by_number(number)
+           for number in resolved.preserved_basket_targets):
+        raise ValueError('An item requested unchanged would be modified. Please clarify which items to change.')
     enforce_change(basket.items, draft.items, api_key=api_key)
     basket.items, basket.counter = draft.items, draft.counter
     disclosure = constraint_disclosure(declared_constraints, proposal["lines"])

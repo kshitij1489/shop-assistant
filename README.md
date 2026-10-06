@@ -16,6 +16,7 @@ cards/tips/FX. See [operator recovery](docs/commerce/operations.md).
 | Install and run locally | [docs/operations/development.md](docs/operations/development.md) |
 | Production and HTTPS | [docs/operations/production.md](docs/operations/production.md) |
 | Tests | [docs/operations/testing.md](docs/operations/testing.md) |
+| Release notes | [CHANGELOG.md](CHANGELOG.md) |
 | Documentation index | [docs/README.md](docs/README.md) |
 
 Quick Compose demo (seeding is in the development doc):

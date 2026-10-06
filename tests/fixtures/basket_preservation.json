@@ -1,0 +1,564 @@
+[
+  {
+    "id": "s164-original",
+    "text": "quita el brownie, mejor solo el cheesecake",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "s174-original",
+    "text": "enlève le boston cream pie, garde le lamington",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Boston Cream Pie", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Classic Lamington", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Boston Cream Pie", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Classic Lamington", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "es-reversed",
+    "text": "El cheesecake se queda; quita el brownie.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "es-negation",
+    "text": "No quites el cheesecake. El brownie sí, sácalo.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "en-contrast",
+    "text": "Remove the brownie, keep the cheesecake.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "en-correction",
+    "text": "Remove the cheesecake—sorry, I mean the brownie. Keep the cheesecake.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "hi-latin",
+    "text": "brownie hata do, cheesecake rehne do",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "hi-devanagari",
+    "text": "ब्राउनी हटा दो, चीज़केक रहने दो।",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "pt-contrast",
+    "text": "Tira o brownie, mas deixa o cheesecake.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "ru-contrast",
+    "text": "Убери брауни, чизкейк оставь.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "ar-contrast",
+    "text": "احذف البراوني واترك التشيز كيك.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "zh-contrast",
+    "text": "把布朗尼去掉，芝士蛋糕保留。",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "fr-reversed",
+    "text": "Garde le lamington, retire le Boston Cream Pie.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Boston Cream Pie", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Classic Lamington", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Boston Cream Pie", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Classic Lamington", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "fr-negation",
+    "text": "Ne retire pas le lamington. Retire seulement le Boston Cream Pie.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Boston Cream Pie", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Classic Lamington", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Boston Cream Pie", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Classic Lamington", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "es-remove-both",
+    "text": "Quita el brownie y el cheesecake.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}, {"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": []}}}],
+    "expected_basket_targets": [[1, 2]]
+  },
+  {
+    "id": "fr-remove-both",
+    "text": "Enlève le Boston Cream Pie et le lamington.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Boston Cream Pie", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Classic Lamington", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Boston Cream Pie", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Classic Lamington", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}, {"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": []}}}],
+    "expected_basket_targets": [[1, 2]]
+  },
+  {
+    "id": "reverse-targets",
+    "text": "Keep the brownie; remove the cheesecake.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Fudgy Chocolate Brownie (2pcs)", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Coffee Banana Cheesecake", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Fudgy Chocolate Brownie (2pcs)", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Coffee Banana Cheesecake", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[2]]
+  },
+  {
+    "id": "unmentioned-row-preserved",
+    "text": "Drop the espresso, leave the matcha latte alone.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Espresso", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Matcha Latte", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-3", "name": "Blueberry Muffin", "variants": [{"id": "variant-3", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Espresso", "size": "Standard", "quantity": 3, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Matcha Latte", "size": "Standard", "quantity": 4, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 3, "item_id": "product-3", "item_variant_id": "variant-3", "name": "Blueberry Muffin", "size": "Standard", "quantity": 2, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "remove-one-not-row",
+    "text": "Remove one espresso, keep the matcha latte as it is.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Espresso", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Matcha Latte", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-3", "name": "Blueberry Muffin", "variants": [{"id": "variant-3", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Espresso", "size": "Standard", "quantity": 3, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Matcha Latte", "size": "Standard", "quantity": 4, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 3, "item_id": "product-3", "item_variant_id": "variant-3", "name": "Blueberry Muffin", "size": "Standard", "quantity": 2, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": 1}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1]]
+  },
+  {
+    "id": "except-retained",
+    "text": "Remove everything except the matcha latte.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Espresso", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Matcha Latte", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-3", "name": "Blueberry Muffin", "variants": [{"id": "variant-3", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Espresso", "size": "Standard", "quantity": 3, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Matcha Latte", "size": "Standard", "quantity": 4, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 3, "item_id": "product-3", "item_variant_id": "variant-3", "name": "Blueberry Muffin", "size": "Standard", "quantity": 2, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}, {"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1, 3]]
+  },
+  {
+    "id": "only-retained",
+    "text": "Keep only the matcha latte.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Espresso", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Matcha Latte", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-3", "name": "Blueberry Muffin", "variants": [{"id": "variant-3", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Espresso", "size": "Standard", "quantity": 3, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Matcha Latte", "size": "Standard", "quantity": 4, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 3, "item_id": "product-3", "item_variant_id": "variant-3", "name": "Blueberry Muffin", "size": "Standard", "quantity": 2, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}, {"action": "remove", "quantity": null}], "unresolved": [], "catalog_miss": false, "preserved_references": [{"by": "name"}]}}}],
+    "expected_basket_targets": [[1, 3]]
+  },
+  {
+    "id": "remove-and-update",
+    "text": "Remove the espresso and make the matcha latte two.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Espresso", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Matcha Latte", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-3", "name": "Blueberry Muffin", "variants": [{"id": "variant-3", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Espresso", "size": "Standard", "quantity": 3, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Matcha Latte", "size": "Standard", "quantity": 4, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 3, "item_id": "product-3", "item_variant_id": "variant-3", "name": "Blueberry Muffin", "size": "Standard", "quantity": 2, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [{"reply_to": null, "clarification": null, "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "remove", "quantity": null}, {"action": "update", "quantity": 2}], "unresolved": [], "catalog_miss": false, "preserved_references": []}}}],
+    "expected_basket_targets": [[1, 2]]
+  },
+  {
+    "id": "ambiguous-exception",
+    "text": "Remove everything except the latte.",
+    "context": {
+      "catalog": [
+        {"item_id": "product-1", "name": "Espresso", "variants": [{"id": "variant-1", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-2", "name": "Vanilla Latte", "variants": [{"id": "variant-2", "name": "Standard", "price": "100.00"}], "modifier_groups": []},
+        {"item_id": "product-3", "name": "Caramel Latte", "variants": [{"id": "variant-3", "name": "Standard", "price": "100.00"}], "modifier_groups": []}
+      ],
+      "catalog_complete": true,
+      "basket": [
+        {"item_number": 1, "item_id": "product-1", "item_variant_id": "variant-1", "name": "Espresso", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 2, "item_id": "product-2", "item_variant_id": "variant-2", "name": "Vanilla Latte", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []},
+        {"item_number": 3, "item_id": "product-3", "item_variant_id": "variant-3", "name": "Caramel Latte", "size": "Standard", "quantity": 1, "unit_price": "100.00", "modifiers": []}
+      ],
+      "open_requests": [],
+      "active_pending_id": null,
+      "basket_focus": null,
+      "has_placed_order": false
+    },
+    "reply_to": null,
+    "clarify": true,
+    "expected_unit_count": 1
+  }
+]

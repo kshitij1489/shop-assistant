@@ -29,7 +29,7 @@ def load_state(session, tenant, query) -> ConversationState:
         "delivery_address": deepcopy(session.get_delivery_address()),
         "checklist": deepcopy(session.get_checklist()), "history": deepcopy(session.get_history()),
         "pending_queries": pending, "awaiting_followup_index": awaiting,
-        "intent_index": 0, "replies": [], "next_intent": None,
+        "intent_index": 0, "replies": [], "response_facts": [], "next_intent": None,
         "skip_followup_prompt": ("", False), "include_basket": True, "persist": True,
     }
 

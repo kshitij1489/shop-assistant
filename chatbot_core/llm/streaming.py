@@ -1,4 +1,4 @@
-"""Opt-in text streaming, scoped to the final user-facing intent in a turn."""
+"""Scoped text streaming and publication of validated, composed turn replies."""
 from contextlib import contextmanager
 from contextvars import ContextVar
 from .replies import join_replies, reply_separator
@@ -15,6 +15,13 @@ def reply_stream(sink):
         yield
     finally:
         _sink.reset(token)
+
+
+def publish_reply(text):
+    """Expose composed text only after structured reply validation has finished."""
+    sink = _sink.get()
+    if sink is not None:
+        sink('replace', {'text': text})
 
 
 @contextmanager

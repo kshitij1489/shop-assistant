@@ -1,0 +1,88 @@
+[
+  {
+    "id": "s50-add-with-delivery-address",
+    "text": "Add 2 Dates with Fig & Orange for delivery to Flat 21, Sector 51, Gurugram 122018. State: Haryana. Country: India.",
+    "context": {
+      "catalog": [{"item_id": "dates", "name": "Dates with Fig & Orange", "variants": [{"id": "standard", "name": "QA standard"}], "modifier_groups": []}],
+      "catalog_complete": true, "basket": [], "open_requests": [],
+      "checkout": {"fields": {}, "has_quote": false}, "has_placed_order": false
+    },
+    "route": "placing_order/add_to_basket", "reply_to": null, "clarify": false,
+    "expected_units": [
+      {"intent": "placing_order", "sub_intent": "add_to_basket", "reply_to": null, "clarification": null,
+        "action": {"kind": "CHANGE_BASKET", "basket": {"lines": [{"action": "add", "item_id": "dates", "variant_id": "standard", "quantity": 2, "unresolved": []}], "unresolved": []}}},
+      {"intent": "location_based", "sub_intent": "add_delivery_address", "reply_to": null, "clarification": null, "action": null}
+    ],
+    "rewrite_checks": [
+      {"unit": 0, "contains": ["2", "Dates with Fig & Orange"], "not_contains": ["Flat 21", "Sector 51", "Gurugram", "122018", "Haryana", "India"]},
+      {"unit": 1, "contains": ["Flat 21", "Sector 51", "Gurugram", "122018", "Haryana", "India"], "not_contains": ["Dates with Fig & Orange"]}
+    ]
+  },
+  {
+    "id": "s50-cart-detour-keeps-address-pending",
+    "text": "First show me the basket total.",
+    "context": {
+      "basket": [{"item_id": "dates", "name": "Dates with Fig & Orange", "quantity": 2, "unit_price": "460.00"}],
+      "open_requests": [{"id": "address-1", "intent": "location_based", "sub_intent": "confirm_delivery_address",
+        "query": "Deliver to Flat 21, Sector 51, Gurugram 122018, Haryana, India.",
+        "question": "Please confirm Flat 21, Sector 51, Gurugram 122018, Haryana, India.", "missing_fields": [], "details": {}}],
+      "active_pending_id": "address-1",
+      "last_assistant_question": "Please confirm Flat 21, Sector 51, Gurugram 122018, Haryana, India.",
+      "checkout": {"fields": {}, "has_quote": false}, "location_confirmed": false, "has_placed_order": false
+    },
+    "route": "placing_order/check_order_cart", "reply_to": null, "clarify": false,
+    "expected_units": [{"intent": "placing_order", "sub_intent": "check_order_cart", "reply_to": null,
+      "clarification": null, "action": {"kind": "SHOW_CART"}}]
+  },
+  {
+    "id": "s50-confirm-address-after-cart-detour-and-goodbye",
+    "text": "Yes, that address is correct. Bye.",
+    "context": {
+      "basket": [{"item_id": "dates", "name": "Dates with Fig & Orange", "quantity": 2, "unit_price": "460.00"}],
+      "open_requests": [{"id": "address-1", "intent": "location_based", "sub_intent": "confirm_delivery_address",
+        "query": "Deliver to Flat 21, Sector 51, Gurugram 122018, Haryana, India.",
+        "question": "Please confirm Flat 21, Sector 51, Gurugram 122018, Haryana, India.", "missing_fields": [], "details": {}}],
+      "active_pending_id": "address-1", "last_assistant_question": "",
+      "last_assistant_message": "Your basket: 2 × Dates with Fig & Orange. Item subtotal: INR 920.00.",
+      "last_completed_request": {"intent_type": "placing_order", "sub_intent": "check_order_cart", "main_query": "First show me the basket total."},
+      "address_draft": {"street_address": "Flat 21, Sector 51", "city": "Gurugram", "postal_code": "122018", "state": "Haryana", "country": "India"},
+      "checkout": {"fields": {}, "has_quote": false}, "location_confirmed": false, "has_placed_order": false
+    },
+    "route": "location_based/confirm_delivery_address", "reply_to": "address-1", "clarify": false,
+    "expected_units": [
+      {"intent": "location_based", "sub_intent": "confirm_delivery_address", "reply_to": "address-1", "clarification": null, "action": null},
+      {"intent": "general", "sub_intent": "goodbye", "reply_to": null, "clarification": null, "action": null}
+    ],
+    "rewrite_checks": [{"unit": 0, "contains": ["confirm", "address"], "not_contains": ["place the order", "goodbye"]}]
+  },
+  {
+    "id": "partial-address-before-checkout",
+    "text": "Deliver to Apartment 7, Lake Road.",
+    "context": {"open_requests": [], "basket": [], "checkout": {"fields": {}, "has_quote": false}, "has_placed_order": false},
+    "route": "location_based/add_delivery_address", "reply_to": null, "clarify": false,
+    "expected_units": [{"intent": "location_based", "sub_intent": "add_delivery_address", "reply_to": null, "clarification": null, "action": null}],
+    "rewrite_checks": [{"unit": 0, "contains": ["Apartment 7", "Lake Road"]}]
+  },
+  {
+    "id": "address-answer-during-open-checkout",
+    "text": "42 Main Street",
+    "context": {
+      "open_requests": [{"id": "checkout-1", "intent": "placing_order", "sub_intent": "order_confirmation", "query": "checkout",
+        "question": "What is your delivery address?", "missing_fields": ["address"], "details": {"checkout": true}}],
+      "active_pending_id": "checkout-1",
+      "checkout": {"mode": "delivery", "awaiting": "address", "fields": {"name": "Alice", "phone": "9876543210"}, "has_quote": false},
+      "last_assistant_question": "What is your delivery address?", "has_placed_order": false
+    },
+    "route": "placing_order/order_confirmation", "reply_to": "checkout-1", "clarify": false,
+    "expected_units": [{"intent": "placing_order", "sub_intent": "order_confirmation", "reply_to": "checkout-1", "clarification": null,
+      "action": {"kind": "SET_CHECKOUT_FIELD", "field": "address", "value": "42 Main Street"}}]
+  },
+  {
+    "id": "delivery-preference-without-address",
+    "text": "I'd like delivery, please.",
+    "context": {"open_requests": [], "basket": [{"name": "Coffee", "quantity": 1}], "checkout": {"fields": {}, "has_quote": false}, "has_placed_order": false},
+    "route": "placing_order/order_channels_and_modes", "reply_to": null, "clarify": false,
+    "expected_units": [{"intent": "placing_order", "sub_intent": "order_channels_and_modes", "reply_to": null, "clarification": null,
+      "action": {"kind": "SET_FULFILLMENT", "value": "delivery"}}]
+  }
+]

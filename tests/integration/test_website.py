@@ -40,6 +40,8 @@ class WebsiteIntegrationTests(TestCase):
 
     def setUp(self):
         cache.clear()
+        from tests.support.replies import install_reply_renderer
+        install_reply_renderer(self)
         self.tenant = TenantInfo.objects.create(slug="website", display_name="Website cafe", business_type="cafe", approval_status="APPROVED")
         from tests.support.runtime import enable_legacy_capabilities
         enable_legacy_capabilities(self.tenant)
@@ -89,6 +91,8 @@ class WebsiteIntegrationTests(TestCase):
         self.assertEqual(line["unit_price_minor"], 10050)
         self.assertEqual(line["line_total_minor"], 20100)
         self.assertNotIn("price", line)
+        self.classify.assert_called_once()
+        self.classify.reset_mock()
         followup = self.send(form=True)
         self.assertEqual(followup.status_code, 200)
         self.assertIsInstance(followup.json()["response"], str)
@@ -98,7 +102,10 @@ class WebsiteIntegrationTests(TestCase):
         self.assertEqual(chat.session_id, self.client.session.session_key)
         self.assertEqual(chat.customer.tenant, self.tenant)
         self.assertEqual(Customer.objects.count(), 1)
-        self.assertEqual(self.classify.call_count, 2)
+        # An explicit cart command uses deterministic routing and still reads
+        # the basket saved by the preceding HTTP turn.
+        self.classify.assert_not_called()
+        self.assertIn('Vanilla', followup.json()['response'])
 
     def test_rename_preserves_existing_tokens_public_links_and_runtime_configuration(self):
         from chatbot_core.runtime_configuration import get_configuration

@@ -181,7 +181,10 @@ class MenuItemsTests(MenuHarness, SimpleTestCase):
                      "Never infer allergen-free status", "absence of cross-contact", "Do not invent nutrition",
                      "do not establish live stock", "Do not guess which item", "Do not ask another question",
                      "enumeration of that explicit list", "Name every item on each supplied membership list",
-                     "menu category differs from the customer's word", "items on neither list have unknown status"):
+                     "menu category differs from the customer's word", "items on neither list have unknown status",
+                     "check the field or list that makes the claim", "membership in one list must never",
+                     "a typical recipe would differ", "General brand ingredients do not establish",
+                     "missing, null, or false free-from label", "conflicting item-specific claims as unverified"):
             self.assertIn(rule, system)
         self.assertNotIn("AT MOST 3", system)
         self.assertNotIn("Dach & Nona", system)

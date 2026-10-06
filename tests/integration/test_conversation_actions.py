@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from chatbot_core.llm.schemas import ActionProposal, ClassifiedMessages, IntentClassification
+from chatbot_core.llm.schemas import ActionProposal, ClassifiedMessages, EntityReference, IntentClassification
 from chatbot_core.logic.action_resolver import resolve_action
 from chatbot_core.logic.cafe.checkout import advance_checkout
 from chatbot_core.logic.cafe.order_changes import apply_proposal
@@ -308,21 +308,90 @@ class ConversationActionTests(CheckoutFixture, TestCase):
         self.assertIn('fulfillment', reply)
         self.assertEqual(self.store.get_ongoing_queries()[0][-1].outcome, 'needs_clarification')
 
-    def test_repeated_clarifications_keep_valid_work_resumable(self):
+    def test_two_delivered_item_questions_then_terminal_without_mutation(self):
         addition = self.basket_action('add', item_id=str(self.item.pk),
                                     variant_id=str(self.variant.pk), quantity=None, modifiers=[])
         addition.basket.lines[0].reference = None
         addition.basket.unresolved = ['How many coffees?']
+        before = deepcopy(self.store.get_basket().to_dict())
         self.run_actions('Add coffee', addition)
         pending = self.store.get_ongoing_queries()[0][-1]
-        for _ in range(4):
-            self.run_actions('Not sure yet', addition, reply_to=str(pending.query_id))
-            self.assertEqual(self.store.get_ongoing_queries()[0][-1].query_id, pending.query_id)
+        self.assertEqual(pending.basket_item['clarification_budget']['delivered'], 1)
+        self.store = type(self.store)('chat', tenant_id=self.tenant.pk, platform='website')
+        reply, _ = self.run_actions('Not sure yet', addition, reply_to=str(pending.query_id))
+        self.assertIn('How many', reply)
+        saved = self.store.get_ongoing_queries()[0][-1]
+        self.assertEqual(saved.query_id, pending.query_id)
+        self.assertEqual(saved.basket_item['clarification_budget']['delivered'], 2)
+        reply, _ = self.run_actions('Still unsure', addition, reply_to=str(pending.query_id))
+        self.assertIn('start again', reply)
+        self.assertNotIn('How many', reply)
+        self.assertEqual(self.store.get_ongoing_queries(), ([], None))
+        ended = self.store.get_history()[-1]['query_obj']
+        self.assertEqual(ended['outcome'], 'terminal_rejection')
+        self.assertEqual(ended['follow_up_question'], [])
+        self.assertEqual(self.store.get_basket().to_dict(), before)
+        # A new, fully specified request can still execute exactly once.
         addition.basket.unresolved = []
         addition.basket.lines[0].quantity = 2
-        self.run_actions('Two more', addition, reply_to=str(pending.query_id))
+        self.run_actions('Add two coffees', addition)
         self.assertEqual(self.store.get_basket().items[0]['quantity'], 3)
         self.assertFalse(self.store.get_ongoing_queries()[0])
+
+    def test_generic_unclear_reply_uses_same_item_budget_after_reload(self):
+        addition = self.basket_action('add', item_id=str(self.item.pk),
+                                    variant_id=str(self.variant.pk), quantity=None, modifiers=[])
+        addition.basket.lines[0].reference = None
+        addition.basket.unresolved = ['How many coffees?']
+        before = deepcopy(self.store.get_basket().to_dict())
+        self.run_actions('Add coffee', addition)
+        pending = self.store.get_ongoing_queries()[0][-1]
+        for turn in range(2):
+            self.store = type(self.store)('chat', tenant_id=self.tenant.pk, platform='website')
+            result = ClassifiedMessages(declared_constraints=[], classifications=[IntentClassification(
+                query='Unsure', intent='insufficient_information', sub_intent='insufficient_information',
+                reply_to=str(pending.query_id), clarification='How many coffees?', action=None)])
+            with patch.object(graph, 'normalize_and_classify', return_value=result):
+                reply, _ = runner.run_conversation(self.tenant, self.store, 'Unsure', self.customer)
+            saved, _ = self.store.get_ongoing_queries()
+            if turn == 0:
+                self.assertEqual(len(saved), 1)
+                self.assertEqual(saved[0].query_id, pending.query_id)
+                self.assertEqual(saved[0].basket_item['clarification_budget']['delivered'], 2)
+            else:
+                self.assertEqual(saved, [])
+                self.assertIn('start again', reply)
+                self.assertEqual(self.store.get_history()[-1]['query_obj']['outcome'], 'terminal_rejection')
+        self.assertEqual(self.store.get_basket().to_dict(), before)
+
+    def test_resolving_size_resets_budget_then_quantity_completes_once(self):
+        addition = self.basket_action('add', item_id=str(self.item.pk),
+                                    quantity=None, modifiers=[])
+        addition.basket.lines[0].reference = None
+        addition.basket.unresolved = ['Which size?', 'How many coffees?']
+        before = deepcopy(self.store.get_basket().to_dict())
+        self.run_actions('Add coffee', addition)
+        pending = self.store.get_ongoing_queries()[0][-1]
+        self.run_actions('Unsure', addition, reply_to=str(pending.query_id))
+        self.assertEqual(self.store.get_ongoing_queries()[0][-1].ignored_count, 2)
+        addition.basket.lines[0].variant_id = str(self.variant.pk)
+        addition.basket.unresolved = ['How many coffees?']
+        self.store = type(self.store)('chat', tenant_id=self.tenant.pk, platform='website')
+        self.run_actions('Regular', addition, reply_to=str(pending.query_id))
+        progressed = self.store.get_ongoing_queries()[0][-1]
+        self.assertEqual(progressed.query_id, pending.query_id)
+        self.assertEqual(progressed.basket_item['clarification_budget']['delivered'], 1)
+        self.assertEqual(self.store.get_basket().to_dict(), before)
+        self.run_actions('Show cart first', ActionProposal(kind='SHOW_CART'))
+        self.assertEqual(self.store.get_ongoing_queries()[0][-1].to_dict(), progressed.to_dict())
+        self.run_actions('Still unsure', addition, reply_to=str(pending.query_id))
+        self.assertEqual(self.store.get_ongoing_queries()[0][-1].ignored_count, 2)
+        addition.basket.lines[0].quantity = 2
+        addition.basket.unresolved = []
+        self.run_actions('Two regular coffees', addition, reply_to=str(pending.query_id))
+        self.assertEqual(self.store.get_ongoing_queries(), ([], None))
+        self.assertEqual(self.store.get_basket().items[0]['quantity'], 3)
+        self.interpreter.assert_not_called()
 
     def run_actions(self, text, *actions, reply_to=None):
         from chatbot_core.logic.cafe.workflow.actions import action_route
@@ -364,6 +433,86 @@ class ConversationActionTests(CheckoutFixture, TestCase):
         # Focus on the deleted entry must not jump to the remaining entry.
         self.assertEqual(len(self.store.get_basket().items), 1)
 
+    def test_preservation_only_completes_without_changing_basket_or_focus(self):
+        self.run_actions('Make the coffee three', self.basket_action(quantity=3))
+        basket = self.store.get_basket()
+        basket.items[0]['modifiers'] = [{'group_id': 'topping', 'option_id': 'cream',
+            'name': 'Cream', 'quantity': 2, 'unit_price': '10.00'}]
+        self.store.set_basket(basket)
+        before = deepcopy(basket.to_dict())
+        action = ActionProposal(kind='CHANGE_BASKET', basket={
+            'preserved_references': [{'by': 'name', 'value': 'Coffee'}],
+            'lines': [], 'unresolved': [], 'catalog_miss': False})
+        for message in ('Keep the coffee unchanged', 'Keep only the coffee'):
+            with self.subTest(message=message), patch(
+                    'chatbot_core.logic.cafe.order_changes.load_catalog') as catalog:
+                reply, _ = self.run_actions(message, action)
+                self.assertIn('Your basket is unchanged.', reply)
+                self.store = type(self.store)('chat', tenant_id=self.tenant.pk, platform='website')
+                self.assertEqual(self.store.get_basket().to_dict(), before)
+                self.assertEqual(self.store.get_checklist()['basket_focus'], 1)
+                self.assertEqual(self.store.get_ongoing_queries(), ([], None))
+                catalog.assert_not_called()
+
+    def test_preservation_only_clarification_completes_after_selecting_a_row(self):
+        self.ambiguous_basket()
+        before = deepcopy(self.store.get_basket().to_dict())
+        action = ActionProposal(kind='CHANGE_BASKET', basket={
+            'preserved_references': [{'by': 'name', 'value': 'Coffee'}],
+            'lines': [], 'unresolved': [], 'catalog_miss': False})
+        self.run_actions('Keep the coffee unchanged', action)
+        pending = self.store.get_ongoing_queries()[0][-1]
+        action.basket.preserved_references = [EntityReference(by='id', value='9')]
+        reply, _ = self.run_actions('Entry 9', action, reply_to=str(pending.query_id))
+        self.assertIn('Your basket is unchanged.', reply)
+        self.assertEqual(self.store.get_basket().to_dict(), before)
+        self.assertEqual(self.store.get_ongoing_queries(), ([], None))
+
+    def test_preservation_only_rejects_stale_or_unresolved_execution(self):
+        from chatbot_core.logic.action_resolver import ResolvedAction
+        basket = self.store.get_basket()
+        action = ActionProposal(kind='CHANGE_BASKET', basket={
+            'preserved_references': [{'by': 'name', 'value': 'Coffee'}],
+            'lines': [], 'unresolved': [], 'catalog_miss': False})
+        with self.assertRaisesMessage(ValueError, 'Please specify'):
+            apply_proposal(ResolvedAction(action), basket, self.tenant.api_key)
+        resolved = resolve_action(action, basket=basket.items)
+        basket.remove_item(1)
+        with self.assertRaisesMessage(ValueError, 'no longer available'):
+            apply_proposal(resolved, basket, self.tenant.api_key)
+
+    def test_remove_one_target_preserves_other_rows_through_reload_and_cart_display(self):
+        from chatbot_core.logic.cafe.basket import Basket
+        for removed, retained, message in [
+            ('Fudgy Chocolate Brownie (2pcs)', 'Coffee Banana Cheesecake',
+             'quita el brownie, mejor solo el cheesecake'),
+            ('Boston Cream Pie', 'Classic Lamington',
+             'enlève le boston cream pie, garde le lamington'),
+        ]:
+            with self.subTest(message=message):
+                # The live fixture checks semantics; here a correct proposal must
+                # preserve every field of the untouched row through the workflow.
+                original = deepcopy(self.basket.items[0])
+                keep = {**original, 'item_number': 9, 'name': retained, 'quantity': 3,
+                        'size': 'Large', 'modifiers': [{'group_id': 'topping',
+                            'option_id': 'cream', 'name': 'Cream', 'quantity': 2,
+                            'unit_price': '10.00'}]}
+                before = [{**original, 'name': removed}, deepcopy(keep)]
+                self.store.set_basket(Basket(deepcopy(before), 10))
+                action = self.basket_action('remove', reference={'by': 'name', 'value': removed})
+                action.basket.preserved_references = [EntityReference(by='name', value=retained)]
+                conflict = action.model_copy(deep=True)
+                conflict.basket.lines.append(self.basket_action(
+                    'remove', reference={'by': 'name', 'value': retained}).basket.lines[0])
+                self.run_actions(message, conflict)
+                self.assertEqual(self.store.get_basket().items, before)
+                pending = self.store.get_ongoing_queries()[0][-1]
+                self.run_actions(message, action, reply_to=str(pending.query_id))
+                self.store = type(self.store)('chat', tenant_id=self.tenant.pk, platform='website')
+                self.assertEqual(self.store.get_basket().items, [keep])
+                self.run_actions('Show the remaining basket', ActionProposal(kind='SHOW_CART'))
+                self.assertEqual(self.store.get_basket().items, [keep])
+
     def test_replacement_is_atomic_and_uses_current_catalog_prices(self):
         replacement = MenuItem.objects.create(tenant=self.tenant, name='Linen Notebook')
         variant = MenuItemVariant.objects.create(menu_item=replacement, size='A5', price='75')
@@ -380,6 +529,18 @@ class ConversationActionTests(CheckoutFixture, TestCase):
         basket = self.store.get_basket()
         resolved = resolve_action(invalid, basket=basket.items, focus=1)
         with self.assertRaises(ValueError):
+            apply_proposal(resolved, basket, self.tenant.api_key)
+        self.assertEqual(basket.to_dict(), before)
+
+    def test_addition_cannot_indirectly_change_a_preserved_row(self):
+        basket = self.store.get_basket()
+        before = deepcopy(basket.to_dict())
+        addition = self.basket_action('add', item_id=str(self.item.pk),
+            variant_id=str(self.variant.pk), quantity=1, modifiers=[])
+        addition.basket.lines[0].reference = None
+        addition.basket.preserved_references = [EntityReference(by='name', value='Coffee')]
+        resolved = resolve_action(addition, basket=basket.items)
+        with self.assertRaisesMessage(ValueError, 'requested unchanged'):
             apply_proposal(resolved, basket, self.tenant.api_key)
         self.assertEqual(basket.to_dict(), before)
 

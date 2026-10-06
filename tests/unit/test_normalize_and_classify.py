@@ -23,6 +23,38 @@ FIXTURE = json.loads((Path(__file__).parents[1] / "fixtures/combined_classificat
 
 
 class ContextualExpectationTests(SimpleTestCase):
+    def test_preservation_expectation_rejects_removal_of_retained_or_both_items(self):
+        from copy import deepcopy
+        from scripts.evaluate_contextual import validate_output
+        from tests.unit.test_action_resolver import add_line
+        cases = json.loads((Path(__file__).parents[1] / 'fixtures/basket_preservation.json').read_text())
+        case = next(c for c in cases if c['id'] == 's164-original')
+        action = add_line(None).model_dump()
+        action['basket']['preserved_references'] = [{'by': 'name', 'value': 'cheesecake'}]
+        line = action['basket']['lines'][0]
+        line.update(action='remove', quantity=None, variant_id=None, modifiers=None,
+                    reference={'by': 'name', 'value': 'brownie'})
+        parsed = {'declared_constraints': [], 'classifications': [{
+            'reply_to': None, 'clarification': None, 'action': action}]}
+        self.assertEqual(validate_output(case, parsed), [])
+        line['reference']['value'] = 'cheesecake'
+        self.assertIn('basket targets', validate_output(case, parsed))
+        action['basket']['lines'].append(deepcopy(line))
+        line['reference']['value'] = 'brownie'
+        self.assertIn('typed decisions', validate_output(case, parsed))
+        self.assertIn('basket targets', validate_output(case, parsed))
+
+    def test_rewrite_checks_ignore_case_and_reject_duplicated_independent_clauses(self):
+        from scripts.evaluate_contextual import validate_output
+        case = {'reply_to': None, 'clarify': False, 'rewrite_checks': [
+            {'unit': 0, 'contains': ['large', 'latte'], 'not_contains': ['close', 'closing']}]}
+        row = {'reply_to': None, 'clarification': None,
+               'rephrased_sentence': 'Use the Large variant for the pending Latte.'}
+        parsed = {'classifications': [row], 'declared_constraints': []}
+        self.assertEqual(validate_output(case, parsed), [])
+        row['rephrased_sentence'] += ' What time does the cafe close?'
+        self.assertIn('English rewrite contains another unit (unit 0)', validate_output(case, parsed))
+
     def test_address_expectation_rejects_missing_question_and_premature_selection(self):
         from copy import deepcopy
         from scripts.evaluate_contextual import validate_output

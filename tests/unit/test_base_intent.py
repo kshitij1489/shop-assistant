@@ -223,7 +223,7 @@ class BaseIntentGraphTests(SimpleTestCase):
             return "Hello", None
         with patch.object(GeneralIntent, "process_query", business):
             response, _ = self.runner.run_conversation(self.tenant, self.session, "hi")
-        self.assertEqual(response, "Hello What would you like?")
+        self.assertEqual(response, "Hello. What would you like?")
         pending, index = self.session.get_ongoing_queries()
         self.assertEqual((len(pending), index), (1, 0))
         obj = pending[0]
@@ -231,7 +231,10 @@ class BaseIntentGraphTests(SimpleTestCase):
                          ("insufficient_information", 1, "user", "telegram"))
         self.assertIsNone(obj.handoff_to)
         self.assertEqual(obj.delivery_address, {})
-        self.assertEqual(self.session.get_history()[0]["query_obj"]["intent_type"], "general")
+        # The handoff retains its task ID; history now stores the target's
+        # delivered question and budget, matching the pending snapshot.
+        self.assertEqual(self.session.get_history()[0]["query_obj"], obj.to_dict())
+        self.assertEqual(obj.basket_item['clarification_budget']['delivered'], 1)
 
     def test_all_registered_handlers_restore_through_shared_contract(self):
         for name in capabilities.CAPABILITIES:

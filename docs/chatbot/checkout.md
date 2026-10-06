@@ -1,8 +1,9 @@
 # Checkout
 
-Open **Tenant Settings → Checkout settings** and save the form. That enables the
-flow below. A tenant with no `CheckoutSettings` row does not collect these
-fields; confirmation places the current basket when the customer is already known.
+Open **Tenant Settings → Checkout settings** and save the form to enable the
+configurable flow below. A tenant with no `CheckoutSettings` row keeps the
+legacy confirmation flow; it can still require a confirmed delivery address
+before placing the current basket's order.
 
 The form covers delivery, pickup, and dine-in; required contact and fulfillment
 fields per mode; cash or online payment; preparation minutes; optional scheduling
@@ -71,3 +72,10 @@ Without commerce, catalog variant taxes are tax-exclusive: percentage taxes
 apply to the variant plus modifiers, and fixed taxes apply per item, rounded
 per line. Fees are untaxed on that path. Use commerce pricing for inclusive
 taxes, fee taxes, and discounts.
+
+An explicit UTC offset resolves an otherwise ambiguous local time. Cache expiry
+does not drop an unfinished checkout draft, because the database holds that
+draft. An empty checkout postal-code list allows delivery that passes format
+checks. `serviceable_pincodes` is separate: a missing or malformed value does
+not save or confirm an address, and an empty list means the café does not
+deliver to that code. Published fee bands are not delivery coverage.

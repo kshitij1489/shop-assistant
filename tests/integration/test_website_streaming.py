@@ -15,6 +15,7 @@ from django.test import Client, TransactionTestCase, override_settings
 from chatbot_core.channels import website
 from chatbot_core.channels.utils import generate_tenant_jwt
 from chatbot_core.logic.cafe.session.django import DjangoSessionStore
+from chatbot_core.logic.cafe import reply_renderer
 from chatbot_core.models import TenantInfo
 from orders.models import ChatSession, Customer
 from tests.support.runtime import enable_legacy_capabilities
@@ -46,10 +47,20 @@ class WebsiteStreamingTests(TransactionTestCase):
             (self.tenant.api_key, "general", "thanks"): {"payload": "Thank guests."},
         }))
         self.chain = Mock()
-        self.chain.stream.side_effect = lambda *a, **k: iter(["Hello", " café!"])
-        self.chain.invoke.return_value = "Earlier reply"
+        self.chain.stream.side_effect = AssertionError('Handler drafts must not stream')
+        self.chain.invoke.return_value = "Hello café!"
         self.enterContext(patch.object(self.knowledge, "text_chain", return_value=self.chain))
+        self.renderer = Mock()
+        self.renderer.invoke.side_effect = self.compose
+        self.enterContext(patch.object(reply_renderer, 'structured_chain', return_value=self.renderer))
         self.enterContext(patch("chatbot_core.llm.chains.get_chat_model", side_effect=AssertionError("Unexpected provider I/O")))
+
+    @staticmethod
+    def compose(values):
+        context = json.loads(values['input'])
+        followup = context['permitted_followup'] or {}
+        return reply_renderer.RenderedReply(response=context['verified_reply'],
+                                            question=followup.get('question', ''))
 
     def send(self):
         response = self.client.post("/chatbot-api/", {"message": "hello"}, content_type="application/json",
@@ -66,7 +77,7 @@ class WebsiteStreamingTests(TransactionTestCase):
     def consume(self, response):
         return [self.decode(frame) for frame in response.streaming_content]
 
-    def test_graph_stream_then_commit_and_cache_complete_reply(self):
+    def test_validated_reply_then_commit_and_cached_knowledge_reuse(self):
         cache.clear()
         self.chain.reset_mock()
         response = self.send()
@@ -75,43 +86,52 @@ class WebsiteStreamingTests(TransactionTestCase):
         self.assertEqual(response["X-Accel-Buffering"], "no")
         self.assertIn("sessionid", response.cookies)
         events = self.consume(response)
-        self.assertEqual(events, [("replace", {"text": ""}), ("delta", {"text": "Hello"}),
-                                  ("delta", {"text": " café!"}),
+        self.assertEqual(events, [("replace", {"text": "Hello café!"}),
                                   ("done", {"response": "Hello café!", "basket": []})])
         chat = ChatSession.objects.get()
         self.assertEqual(chat.session_id, self.client.session.session_key)
         stored = self.client.session
         namespace = next(key for key in stored.keys() if key.startswith("cafe:v2:"))
         self.assertEqual(stored[namespace]["chat_history"][-1]["query_obj"]["response"], "Hello café!")
-        self.assertEqual(self.consume(self.send()), [("done", {"response": "Hello café!", "basket": []})])
-        self.chain.stream.assert_called_once()
-        self.chain.invoke.assert_not_called()
+        self.assertEqual(self.consume(self.send()), events)
+        self.chain.stream.assert_not_called()
+        self.chain.invoke.assert_called_once()
+        self.assertEqual(self.renderer.invoke.call_count, 2)
         self.assertEqual(Customer.objects.count(), 1)
 
-    def test_only_last_intent_streams_with_earlier_reply_prefix(self):
+    def test_multiple_intents_publish_one_composed_reply(self):
         self.classifications = [("thanks", "general", "thanks", None, None), ("hello", "general", "greeting", None, None)]
         cache.clear()
         self.chain.reset_mock()
+        self.chain.invoke.side_effect = ['Earlier reply', 'Hello café!']
         events = self.consume(self.send())
-        self.assertEqual(events[0], ("replace", {"text": "Earlier reply. "}))
-        self.assertEqual(events[-1][1]["response"], "Earlier reply. Hello café!")
-        self.chain.invoke.assert_called_once()
-        self.chain.stream.assert_called_once()
+        self.assertEqual(events, [('replace', {'text': 'Earlier reply. Hello café!'}),
+                                  ('done', {'response': 'Earlier reply. Hello café!', 'basket': []})])
+        self.assertEqual(self.chain.invoke.call_count, 2)
+        self.chain.stream.assert_not_called()
+        self.renderer.invoke.assert_called_once()
 
-    def test_generated_clarification_streams_and_final_question_is_not_duplicated(self):
+    def test_generated_clarification_is_published_once_and_saved_as_delivered(self):
         clarification = importlib.import_module("chatbot_core.logic.cafe.prompts.clarify_user_message")
         self.classifications = [("unclear", "insufficient_information", "insufficient_information", None, None)]
-        self.chain.stream.side_effect = lambda *a, **k: iter(["Could you ", "clarify?"])
+        self.chain.invoke.return_value = 'Could you clarify?'
+        self.renderer.invoke.side_effect = None
+        self.renderer.invoke.return_value = reply_renderer.RenderedReply(
+            response='What would you like help with?', question='What would you like help with?')
         with patch.object(clarification, "text_chain", return_value=self.chain):
             self.client = Client()
             events = self.consume(self.send())
-            self.assertEqual(events[1], ("delta", {"text": "Could you "}))
-            self.assertEqual(events[-1][1]["response"].strip(), "Could you clarify?")
+            self.assertEqual(events, [('replace', {'text': 'What would you like help with?'}),
+                                      ('done', {'response': 'What would you like help with?', 'basket': []})])
+        stored = self.client.session
+        namespace = next(key for key in stored.keys() if key.startswith('cafe:v2:'))
+        self.assertEqual(stored[namespace]['checklist']['last_assistant_question'],
+                         'What would you like help with?')
+        self.chain.stream.assert_not_called()
 
     def test_empty_classification_returns_clarification_text(self):
         clarification = importlib.import_module("chatbot_core.logic.cafe.prompts.clarify_user_message")
         self.classifications = []
-        self.chain.stream.side_effect = lambda *a, **k: iter(["Could you ", "clarify?"])
         self.chain.invoke.return_value = "Could you clarify?"
         with patch.object(clarification, "text_chain", return_value=self.chain):
             self.client = Client()
@@ -123,46 +143,57 @@ class WebsiteStreamingTests(TransactionTestCase):
         release, published = Event(), Event()
         self.addCleanup(release.set)
         original_publish = DjangoSessionStore.publish_snapshot
+        commits = []
 
         def publish(store, data):
+            if not release.wait(5):
+                raise AssertionError('Test did not release session commit')
             original_publish(store, data)
+            commits.append(data)
             published.set()
 
-        def chunks(*args, **kwargs):
-            yield "Hello"
-            if not release.wait(5):
-                raise AssertionError("Test did not release model")
-            yield " café!"
-
-        self.chain.stream.side_effect = chunks
         with patch.object(DjangoSessionStore, "publish_snapshot", publish):
             response = self.send()
             content = iter(response.streaming_content)
-            self.assertEqual(self.decode(next(content))[0], "replace")
-            self.assertEqual(self.decode(next(content)), ("delta", {"text": "Hello"}))
+            self.assertEqual(self.decode(next(content)), ('replace', {'text': 'Hello café!'}))
             self.assertFalse(published.is_set())
             response.close()
             release.set()
             self.assertTrue(published.wait(5))
-        self.chain.stream.assert_called_once()
+        self.assertEqual(len(commits), 1)
+        self.chain.invoke.assert_called_once()
+        self.renderer.invoke.assert_called_once()
+        self.chain.stream.assert_not_called()
         stored = self.client.session
         namespace = next(key for key in stored.keys() if key.startswith("cafe:v2:"))
         self.assertEqual(stored[namespace]["chat_history"][-1]["query_obj"]["response"], "Hello café!")
 
-    def test_partial_provider_failure_replaces_text_with_uncached_fallback(self):
-        def broken(*args, **kwargs):
-            yield "Partial answer"
-            raise RuntimeError("private provider failure")
-
-        self.chain.stream.side_effect = broken
+    def test_provider_failure_publishes_uncached_fallback_then_recovers(self):
+        self.chain.invoke.side_effect = RuntimeError('private provider failure')
         with self.assertLogs(self.knowledge.logger, level="ERROR"):
             events = self.consume(self.send())
-        self.assertEqual(events[-2], ("replace", {"text": ""}))
-        self.assertEqual(events[-1][0], "done")
-        self.assertEqual(events[-1][1]["response"], "Hello! How can I help you today?")
-        self.chain.stream.side_effect = lambda *a, **k: iter(["Recovered"])
+        fallback = 'Hello! How can I help you today?'
+        self.assertEqual(events, [('replace', {'text': fallback}),
+                                  ('done', {'response': fallback, 'basket': []})])
+        self.chain.invoke.side_effect = None
+        self.chain.invoke.return_value = 'Recovered'
         self.assertEqual(self.consume(self.send())[-1][1]["response"], "Recovered")
-        self.assertEqual(self.chain.stream.call_count, 2)
+        self.assertEqual(self.chain.invoke.call_count, 2)
+        self.chain.stream.assert_not_called()
+
+    def test_invalid_composition_never_reaches_stream_or_saved_exchange(self):
+        self.renderer.invoke.side_effect = None
+        self.renderer.invoke.return_value = reply_renderer.RenderedReply(
+            response='Hello café! Pay INR 999.', question='')
+        with self.assertLogs(reply_renderer.logger, level='ERROR'):
+            events = self.consume(self.send())
+        self.assertEqual(events, [('replace', {'text': 'Hello café!'}),
+                                  ('done', {'response': 'Hello café!', 'basket': []})])
+        stored = self.client.session
+        namespace = next(key for key in stored.keys() if key.startswith('cafe:v2:'))
+        self.assertEqual(stored[namespace]['checklist']['last_assistant_message'], 'Hello café!')
+        self.renderer.invoke.assert_called_once()
+        self.chain.invoke.assert_called_once()
 
     def test_failed_turn_emits_error_without_retry_or_session_commit(self):
         with patch.object(website, "route_message_for_tenant", side_effect=RuntimeError("private failure")) as route, \

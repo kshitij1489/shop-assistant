@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 class InsufficientInformationIntent(BaseIntent):
     SUB_INTENT_NAMES = CAPABILITIES["insufficient_information"].sub_intents
-    MAX_CLARIFICATION_QUESTIONS = 2
     FALLBACK_RESPONSE = "Sorry, I couldn't understand that. Could you rephrase your café question or order request?"
     RESTRICTED_RESPONSE = "Sorry, I couldn't understand that."
     EXHAUSTED_RESPONSE = "I'm still unable to understand this request. You can start a new request about café information, menu items, or an order."
@@ -45,9 +44,6 @@ class InsufficientInformationIntent(BaseIntent):
         elif self.promp_restriction:
             # The graph will supply the existing task's question.
             self.response = self.RESTRICTED_RESPONSE
-            self.is_complete = True
-        elif len(self.follow_up_question) >= self.MAX_CLARIFICATION_QUESTIONS:
-            self.response = self.EXHAUSTED_RESPONSE
             self.is_complete = True
         else:
             self.response = clarify_user_message(

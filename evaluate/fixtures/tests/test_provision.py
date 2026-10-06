@@ -45,6 +45,8 @@ class ProvisionTests(TestCase):
         super().tearDownClass()
 
     def setUp(self):
+        from tests.support.replies import install_reply_renderer
+        install_reply_renderer(self)
         self.temp = TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.runtime = LocalRuntime(self.temp.name)
@@ -127,6 +129,9 @@ class ProvisionTests(TestCase):
         self.assertEqual({d['dtype'] for d in confirm}, {'intent_classification', 'response_intents'})
         classification = next(d for d in confirm if d['dtype'] == 'intent_classification')
         self.assertTrue(classification['payload']['enabled'])
+        fixture = read_json(ROOT.parent / 'test_data/intent_classification.json')
+        self.assertEqual(classification['payload']['description'],
+                         fixture['location_based']['confirm_delivery_address'])
         basket, _, _ = self.provision('s01_add_pistachio')
         basket_docs = TenantRuntimeConfiguration.objects.get(
             tenant=self.provisioner.binding(basket)['tenant']).documents
@@ -186,7 +191,9 @@ class ProvisionTests(TestCase):
         self.assertIn(['placing_order', 'add_to_basket'], contract['enabled_routes'])
         reply, decision = self.scripted_turn(lease, identity, 'placing_order', 'initiate_order',
                                             ActionProposal(kind='CONTINUE_CHECKOUT'))
-        self.assertIn('What name', reply)
+        # This fixture has no basket. Capability dispatch succeeds, but checkout
+        # must still enforce its business precondition before collecting a name.
+        self.assertIn('Your basket is empty', reply)
         self.assertFalse(om.Order.objects.exists())
         self.assertEqual(decision['classified_route'], ['placing_order', 'initiate_order'])
         self.assertEqual(decision['effective_route'], ['placing_order', 'order_confirmation'])
@@ -501,7 +508,7 @@ class ProvisionTests(TestCase):
         from chatbot_core.logic.cafe import checkout
         from chatbot_core.knowledge_cache import get_item_pricing_cache
         from django.core.cache import cache
-        from chatbot_core.llm.schemas import ClassifiedMessages
+        from chatbot_core.llm.schemas import NormalizedClassifiedMessages
         from langchain_core.messages import AIMessage
         from evaluate.controls.cache import cache as response_cache
         original_clock = checkout.timezone
@@ -513,8 +520,9 @@ class ProvisionTests(TestCase):
         original_chain = classifier.structured_chain
         original_lookup = classifier._cached_proposal
         tenant_key = str(self.provisioner.binding(lease)['tenant'].pk)
-        proposal = ClassifiedMessages(classifications=[{
+        proposal = NormalizedClassifiedMessages(classifications=[{
             'query': 'Add Pistachio', 'intent': 'placing_order', 'sub_intent': 'add_to_basket',
+            'rephrased_sentence': 'Add Pistachio',
             'reply_to': None, 'clarification': None,
         }], declared_constraints=[])
         expected = proposal

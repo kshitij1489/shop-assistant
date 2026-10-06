@@ -34,6 +34,18 @@ class DatasetTests(unittest.TestCase):
         (self.data / "session_query_sets.json").write_text(json.dumps(self.raw))
         return load_dataset(self.data, ScenarioPlan.model_validate(self.plan_raw))
 
+    def test_intent_descriptions_are_required_and_part_of_dataset_identity(self):
+        before = self.load()
+        path = self.data / 'intent_classification.json'
+        source = read_json(path)
+        source['general']['greeting'] = 'A revised greeting description.'
+        path.write_text(json.dumps(source))
+        after = self.load()
+        self.assertNotEqual(before.dataset_hashes[path.name], after.dataset_hashes[path.name])
+        path.unlink()
+        with self.assertRaises(DatasetError):
+            self.load()
+
     def reviewed_action(self):
         # Exercise a real reviewed action without claiming an executor exists.
         source = next(s for s in self.raw["sessions"] if s["id"] == "s129_checkout_price_changed")

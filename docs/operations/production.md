@@ -61,9 +61,13 @@ rejected, suspended, and inactive tenants cannot use channel APIs, including
 tokens issued before they were disabled. Do not run `seed_cafe_demo` for a real
 café.
 
-Dashboards, chat, voice, and order services check tenant, customer, and session
-ownership. Analytics queries are limited to that tenant and mask order metadata
-and chat state. Django admin is limited to operations users.
+Dashboards, chat, voice, message workers, and order services each check tenant,
+customer, and session ownership. Analytics queries are limited to that tenant
+and mask order metadata and chat state, including checkout contact details,
+before projection and aliases. Those safety checks cannot be disabled by a model
+proposal. Django admin is limited to operations users. `scripts/start_production.sh`
+does not verify native provider connectivity. Test each external adapter before
+it takes live orders.
 
 The owner enters a menu, or an external menu source
 ([menu adapter](../commerce/menu_adapter.md)), then publishes Knowledge

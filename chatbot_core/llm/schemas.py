@@ -66,7 +66,19 @@ class OrderLineProposal(ModelOutput):
 
 
 class OrderProposal(ModelOutput):
-    lines: list[OrderLineProposal]
+    preserved_references: list[EntityReference] = Field(default_factory=list, description=(
+        "Existing basket entries the customer explicitly wants kept unchanged. Identify these "
+        "BEFORE proposing mutations. Include the retained item in remove X, keep Y; keep only Y; "
+        "and remove everything except Y. Use catalog-language name references (or explicit row IDs). "
+        "Do not include an item whose quantity or selection the customer requests changing."
+    ))
+    lines: list[OrderLineProposal] = Field(description=(
+        "Only requested basket mutations, not all mentioned items. "
+        "An existing item the customer keeps or says not to remove has NO line. "
+        "Remove X and keep Y means one remove line for X only. "
+        "Keep only Y means remove other existing entries, never Y. "
+        "Choose each item's action independently; preserve negation and exceptions."
+    ))
     unresolved: list[str]
     catalog_miss: bool
 
