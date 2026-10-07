@@ -12,6 +12,12 @@ payment providers.
 
 ## Installation
 
+Guided setup and deployment gates (standard library only; no Docker or API calls):
+
+```sh
+python3 -m unittest tests.framework.test_setup tests.integration.test_production_start -v
+```
+
 Disposable PostgreSQL and Redis. Django creates a `test_` database, so the role
 needs `CREATEDB`. Use an isolated Redis database.
 

@@ -10,7 +10,7 @@ from tests.support.paths import REPOSITORY_ROOT
 
 
 class ProductionStartTests(unittest.TestCase):
-    def run_start(self, audit_status):
+    def run_start(self, audit_status, env_file=None):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             log = root / 'calls.jsonl'
@@ -25,10 +25,14 @@ class ProductionStartTests(unittest.TestCase):
             )
             docker.chmod(0o755)
             script = REPOSITORY_ROOT / 'scripts/start_production.sh'
+            environment = {**os.environ, 'PATH': f'{directory}:{os.environ["PATH"]}',
+                           'DOCKER_CALL_LOG': str(log), 'AUDIT_STATUS': str(audit_status)}
+            environment.pop('APP_ENV_FILE', None)
+            if env_file:
+                environment['APP_ENV_FILE'] = env_file
             result = subprocess.run(
                 ['bash', str(script), '--force-recreate'], cwd=directory,
-                env={**os.environ, 'PATH': f'{directory}:{os.environ["PATH"]}',
-                     'DOCKER_CALL_LOG': str(log), 'AUDIT_STATUS': str(audit_status)},
+                env=environment,
                 capture_output=True, text=True,
             )
             return result, [json.loads(line) for line in log.read_text().splitlines()]
@@ -48,3 +52,12 @@ class ProductionStartTests(unittest.TestCase):
         self.assertIn('audit_tenant_ownership', calls[0])
         self.assertEqual(calls[0][:5], calls[1][:5])
         self.assertEqual(calls[1][5:], ['up', '-d', '--remove-orphans', '--force-recreate'])
+
+    def test_selected_environment_file_is_shared_by_audit_and_start(self):
+        result, calls = self.run_start(0, '/tmp/production settings/.env.production')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(calls), 2)
+        for call in calls:
+            index = call.index('--env-file')
+            self.assertEqual(call[index + 1], '/tmp/production settings/.env.production')
+        self.assertEqual(calls[0][:7], calls[1][:7])

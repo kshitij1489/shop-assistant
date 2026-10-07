@@ -4,6 +4,19 @@
 
 **Not responsible for:** Django loaddata; do not paste session/QA JSON into Knowledge upload.
 
+## Dataset provenance
+
+This evaluation dataset uses a dated snapshot of publicly available Dach & Nona
+business information. Source links, dates, conflicts, and synthetic content are
+recorded in [research_sources.json](research_sources.json). Conversations and
+expected answers are synthetic test cases, not customer transcripts. Business
+details and prices are test inputs, not current operational information.
+
+For a generic installation, use the fictional `seed_cafe_demo` described in
+[local setup](../docs/operations/development.md). Do not import this evaluation
+dataset into a live café as its configuration. Keep real customer records,
+credentials, and private tenant exports outside the repository.
+
 ## Read first
 
 - knowledge_base.json; session_query_sets.json; qa_test_cases.json.

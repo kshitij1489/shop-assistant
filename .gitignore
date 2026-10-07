@@ -16,6 +16,14 @@ htmlcov/
 !.env.example
 !.env.*.example
 /nginx/certs/
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+# Legacy imports and operator-owned data belong outside the public source.
+/tenants/
 
 # Runtime artifacts
 *.log
@@ -24,3 +32,16 @@ htmlcov/
 celerybeat-schedule*
 staticfiles/
 /mock_services/.state/
+*.sqlite3-wal
+*.sqlite3-shm
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sql
+*.sql.gz
+*.dump
+*.dump.gz
+/media/
+/reports/
+/static/admin/

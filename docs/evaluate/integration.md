@@ -24,6 +24,32 @@ source tree. Do not put secrets, cookies, JWTs, or payment links into artifacts.
 Live evaluation uses the development Compose project. There is no separate
 evaluation database. Production Compose leaves evaluation disabled.
 
+For the guided setup, run:
+
+```sh
+python3 scripts/setup.py
+python3 scripts/setup.py demo --allow-live-chat
+```
+
+The second command reuses the existing smoke evaluation, including knowledge,
+basket, address, pickup/cash, and delivery/online scenarios. Commerce services
+are simulated; model calls use `OPENAI_API_KEY` and incur API usage. It waits for
+preflight, runs the scenarios, and generates a report. A completed run does not
+by itself mean the evaluation passed.
+
+The guided stack uses `.env.demo` and project `shop-assistant-demo`. To target
+that same stack with the advanced commands below, first set:
+
+```sh
+export APP_ENV_FILE="$PWD/.env.demo"
+export COMPOSE_PROJECT_NAME=shop-assistant-demo
+export APP_IMAGE=shop-assistant-demo:local
+```
+
+For an existing manually configured development stack, keep its environment file,
+project, and image instead. Without overrides, `scripts/evaluate-dev` retains its
+original `.env.dev` default and development project discovery.
+
 ```sh
 python3 scripts/evaluate-dev up
 python3 scripts/evaluate-dev
@@ -57,6 +83,11 @@ Presets in `evaluate/configs/`:
 | `acceptance.json` | Selected dataset, sequential, 1,000 request cap |
 | `full.json` | Selected dataset, sequential, 2,000 request cap |
 | `concurrency.json` | Four concurrent sessions plus warm-up; provider sessions stay serialized |
+
+The preset's `models` must match the running application's model settings. If
+you change `LLM_MODEL`, `LLM_TRANSLATE_MODEL`, or `LLM_ANALYTICS_MODEL`, use a
+matching config with `python3 scripts/setup.py demo --allow-live-chat --config PATH`
+or the advanced runner's `--config` option.
 
 Flags override the preset. A cost ceiling needs an explicit rate. Resume with
 the run directory, then score it:

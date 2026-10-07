@@ -1,10 +1,12 @@
 """Catalog behavior, tenant boundaries, imports, and ordering without network I/O."""
 import io
 import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import mock_open, patch
 
 from django.contrib.auth.models import User
-from django.core.management import call_command
+from django.core.management import call_command, CommandError
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.urls import reverse
@@ -175,6 +177,25 @@ class CatalogTests(TestCase):
         self.assertEqual(item.category_fk.name, "Sandwiches")
         self.assertEqual(list(item.variants.values_list("size", flat=True)), ["Half", "Full"])
         self.assertEqual(item.variants.get(size="Half").weight_grams, 100)
+
+    def test_file_loader_accepts_explicit_file_without_bundled_tenant(self):
+        knowledge = {"menu_items": {"availability": {"all_items": ["Espresso"]},
+                                   "pricing": {"Espresso": {"Regular": "2.50"}}}}
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / 'knowledge.json'
+            path.write_text(json.dumps(knowledge), encoding='utf-8')
+            with self.captureOnCommitCallbacks(execute=True):
+                call_command('load_menu_items', tenant_id=str(self.tenant.pk), file=str(path), stdout=io.StringIO())
+        item = MenuItem.objects.get(tenant=self.tenant, name='Espresso')
+        self.assertEqual(str(item.variants.get().price), '2.50')
+        self.assertFalse(MenuItem.objects.filter(tenant=self.other, name='Espresso').exists())
+
+    def test_file_loader_requires_source_and_rejects_missing_file(self):
+        with self.assertRaises(CommandError):
+            call_command('load_menu_items', tenant_id=str(self.tenant.pk))
+        with TemporaryDirectory() as directory:
+            with self.assertRaisesMessage(CommandError, 'File not found'):
+                call_command('load_menu_items', tenant_id=str(self.tenant.pk), file=str(Path(directory) / 'missing.json'))
 
 
     def test_dashboard_renders_category_management_and_freeform_variants(self):

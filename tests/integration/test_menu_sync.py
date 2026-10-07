@@ -312,7 +312,7 @@ class MenuSyncTests(TestCase):
             with self.subTest(name=name):
                 self.assertEqual(self.client.post(reverse('tenant:' + name, kwargs=kwargs), {}).status_code, 403)
         with self.assertRaisesMessage(CommandError, 'managed externally'):
-            call_command('load_menu_items', tenant_id=str(self.tenant.pk), stdout=StringIO())
+            call_command('load_menu_items', tenant_id=str(self.tenant.pk), file='unused-menu.json', stdout=StringIO())
         self.assertTrue(MenuItem.objects.get(pk=item.pk).is_available)
 
     def test_local_enrichment_remains_editable_and_external_forms_are_disabled(self):

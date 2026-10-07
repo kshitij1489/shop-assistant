@@ -28,7 +28,7 @@ def parse_money(value: str) -> Decimal:
 class Command(BaseCommand):
     help = (
         "Load MenuItem objects with variants for a given tenant from "
-        "tenants/<slug>/knowledge_base.json"
+        "an explicitly selected knowledge JSON file"
     )
 
     def add_arguments(self, parser):
@@ -38,11 +38,15 @@ class Command(BaseCommand):
             required=True,
             help="Tenant ID (UUID or integer) to associate MenuItems with",
         )
-        parser.add_argument(
+        source = parser.add_mutually_exclusive_group(required=True)
+        source.add_argument(
+            "--file",
+            help="Path to a knowledge JSON file containing menu_items",
+        )
+        source.add_argument(
             "--slug",
             type=str,
-            default="cafe_dach_nona",
-            help="Tenant slug (used to find knowledge_base.json)",
+            help="Legacy source: tenants/<slug>/knowledge_base.json (operator-owned, not bundled)",
         )
 
     def _get_tenant(self, raw_id: str):
@@ -76,11 +80,10 @@ class Command(BaseCommand):
 
         # project_root/.../orders/management/commands -> go up 4 levels
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-        knowledge_path = os.path.join(base_dir, "tenants", tenant_slug, "knowledge_base.json")
+        knowledge_path = options["file"] or os.path.join(base_dir, "tenants", tenant_slug, "knowledge_base.json")
 
         if not os.path.exists(knowledge_path):
-            self.stderr.write(self.style.ERROR(f"❌ File not found: {knowledge_path}"))
-            return
+            raise CommandError(f"File not found: {knowledge_path}")
 
         with open(knowledge_path, "r", encoding="utf-8") as f:
             knowledge = json.load(f)

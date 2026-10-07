@@ -4,16 +4,50 @@ Compose runs PostgreSQL 15, Redis 7 (no eviction), Gunicorn behind Nginx, a
 Celery worker, and one Celery beat process. Only Nginx is published. The `init`
 service collects static files, migrates, and runs the tenant ownership audit.
 Volumes hold PostgreSQL, Redis, static files, the model cache, and the FAISS
-index under `/var/lib/cafe`. Back up PostgreSQL and keep `.env`. Changing
-`SECRET_KEY` invalidates commerce adapter credentials.
+index under `/var/lib/cafe`. Back up PostgreSQL and keep the selected environment
+file. Changing `SECRET_KEY` invalidates commerce adapter credentials.
 
 `/health` checks PostgreSQL and Redis only. Leave `MONGO_DB_URL` empty.
 
-## HTTPS
+## Guided deployment
 
-Place certificates at
-`${LETSENCRYPT_DIR}/live/${TLS_CERT_NAME}/fullchain.pem` and `privkey.pem`
-before starting the TLS overlay. This repository does not issue certificates.
+Use a server with Docker Compose v2, Python 3.10+, and a domain pointing to it.
+Allow inbound ports 80 and 443. Install a valid certificate and its private key
+at `${LETSENCRYPT_DIR}/live/${TLS_CERT_NAME}/fullchain.pem` and `privkey.pem`.
+The launcher uses your existing certificates; it does not issue or renew them.
+Keep certificate renewal configured on the server.
+
+From the checkout on that server:
+
+```sh
+python3 scripts/setup.py production
+```
+
+On first use, the launcher asks for the OpenAI API key, domain, and certificate
+root directory. It generates independent application/database secrets and writes
+`.env.production` with private permissions. It validates HTTPS settings and
+certificate files before changing services. If certificates or settings are not
+ready, fix them and rerun; the generated configuration is preserved.
+
+The deployment builds the image, starts PostgreSQL and Redis, stops application
+traffic/workers for migrations, collects static files, runs the ownership audit,
+and starts the HTTPS stack through `scripts/start_production.sh`. Upgrades have
+downtime during this sequence. No fictional café, mock services, or evaluation
+controls are enabled.
+
+Defaults are Compose project `shop-assistant-production` and image
+`shop-assistant-production:local`. The local demo uses a different project,
+image, environment file, and volumes. **This does not migrate an existing
+installation's data:** to operate an existing deployment, pass its original
+`--env-file` and `--project-name` explicitly.
+
+You can prepare settings without starting services:
+
+```sh
+python3 scripts/setup.py production --configure-only
+```
+
+Review `.env.production` before deployment. A typical domain configuration is:
 
 ```dotenv
 PUBLIC_URL=https://cafe.example.org
@@ -24,33 +58,55 @@ HTTP_BIND=0.0.0.0
 HTTP_PORT=80
 LETSENCRYPT_DIR=/etc/letsencrypt
 CERTBOT_DIR=/var/www/certbot
+DEBUG=false
 ```
 
-`PUBLIC_URL` is an origin only. `ALLOWED_HOSTS` is a comma-separated list of
-hostnames, without schemes or ports.
+`PUBLIC_URL` is an HTTPS origin on standard port 443. `ALLOWED_HOSTS` is a
+comma-separated list of hostnames. Keep `OPENAI_API_KEY` set for live chat and
+choose models available to that key. Optional SMTP: set
+`EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend`, `EMAIL_HOST`,
+credentials, and `SIGNUP_ALERT_EMAIL`.
+
+## Operator account
+
+After successful deployment the launcher prints an account-creation command.
+For the default project, it is equivalent to:
 
 ```sh
-docker compose -f docker-compose.yml -f docker-compose.tls.yml up --build -d
+export APP_ENV_FILE="$PWD/.env.production"
+export COMPOSE_PROJECT_NAME=shop-assistant-production
+export APP_IMAGE=shop-assistant-production:local
+docker compose --env-file "$APP_ENV_FILE" -f docker-compose.yml -f docker-compose.tls.yml exec web python manage.py createsuperuser
 ```
 
-Optional SMTP: set `EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend`,
-`EMAIL_HOST`, credentials, and `SIGNUP_ALERT_EMAIL`.
+Open `https://YOUR_DOMAIN/accounts/login/`, then create your restaurant, publish
+its knowledge/menu, and configure its channels. Configure and test external
+commerce adapters before accepting live orders.
 
-## Upgrade
+## Upgrade and recovery
 
-Preserve the Compose project name and Postgres credentials. A new project name
-creates a separate volume.
+Back up PostgreSQL and `.env.production` first. Keep the same Compose project
+name, secrets, and database credentials, then rerun:
 
 ```sh
-docker compose -f docker-compose.yml -f docker-compose.tls.yml stop web celery_worker celery_beat
-docker compose -f docker-compose.yml -f docker-compose.tls.yml build
-docker compose -f docker-compose.yml -f docker-compose.tls.yml run --rm init
-bash scripts/start_production.sh
+python3 scripts/setup.py production
 ```
 
-`scripts/start_production.sh` runs `audit_tenant_ownership --fail` in the web
-image, then starts the TLS stack. It does not migrate. A direct `compose up`
-skips the audit.
+Existing environment files are never overwritten. Changing the project name
+selects a new set of volumes. A migration or ownership audit failure stops the
+launcher before application startup. Review the error, repair the failure, and
+rerun. The launcher does not roll back migrations or remove volumes.
+
+For an older deployment, preserve its original project and environment file:
+
+```sh
+python3 scripts/setup.py production --env-file .env --project-name YOUR_EXISTING_PROJECT
+```
+
+For manual operations, export the three variables in **Operator account** for
+the intended deployment before invoking Compose or `scripts/start_production.sh`.
+The latter remains an audit-and-start gate; it does not build or migrate by
+itself. The guided launcher performs those steps first.
 
 ## Tenants
 

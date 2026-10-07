@@ -1,15 +1,66 @@
 # Shop Assistant
 
-Configurable café/restaurant chatbot for menu help, restaurant knowledge, and
-supported ordering across configured channels. Tenants supply knowledge, menu,
-checkout policy, and channel credentials.
+A self-hosted AI ordering assistant for cafés and restaurants, built with Python,
+Django, and LangGraph.
 
-**Commerce limits (read before live orders):** one checkout location per tenant;
-one active connection per role/location; cash or one online payment attempt per
-order; exact full capture before expiry; no split tenders/partial captures/gift
-cards/tips/FX. See [operator recovery](docs/commerce/operations.md).
+Help customers explore your menu, ask questions, customize their basket, and
+complete a configured checkout through conversation.
 
-## Start here
+Built for **developers and agencies creating restaurant chatbots**.
+
+## What it offers
+
+- **Menu answers:** help customers explore dishes, prices, and restaurant information.
+- **Ordering through chat:** choose items, customize a basket, and follow a configured checkout.
+- **Multilingual replies:** answer customers in their own language.
+- **Text and voice:** serve customers through website chat, Telegram, and voice.
+- **Separate restaurant workspaces:** manage each restaurant's menu, knowledge, and settings.
+- **Commerce connections:** integrate external menus, payments, and POS systems through adapters.
+- **A local playground:** get started with Docker, sample café data, and payment/POS simulators.
+
+## Quick setup
+
+Install **Docker with Compose v2** and **Python 3.10+**, then run:
+
+```sh
+git clone https://github.com/kshitij1489/shop-assistant.git
+cd shop-assistant
+python3 scripts/setup.py
+```
+
+The guide generates secrets, starts the local app and mock services, and creates
+a sample café. Enter an OpenAI API key for chat, or skip it to explore the
+dashboard. The first build downloads dependencies and models.
+
+- **Dashboard:** http://localhost:8080/accounts/login/ — user `demo-owner`.
+- **Password:** the one you entered, or `DEMO_OWNER_PASSWORD` in `.env.demo`.
+- **Chat:** http://localhost:8080/chat-page/?tenant=demo-cafe — try “What is on the menu?”
+
+The sample café answers menu and restaurant questions; checkout is disabled.
+Next, choose a path:
+
+**A. Run the end-to-end demo with mock services**
+
+```sh
+python3 scripts/setup.py demo --allow-live-chat
+```
+
+Runs the existing smoke evaluation with synthetic tenants and simulated commerce,
+then generates a report. Model calls use your API key and incur API usage;
+payment/POS services are mocked. See [evaluation](docs/evaluate/integration.md).
+
+**B. Deploy to production** — run on your server, with a domain and TLS certificates:
+
+```sh
+python3 scripts/setup.py production
+```
+
+Prompts for production settings and checks certificates before building, migrating,
+and starting the HTTPS stack. Uses separate configuration and volumes, without demo
+data or mock services. See [production setup](docs/operations/production.md) for
+DNS, certificates, and the operator account.
+
+## Documentation
 
 | Goal | Doc |
 | --- | --- |
@@ -19,24 +70,18 @@ cards/tips/FX. See [operator recovery](docs/commerce/operations.md).
 | Release notes | [CHANGELOG.md](CHANGELOG.md) |
 | Documentation index | [docs/README.md](docs/README.md) |
 
-Quick Compose demo (seeding is in the development doc):
-
-```sh
-cp .env.example .env
-# Replace SECRET_KEY, JWT_SECRET, POSTGRES_PASSWORD
-docker compose -f docker-compose.yml up --build -d
-```
-
-Dashboard: `http://localhost:8080/accounts/login/`. Chat demo needs `OPENAI_API_KEY`.
-
-Live evaluation uses the development stack: `python3 scripts/evaluate-dev up`,
-then `python3 scripts/evaluate-dev` for preflight. See [evaluation](docs/evaluate/integration.md).
-
 ## Product scope
+
+Tenants supply knowledge, menu, checkout policy, and channel credentials.
 
 Bookings, retail, and general non-café workflows are not supported. Adding a
 business workflow beyond the café package requires Python changes. Uploaded
 prompts configure café answers and existing routes only.
+
+**Commerce limits (read before live orders):** one checkout location per tenant;
+one active connection per role/location; cash or one online payment attempt per
+order; exact full capture before expiry; no split tenders/partial captures/gift
+cards/tips/FX. See [operator recovery](docs/commerce/operations.md).
 
 Menus: one local catalog in `orders` tables. **Menu → Menu source** chooses Local
 or External. See [menu adapter](docs/commerce/menu_adapter.md) and

@@ -54,23 +54,11 @@ jobs:
           python-version: '3.11'
           cache: pip
       - name: Reject tracked private configuration and runtime files
-        run: |
-          python - <<'PY'
-          from pathlib import PurePosixPath
-          import subprocess
-
-          tracked = subprocess.check_output(['git', 'ls-files', '-z'], text=True).split('\0')
-          forbidden = []
-          for path in filter(None, tracked):
-              name = PurePosixPath(path).name
-              private_env = (name == '.env' or name.startswith('.env.')) and not name.endswith('.example')
-              if private_env or name.startswith('celerybeat-schedule') or path.startswith('nginx/certs/'):
-                  forbidden.append(path)
-          if forbidden:
-              raise SystemExit('Remove private/runtime files from Git tracking: ' + ', '.join(forbidden))
-          PY
+        run: python scripts/check_public_repository.py
       - name: Install application dependencies
         run: pip install -r requirements.txt
+      - name: Test guided setup without external services
+        run: python -m unittest tests.framework.test_setup tests.integration.test_production_start -v
       - name: Validate Compose profiles without deployment secrets
         run: |
           cp .env.example .env

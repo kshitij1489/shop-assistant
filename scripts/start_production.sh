@@ -4,6 +4,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 compose=(docker compose -f docker-compose.yml -f docker-compose.tls.yml)
+if [[ -n "${APP_ENV_FILE:-}" ]]; then
+  compose+=(--env-file "$APP_ENV_FILE")
+fi
 
 # Use the deployment image and environment without starting web or workers.
 # Bypass the application entrypoint so this check cannot run migrations.

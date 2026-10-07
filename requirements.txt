@@ -24,7 +24,6 @@ PyJWT
 django-ratelimit
 django-redis>=5.3.0
 django-cors-headers
-Faker>=24.0  # Remove in prod
 langdetect>=1.0.9
 sqlparse
 djangorestframework>=3.15

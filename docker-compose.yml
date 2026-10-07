@@ -1,6 +1,6 @@
 x-app: &app
   build: .
-  image: studio_desk:local
+  image: ${APP_IMAGE:-studio_desk:local}
   env_file: ${APP_ENV_FILE:-.env}
   environment: &app-env
     POSTGRES_HOST: db

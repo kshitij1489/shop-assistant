@@ -33,14 +33,14 @@ services:
     volumes:
       - ./nginx/default.dev.conf:/etc/nginx/templates/default.conf.template:ro
   location_emulator:
-    image: studio_desk:local
+    image: ${APP_IMAGE:-studio_desk:local}
     entrypoint: []
     command: ["python", "-m", "mock_services", "serve", "--bind", "0.0.0.0", "--port", "9080", "--db", "/tmp/location-dev.sqlite3"]
     volumes:
       - .:/app
     restart: unless-stopped
   adapter_https:
-    image: studio_desk:local
+    image: ${APP_IMAGE:-studio_desk:local}
     entrypoint: []
     # Internal Compose DNS survives application container restarts/recreation.
     command: ["python", "-m", "evaluate.integration.adapter_https", "--listen", "0.0.0.0", "--port", "8443", "--upstream", "http://web:8000", "--cert-dir", "/tmp/studio-eval-certs"]
