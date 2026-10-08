@@ -37,14 +37,13 @@ from django.db import transaction, IntegrityError
 from django.core.exceptions import ValidationError
 import datetime
 from datetime import timezone
-from .utils import ExtractEpoch, generate_menu_items_json, publish_menu as _publish_menu
+from .utils import ExtractEpoch, publish_menu as _publish_menu
 from orders.tasks import task_sync_tenant_from_folder
 from chatbot_core.active_chats import list_active_chats, set_agent_enabled, get_messages, append_message, is_global_agent_enabled, set_global_agent_enabled, get_latest_meta
 from chatbot_core.channels.registry import get_adapter
 from chatbot_core.knowledge_cache import initialize_caches
 from django.core.mail import send_mail
 from django.urls import reverse
-from decimal import Decimal
 from types import SimpleNamespace
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -87,7 +86,7 @@ def _register_tenant_account(request, form, *, created_by_master=False):
             'business_type': business_type,
             'address': form.cleaned_data.get('address', ''),
             'whatsapp_number': form.cleaned_data.get('whatsapp_number', ''),
-            'telegram_chat_id': form.cleaned_data.get('telegram_chat_id', ''),
+            'telegram_bot_token': form.cleaned_data.get('telegram_bot_token') or None,
         }
         if form.cleaned_data.get('slug'):
             tenant_fields['slug'] = form.cleaned_data['slug']
@@ -441,8 +440,8 @@ def tenant_settings_view(request):
 
     if request.method == 'POST' and request.POST.get('section') == 'checkout':
         if checkout_form.is_valid():
-            CheckoutSettings.objects.update_or_create(
-                tenant=tenant, defaults={'configuration': checkout_form.configuration})
+            from chatbot_core.configuration_imports import import_checkout
+            import_checkout(tenant, checkout_form.configuration)
             messages.success(request, 'Checkout and opening hours updated.')
             return _redirect_settings(_posted_checkout_tab(request))
         errors = checkout_form.error_fields
@@ -452,9 +451,9 @@ def tenant_settings_view(request):
     if request.method == 'POST':
         section = request.POST.get('section', '')
         section_fields = {
-            'integrations': ('telegram_chat_id', 'telegram_bot_token'),
+            'integrations': ('telegram_bot_token',),
             # Accept the combined form from pages opened before the tab split.
-            '': ('whatsapp_number', 'telegram_chat_id', 'telegram_bot_token'),
+            '': ('whatsapp_number', 'telegram_bot_token'),
         }
         if section not in section_fields:
             return HttpResponseBadRequest('Unknown settings section.')
@@ -1007,7 +1006,7 @@ def upload_knowledge_prompt_view(request):
     if request.method == "GET":
         selected_dtype = request.GET.get("dtype", "")
         return render(request, "users/upload_knowledge_prompt.html", {
-            "dtypes": TenantJSONDoc.DocType.choices,
+            "dtypes": [*TenantJSONDoc.DocType.choices, ("checkout", "Checkout settings"), ("commerce_policy", "Ordering policy")],
             "selected_dtype": selected_dtype,
         })
 
@@ -1016,41 +1015,19 @@ def upload_knowledge_prompt_view(request):
     dtype = (request.POST.get("dtype") or "").strip()
     blob = request.POST.get("json_blob") or "{}"
 
-    # Parse and validate top-level structure
+    from chatbot_core.configuration_imports import import_configuration
     try:
-        data = json.loads(blob)
-        if not isinstance(data, dict):
-            raise ValueError("Root must be an object mapping intents to sub-intent maps.")
-    except Exception as e:
-        messages.error(request, f"Invalid JSON: {e}")
+        import_configuration(tenant, dtype, blob)
+    except (ValueError, ValidationError, IntegrityError) as exc:
+        messages.error(request, f"Import failed: {exc}")
         return redirect(reverse("tenant:upload_knowledge_prompt") + (f"?dtype={dtype}" if dtype else ""))
-
-    created = 0
-    updated = 0
-    skipped = 0
-
-    try:
-        with transaction.atomic():
-            for intent, submap in data.items():
-                if not isinstance(submap, dict):
-                    skipped += 1
-                    continue
-                for sub_intent, payload in submap.items():
-                    # Accept any JSON type (str, number, bool, null, list, dict)
-                    obj, was_created = TenantJSONDoc.objects.update_or_create(
-                        tenant=tenant,
-                        dtype=dtype,
-                        intent=str(intent).strip(),
-                        sub_intent=str(sub_intent).strip(),
-                        defaults={"payload": payload},
-                    )
-                    if was_created: created += 1
-                    else: updated += 1
-    except Exception as e:
-        messages.error(request, f"Failed to save: {e}")
-        return redirect(reverse("tenant:upload_knowledge_prompt") + (f"?dtype={dtype}" if dtype else ""))
-
-    messages.success(request, f"Draft saved: {created} created, {updated} updated, {skipped} skipped. Publish from the Knowledge page to apply changes.")
+    if dtype == 'checkout':
+        messages.success(request, "Checkout settings imported.")
+        return _redirect_settings('checkout')
+    if dtype == 'commerce_policy':
+        messages.success(request, "Ordering policy imported.")
+        return redirect(reverse('tenant:upload_knowledge_prompt') + '?dtype=commerce_policy')
+    messages.success(request, "Configuration imported. Publish from the Knowledge page to apply draft documents.")
     # Redirect to your main page to inspect results, preselecting dtype:
     return redirect(reverse("tenant:tenant_knowledge") + (f"?dtype={dtype}" if dtype else ""))
 
@@ -1135,41 +1112,6 @@ def tenant_menu_category_delete_view(request, category_id):
     return redirect("tenant:tenant_menu")
 
 
-# --- 2B) DB → Knowledge (push) ---
-def apply_knowledge_update(tenant, data: dict, *, dtype="knowledge"):
-    """
-    Persist a blob shaped like:
-      { intent: { sub_intent: payload }, ... }
-    into TenantJSONDoc rows keyed by (tenant, dtype, intent, sub_intent).
-    Returns (created, updated, skipped).
-    """
-    if not isinstance(data, dict):
-        raise ValueError("Root must be an object mapping intents to sub-intent maps.")
-
-    created = updated = skipped = 0
-    # Allow enum or string
-    dtype_value = getattr(getattr(TenantJSONDoc, "DocType", object), "KNOWLEDGE", dtype)
-
-    with transaction.atomic():
-        for intent, submap in data.items():
-            if not isinstance(submap, dict):
-                skipped += 1
-                continue
-            for sub_intent, payload in submap.items():
-                obj, was_created = TenantJSONDoc.objects.update_or_create(
-                    tenant=tenant,
-                    dtype=dtype_value,
-                    intent=str(intent).strip(),
-                    sub_intent=str(sub_intent).strip(),
-                    defaults={"payload": payload},
-                )
-                if was_created:
-                    created += 1
-                else:
-                    updated += 1
-
-    return created, updated, skipped
-
 # ---------- UPDATE: list view (drop tenant-wide menu_category key; add sample) ----------
 @login_required
 @tenant_required
@@ -1207,221 +1149,20 @@ def tenant_menu_view(request):
 # assuming you already have tenant_required and get_current_tenant imported
 # from .models import MenuItem, MenuItemVariant, MenuCategory, MenuCatalogMeta
 
-def _parse_bool(v):
-    if isinstance(v, bool):
-        return v
-    if isinstance(v, (int, float)):
-        return v != 0
-    if isinstance(v, str):
-        return v.strip().lower() in {"true", "1", "yes", "y"}
-    return False
-
-def _normalize_bool_dict(d):
-    if not isinstance(d, dict):
-        return d
-    return {k: _parse_bool(v) for k, v in d.items()}
-
-def _to_json(val, default):
-    """Accept plain Python types; if a string isn't JSON, wrap it as {'text': ...}."""
-    if val is None:
-        return default
-    if isinstance(val, str):
-        try:
-            # Only valid JSON (true/false/null/lists/objects/numbers/strings) will parse.
-            return json.loads(val)
-        except Exception:
-            return {"text": val}
-    return val
-
 @login_required
 @tenant_required
 @require_POST
 @local_menu_required
 def tenant_menu_ingest_json_view(request):
-    """
-    Expects payload:
-      { "menu_items": [ { name, availability.quantity, pricing, portion_and_size, ... } ] }
-    Upserts: MenuItem, MenuCategory, MenuItemVariant, MenuCatalogMeta (per item).
-    """
+    from orders.catalog_imports import import_catalog
     tenant = get_current_tenant(request)
-    raw = request.POST.get("menu_items_json") or ""
     try:
-        data = json.loads(raw)
-        if not isinstance(data, dict) or not isinstance(data.get("menu_items"), list):
-            raise ValueError("Root must be an object with 'menu_items' as a list.")
-    except Exception as e:
-        messages.error(request, f"Invalid JSON: {e}")
-        return redirect("tenant:tenant_menu")
-
-    created, updated, v_added, v_updated = 0, 0, 0, 0
-
-    try:
-        with transaction.atomic():
-            for row in data["menu_items"]:
-                name = (row.get("name") or "").strip()
-                if not name:
-                    continue
-
-                # category
-                cat_norm = str(row.get("menu_category") or "").strip()
-                cat_obj = None
-                if cat_norm:
-                    cat_obj, _ = MenuCategory.objects.get_or_create(tenant=tenant, name__iexact=cat_norm, defaults={"name": cat_norm})
-                    cat_obj.full_clean()
-
-                # item
-                avail = row.get("availability") or {}
-                qty_in = int((avail.get("quantity") or 0) or 0)
-
-                # Source changes may leave disabled historical rows with the
-                # same label. Prefer the currently offered item for local edits.
-                item = MenuItem.objects.filter(tenant=tenant, name=name).order_by('-is_available', 'pk').first()
-                was_created = item is None
-                if was_created:
-                    item = MenuItem.objects.create(tenant=tenant, name=name, quantity=qty_in,
-                        is_available=qty_in > 0, description=(row.get('flavor_profile') or '')[:1000],
-                        category_fk=cat_obj, meta={})
-                if was_created:
-                    created += 1
-                else:
-                    updated += 1
-
-                # keep basics in sync
-                if cat_obj:
-                    item.category_fk = cat_obj
-                qty = int((avail.get("quantity") or item.quantity or 0))
-                item.quantity = qty
-                # If quantity drives availability, derive it; otherwise keep user toggle when qty==0
-                item.is_available = True if qty > 0 else item.is_available
-
-                # don't clobber a rich description if already set; only set if empty
-                if not (item.description or "").strip():
-                    item.description = (row.get("flavor_profile") or "")[:1000]
-
-                # Merge a few helpful keys into meta (still freeform)
-                meta = dict(item.meta or {})
-                for k in ("recommendations", "specialty_items", "source_quality", "pairings", "ingredients"):
-                    if k in row and row[k] is not None:
-                        meta[k] = row[k]
-                item.meta = meta
-                item.save()
-
-                # Per-item catalog meta (ONE per MenuItem).
-                # IMPORTANT: MenuCatalogMeta has NO 'tenant' field; relate via menu_item only.
-                catmeta, _ = MenuCatalogMeta.objects.get_or_create(menu_item=item)
-
-                # JSON coercers / normalizers
-                # Normalize booleans inside dict-like sections that often come as "True"/"False" strings.
-                dp = row.get("dietary_preferences")
-                al = row.get("allergens")
-
-                if isinstance(dp, dict):
-                    catmeta.dietary_preferences = _normalize_bool_dict(dp)
-                else:
-                    catmeta.dietary_preferences = _to_json(dp, {})
-
-                if isinstance(al, dict):
-                    catmeta.allergens = _normalize_bool_dict(al)
-                else:
-                    catmeta.allergens = _to_json(al, {})
-
-                prep = row.get("preparation")
-                if isinstance(prep, str):
-                    catmeta.preparation = {"text": prep}
-                else:
-                    catmeta.preparation = _to_json(prep, {})
-
-                catmeta.nutrition = _to_json(row.get("nutrition"), {})
-                catmeta.ingredients = _to_json(row.get("ingredients"), [])
-                catmeta.recommendations = _to_json(row.get("recommendations"), [])
-                catmeta.specialty_items = _to_json(row.get("specialty_items"), [])
-                catmeta.source_quality = _to_json(row.get("source_quality"), [])
-                catmeta.pairings = _to_json(row.get("pairings"), [])
-
-                eo = row.get("explore_options")
-                if isinstance(eo, (bool, int, float, str)):
-                    catmeta.explore_options = {"enabled": _parse_bool(eo)}
-                else:
-                    catmeta.explore_options = _to_json(eo, {})
-
-                # flavor_profile is stored as plain text on the model per your field list
-                fp = row.get("flavor_profile")
-                if isinstance(fp, str) and fp.strip():
-                    catmeta.flavor_profile = fp
-
-                catmeta.save()
-
-                # Variants from pricing + portion_and_size
-                pricing = row.get("pricing") or {}
-                portions = row.get("portion_and_size") or {}
-
-                # dessert case: top-level dict with weight_grams/description
-                dessert_weight = portions.get("weight_grams") if isinstance(portions, dict) else None
-                dessert_desc = portions.get("description") if isinstance(portions, dict) and isinstance(portions.get("description"), str) else None
-
-                for position, (label, price_str) in enumerate(pricing.items()):
-                    size = str(label).strip()
-                    if not size:
-                        continue
-                    digits = "".join(ch for ch in str(price_str) if (ch.isdigit() or ch == "."))
-                    if not digits:
-                        continue
-                    amount = Decimal(digits)
-
-                    v = item.variants.filter(size__iexact=size).order_by('-is_available', 'pk').first()
-                    if not v:
-                        v = MenuItemVariant(menu_item=item, size=size, price=amount)
-                        v_added += 1
-                    else:
-                        v.price = amount
-                        v_updated += 1
-
-                    v.sort_order = position
-                    v.size = size
-                    v.is_available = True
-
-                    # attach volumes/weights/desc
-                    p = portions.get(label) if isinstance(portions, dict) and isinstance(portions.get(label), dict) else None
-                    if p:
-                        v.volume_ml = p.get("volume_ml")
-                        v.weight_grams = p.get("weight_grams")
-                        if p.get("description"):
-                            v.description = p.get("description")
-
-                    # For desserts with per_quantity, use the top-level weight/description if present
-                    if size == "per_quantity":
-                        if dessert_weight is not None:
-                            v.weight_grams = dessert_weight
-                        if dessert_desc and not v.description:
-                            v.description = dessert_desc
-
-                    v.full_clean()
-                    v.save()
+        created, updated, v_added, v_updated = import_catalog(tenant, request.POST.get('menu_items_json', ''))
     except (ValidationError, ValueError, TypeError, AttributeError, IntegrityError) as exc:
         messages.error(request, f"Menu import failed: {exc}")
-        return redirect("tenant:tenant_menu")
-    messages.success(
-        request,
-        f"Imported menu: items created={created}, updated={updated}; variants added={v_added}, updated={v_updated}."
-    )
-    # ----- Phase 2: push to knowledge -----
-    try:
-        knowledge_blob = generate_menu_items_json(tenant)  # {intent: {sub_intent: payload}, ...}
-        logger.info("MENU->KNOWLEDGE JSON:\n%s", json.dumps(knowledge_blob, indent=2, ensure_ascii=False))
-
-        k_created, k_updated, k_skipped = apply_knowledge_update(tenant, knowledge_blob, dtype="knowledge")
-        dtype_value = getattr(getattr(TenantJSONDoc, "DocType", object), "KNOWLEDGE", "knowledge")
-
-        messages.success(
-            request,
-            f"Pushed to knowledge ({dtype_value}): created={k_created}, updated={k_updated}, skipped={k_skipped}."
-        )
-        initialize_caches()
-    except Exception as e:
-        logger.exception("Failed pushing menu knowledge for tenant=%s", getattr(tenant, "id", None))
-        messages.error(request, f"Menu imported, but pushing to knowledge failed: {e}")
-
-    return redirect("tenant:tenant_menu")
+    else:
+        messages.success(request, f"Imported menu: items created={created}, updated={updated}; variants added={v_added}, updated={v_updated}. Knowledge saved to draft.")
+    return redirect('tenant:tenant_menu')
 
 
 # ---------- UPDATE: save item basics (now handles quantity and category fix) ----------

@@ -1,8 +1,6 @@
 """Read and normalize datasets. This module cannot provision or execute anything."""
 from collections import Counter
 from dataclasses import dataclass
-import json
-import math
 from pathlib import Path
 import re
 
@@ -23,27 +21,10 @@ class DatasetError(ValueError):
 
 
 def read_json(path: Path):
-    def pairs(items):
-        result = {}
-        for key, value in items:
-            if key in result:
-                raise DatasetError("duplicate JSON object key")
-            result[key] = value
-        return result
-
-    def constant(_):
-        raise DatasetError("non-finite JSON number")
-
-    def finite_float(value):
-        number = float(value)
-        if not math.isfinite(number):
-            raise DatasetError("non-finite JSON number")
-        return number
-
+    from chatbot_core.configuration_files import parse_json
     try:
-        return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=pairs,
-                          parse_constant=constant, parse_float=finite_float)
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return parse_json(path.read_text(encoding='utf-8'))
+    except (OSError, UnicodeError, ValueError) as exc:
         raise DatasetError(f"cannot read valid JSON: {path.name}") from exc
 
 
@@ -71,30 +52,12 @@ def classification_documents(root: Path, routes=None) -> list[dict]:
     Select only the scenario's routes; never invent missing descriptions or
     enable extra capabilities just because they occur in the source file.
     """
-    from chatbot_core.capabilities import CAPABILITIES
-
-    source = read_json(contained(Path(root), "intent_classification.json"))
-    if not isinstance(source, dict) or not source:
-        raise DatasetError("intent classification must contain intent objects")
-    documents = {}
-    for intent, topics in source.items():
-        capability = CAPABILITIES.get(intent)
-        if capability is None or not isinstance(topics, dict) or not topics:
-            raise DatasetError(f"invalid classification intent: {intent}")
-        for topic, value in topics.items():
-            if not capability.supports(topic):
-                raise DatasetError(f"unsupported classification route: {intent}/{topic}")
-            payload = {"description": value} if isinstance(value, str) else value
-            if (not isinstance(payload, dict)
-                    or payload.keys() - {"description", "examples", "enabled"}
-                    or not isinstance(payload.get("description"), str)
-                    or not payload["description"].strip()
-                    or type(payload.get("enabled", True)) is not bool
-                    or not isinstance(payload.get("examples", []), list)
-                    or any(not isinstance(v, str) or not v.strip() for v in payload.get("examples", []))):
-                raise DatasetError(f"invalid classification description: {intent}/{topic}")
-            documents[intent, topic] = dict(dtype="intent_classification", intent=intent,
-                sub_intent=topic, payload={"enabled": True, **payload})
+    from chatbot_core.configuration_files import document_records
+    try:
+        records = document_records('intent_classification', contained(Path(root), 'intent_classification.json').read_text())
+    except ValueError as exc:
+        raise DatasetError(f'Invalid classification: {exc}') from exc
+    documents = {(record['intent'], record['sub_intent']): record for record in records}
     selected = set(documents) if routes is None else set(routes)
     missing = selected - documents.keys()
     if missing:
@@ -194,7 +157,15 @@ def load_dataset(root: Path, plan: ScenarioPlan) -> DatasetBundle:
     if set(plan.scenarios) - all_ids:
         raise DatasetError("plan references unknown scenario IDs")
     classification_documents(root)
-    hashes = {name: file_hash(contained(root, name)) for name in ["session_query_sets.json", "qa_test_cases.json", "intent_classification.json", *data.source_knowledge]}
+    from chatbot_core.configuration_files import CONFIGURATION_FILES, knowledge_exports
+    try:
+        exports = knowledge_exports(root)
+        for name, generated in exports.items():
+            if read_json(contained(root, name)) != generated:
+                raise DatasetError(f'Stale derived configuration: {name}')
+    except (ValueError, KeyError, OSError) as exc:
+        raise DatasetError(f'Invalid canonical configuration: {exc}') from exc
+    hashes = {name: file_hash(contained(root, name)) for name in ["session_query_sets.json", "qa_test_cases.json", *CONFIGURATION_FILES.values(), "evaluation_setup.json", *data.source_knowledge]}
     if len(data.source_knowledge) != len(set(data.source_knowledge)):
         raise DatasetError("duplicate setup inputs")
     records = set()

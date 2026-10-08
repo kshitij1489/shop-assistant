@@ -1,21 +1,21 @@
 {% extends "users/base_tenant.html" %}
-{% block title %}Upload Knowledge JSON{% endblock %}
+{% block title %}Import Configuration JSON{% endblock %}
 
 {% block tenant_content %}
 <div style="max-width:900px;margin:0 auto">
-  <h1 style="font-size:1.5rem;font-weight:600;margin-bottom:1rem">Upload Knowledge JSON</h1>
+  <h1 style="font-size:1.5rem;font-weight:600;margin-bottom:1rem">Import Configuration JSON</h1>
 
   <form id="uploadForm" method="post" action="" onsubmit="return confirmAndValidate()">
     {% csrf_token %}
 
     <div class="card" style="margin-bottom:.75rem">
-      <label for="dtype" style="display:block;margin-bottom:.35rem">DType</label>
+      <label for="dtype" style="display:block;margin-bottom:.35rem">Configuration type</label>
       <select id="dtype" name="dtype" required class="full" style="padding:.6rem;border:1px solid #e5e7eb;border-radius:.5rem">
         {% for val,label in dtypes %}
           <option value="{{ val }}" {% if selected_dtype == val %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
-      <p style="color:#6b7280;margin:.5rem 0 0">All uploaded entries will be saved under this dtype.</p>
+      <p style="color:#6b7280;margin:.5rem 0 0">Choose the configuration type matching your JSON. Checkout and ordering settings apply when saved.</p>
     </div>
 
     <div class="card" style="margin-bottom:.75rem">
@@ -35,7 +35,7 @@
         <button type="submit" class="btn primary">Save</button>
       </div>
       <p id="helper" style="color:#6b7280;margin-top:.5rem">
-        Structure: <code>{ "intent": { "sub_intent": { ...payload... } } }</code>
+        Knowledge, classification and response instructions use <code>{ "intent": { "topic": payload } }</code>. Checkout and ordering policy use their settings objects.
       </p>
     </div>
   </form>

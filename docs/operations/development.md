@@ -26,6 +26,12 @@ The first build downloads dependencies and models. The sample café supports men
 and information answers; it does not enable checkout, payments, or POS. The
 end-to-end evaluation below provisions its own scenarios and synthetic tenants.
 
+Setup checks for occupied ports before building and writes progress to
+`setup.log`. If port 8080 is already in use, edit `.env.demo` and change both
+`HTTP_PORT=8081` and `PUBLIC_URL=http://localhost:8081`, then rerun. Keep
+`HTTP_BIND=127.0.0.1` for the local demo. For an existing configuration,
+`python3 scripts/setup.py local --check` runs the checks without starting services.
+
 An API key is optional for setup, the dashboard, and smoke checks. For live chat,
 set `OPENAI_API_KEY` in `.env.demo` and rerun `python3 scripts/setup.py`.
 Existing configuration and demo records are preserved; rerunning setup does not

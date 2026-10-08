@@ -12,7 +12,8 @@ payment providers.
 
 ## Installation
 
-Guided setup and deployment gates (standard library only; no Docker or API calls):
+Guided setup and deployment gates (Python standard library plus OpenSSL for
+temporary certificate fixtures; no Docker or external API calls):
 
 ```sh
 python3 -m unittest tests.framework.test_setup tests.integration.test_production_start -v
@@ -59,11 +60,28 @@ python scripts/evaluate_contextual.py --live --workers 1 \
   --output /tmp/address-confirmation-live.json
 ```
 
+Address extraction has a separate live check that calls the production extractor
+with synthetic messages. It checks pause/resume details, repeated fields,
+original-language street retention, invalid postcodes, and acknowledgments that
+must not copy values from resolved context. The offline address-ingestion tests
+cover graph and persistence behavior using canned extraction results; they do
+not establish prompt accuracy. This command makes 24 extraction calls by default
+and exits nonzero on missing, incorrect, or unexpected fields or provider failure:
+
+```sh
+python scripts/evaluate_address_extraction.py --live \
+  --output /tmp/address-extraction-live.json
+```
+
+Use `--repeats`, `--workers` (1–4), and `--model` to control the run. The report
+records each input, actual output, validation errors, model, and extractor/fixture
+hashes; keep live reports outside the repository.
+
 ## PostgreSQL commerce
 
 Set `COMMERCE_TEST_PG_HOST` (default `127.0.0.1`), `COMMERCE_TEST_PG_PORT`
 (default `5432`), `COMMERCE_TEST_PG_USER`, and `PGPASSWORD`. Django creates
-`test_studio_desk_commerce`.
+a separate test database; the database user must have permission to create it.
 
 ```sh
 python manage.py test \

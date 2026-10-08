@@ -1,0 +1,633 @@
+{
+  "currency": "INR",
+  "menu_items": [
+    {
+      "name": "Old Fashion Vanilla Ice Cream",
+      "menu_category": "Comfort Classics Ice Creams",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Eggless Banoffee Ice Cream",
+      "menu_category": "Comfort Classics Ice Creams",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Pistachio Ice Cream",
+      "menu_category": "Comfort Classics Ice Creams",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "460"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Bean-to-Bar Chocolate Ice Cream",
+      "menu_category": "Dach & Nona Originals",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Rose Cardamom Ice Cream",
+      "menu_category": "Dach & Nona Originals",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Strawberry Cream Cheese Ice Cream",
+      "menu_category": "Dach & Nona Originals",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Coffee Mascarpone Ice Cream",
+      "menu_category": "Dach & Nona Originals",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Paan & Gulkand Ice Cream",
+      "menu_category": "Dach & Nona Originals",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Fig Orange Ice Cream",
+      "menu_category": "The Curiosity Cabinet",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Sunshine Limone Ice Cream",
+      "menu_category": "The Curiosity Cabinet",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Masala Chai Ice Cream",
+      "menu_category": "The Curiosity Cabinet",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Eggless Chocolate Overload",
+      "menu_category": "The Curiosity Cabinet",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Coconut and Pineapple",
+      "menu_category": "The Curiosity Cabinet",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "380"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Tiramisu",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "415"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Boston Cream Pie",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "410"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Classic Lamington",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "335"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "New York Baked Cheesecake",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "300"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Tres Leches",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "425"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Brownie Cheesecake",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "340"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Orange Chocolate Cheesecake",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "340"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Fudgy Chocolate Brownie (2pcs)",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "320"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Coffee Banana Cheesecake",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "340"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Brownie With Vanilla Ice Cream & Fudge Sauce",
+      "menu_category": "Desserts",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "350"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Dates with Chocolates",
+      "menu_category": "Dates Sweetened Ice Creams",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "460"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Dates with Fig & Orange",
+      "menu_category": "Dates Sweetened Ice Creams",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "460"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    },
+    {
+      "name": "Dates Rose & Nuts",
+      "menu_category": "Dates Sweetened Ice Creams",
+      "availability": {
+        "quantity": 50,
+        "is_available": true
+      },
+      "pricing": {
+        "QA standard": "350"
+      },
+      "listed_variant": "QA standard",
+      "listed_size": null,
+      "portion_and_size": {
+        "QA standard": {
+          "description": "Synthetic ordering identifier; serving size is unverified."
+        }
+      }
+    }
+  ],
+  "knowledge": {
+    "pricing": {
+      "note": "Published website listing prices, not a quote or size-specific checkout catalog. Serving size, taxes and current checkout price were not verified.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "explore_options": {
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "availability": {
+      "live_stock_verified": false,
+      "note": "Being listed on the website does not establish current availability. No stock quantities were published.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "dietary_preferences": {
+      "explicitly_eggless": [
+        "Eggless Banoffee Ice Cream",
+        "Eggless Chocolate Overload",
+        "New York Baked Cheesecake",
+        "Tres Leches",
+        "Dates with Chocolates",
+        "Dates with Fig & Orange"
+      ],
+      "explicitly_contains_eggs": [
+        "Tiramisu",
+        "Boston Cream Pie",
+        "Classic Lamington"
+      ],
+      "dates_sweetened_no_added_sugar_claim": [
+        "Dates with Chocolates",
+        "Dates with Fig & Orange",
+        "Dates Rose & Nuts"
+      ],
+      "vegan_options": null,
+      "gluten_free_options": null,
+      "nut_free_options": null,
+      "note": "Only explicit item claims are included. Unlisted items have unknown egg status. No-added-sugar is not a sugar-free claim. Confirm dietary requirements with staff.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "allergens": {
+      "explicitly_contains_eggs": [
+        "Tiramisu",
+        "Boston Cream Pie",
+        "Classic Lamington"
+      ],
+      "nut_ingredients_named": {
+        "Pistachio Ice Cream": [
+          "pistachio"
+        ],
+        "Dates Rose & Nuts": [
+          "nuts; types unspecified"
+        ]
+      },
+      "complete_allergen_matrix": null,
+      "cross_contact_policy": null,
+      "note": "Ingredient mentions are incomplete. Absence from this list never means allergen-free. Contact the cafe for an item-specific check.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "ingredients": {
+      "examples_only": {
+        "Old Fashion Vanilla Ice Cream": [
+          "Madagascar vanilla"
+        ],
+        "Pistachio Ice Cream": [
+          "pistachios"
+        ],
+        "Coffee Mascarpone Ice Cream": [
+          "coffee",
+          "mascarpone"
+        ]
+      },
+      "complete_recipes": null,
+      "note": "Only selected ingredients mentioned in public descriptions; not full recipes or allergen lists.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "nutrition": {
+      "status": "not_verified",
+      "note": "No verified calorie, macronutrient or sugar-per-serving table was found. Do not reuse estimated values from the older fixture."
+    },
+    "portion_and_size": {
+      "status": "not_verified",
+      "note": "Website listing prices were visible, but volume and weight variants were not. Do not infer scoop or tub volumes. The brownie listing explicitly names 2 pieces."
+    },
+    "preparation": {
+      "brand_process": [
+        "small-batch production",
+        "bean-to-bar chocolate"
+      ],
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/"
+      ]
+    },
+    "source_quality": {
+      "published_suppliers": {
+        "milk": "Country Delight (A2 milk)",
+        "eggs": "Bajaj Eggs"
+      },
+      "note": "Published brand sourcing claims; not proof of every item’s recipe.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/"
+      ]
+    },
+    "recommendations": {
+      "status": "test_editorial_suggestions",
+      "suggestions": [
+        {
+          "preference": "coffee",
+          "item": "Coffee Mascarpone Ice Cream"
+        },
+        {
+          "preference": "nuts",
+          "item": "Pistachio Ice Cream"
+        },
+        {
+          "preference": "eggless dessert",
+          "item": "New York Baked Cheesecake"
+        }
+      ],
+      "note": "Suggestions authored for testing from item names and explicit dietary claims; not best-seller rankings.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "specialty_items": {
+      "category": "Dach & Nona Originals",
+      "note": "Official category, not a popularity ranking.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    },
+    "flavor_profile": {
+      "status": "not_verified",
+      "note": "Use the named flavors in the catalog; detailed tasting profiles are not included in this fixture."
+    },
+    "pairings": {
+      "status": "not_verified",
+      "note": "No verified official pairing recommendations were found."
+    }
+  }
+}

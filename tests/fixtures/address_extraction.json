@@ -1,0 +1,68 @@
+[
+  {
+    "id": "s163_details_after_pause",
+    "original": "ya, flat 11, sector 56, gurugram 122011 State: Haryana. Country: India.",
+    "resolved": "Sí, flat 11, sector 56, Gurugram 122011. Estado: Haryana. País: India.",
+    "rewrite": "Yes, the address is Flat 11, Sector 56, Gurugram 122011, Haryana, India.",
+    "pending": {"street_address": "torre 4 cerca de sector 56"},
+    "expected_fields": {"city": "gurugram", "state": "Haryana", "country": "India", "postal_code": "122011"},
+    "street_contains": ["flat 11", "torre 4", "cerca de sector 56"]
+  },
+  {
+    "id": "acknowledgment_ignores_resolved_address",
+    "original": "ya",
+    "resolved": "Flat 11, Sector 56, Gurugram, Haryana, India, 122011",
+    "rewrite": "Confirm the address from context.",
+    "pending": {"street_address": "torre 4 cerca de sector 56"},
+    "expected_fields": {}
+  },
+  {
+    "id": "pause_supplies_no_fields",
+    "original": "espera, estoy buscando el código postal en el whatsapp",
+    "resolved": "Wait before completing the address in Gurugram, Haryana, India, 122011.",
+    "rewrite": "Wait while I find the postal code.",
+    "pending": {"street_address": "torre 4 cerca de sector 56"},
+    "expected_fields": {}
+  },
+  {
+    "id": "repeated_postal_fields_are_supplied",
+    "original": "yes, gurugram 122011 State: Haryana. Country: India.",
+    "resolved": "Confirm Gurugram, Haryana, India, 122011.",
+    "rewrite": "Yes, use Gurugram, Haryana, India, 122011.",
+    "pending": {"street_address": "flat 11, sector 56", "city": "gurugram", "state": "Haryana", "country": "India", "postal_code": "122011"},
+    "expected_fields": {"city": "gurugram", "state": "Haryana", "country": "India", "postal_code": "122011"}
+  },
+  {
+    "id": "pause_with_details_still_extracts",
+    "original": "Wait while I find the flat number. City: Gurugram. State: Haryana. Country: India. Postal code: 122011.",
+    "resolved": "Wait while I find the flat number; the postal fields are Gurugram, Haryana, India, 122011.",
+    "rewrite": "Wait for the flat number, but retain the supplied postal fields.",
+    "pending": {},
+    "expected_fields": {"city": "Gurugram", "state": "Haryana", "country": "India", "postal_code": "122011"}
+  },
+  {
+    "id": "hindi_street_survives_addition",
+    "original": "mil gaya, 22 DLF phase 2, gurugram, 122002 State: Haryana. Country: India.",
+    "resolved": "Complete the address with 22 DLF phase 2, Gurugram, Haryana, India, 122002.",
+    "rewrite": "Found it: 22 DLF phase 2, Gurugram, Haryana, India, 122002.",
+    "pending": {"street_address": "टावर C"},
+    "expected_fields": {"city": "gurugram", "state": "Haryana", "country": "India", "postal_code": "122002"},
+    "street_contains": ["टावर C", "22 DLF phase 2"]
+  },
+  {
+    "id": "invalid_postcode_is_preserved",
+    "original": "ok, postal code: 012001",
+    "resolved": "Update the address in Gurugram, Haryana, India with postal code 012001.",
+    "rewrite": "Set the postal code to 012001.",
+    "pending": {"street_address": "flat 11", "city": "gurugram", "state": "Haryana", "country": "India", "postal_code": "122011"},
+    "expected_fields": {"postal_code": "012001"}
+  },
+  {
+    "id": "city_and_postcode_do_not_infer_state_country",
+    "original": "found it, gurugram 122011",
+    "resolved": "Use Gurugram, Haryana, India, 122011.",
+    "rewrite": "Found the address: Gurugram, Haryana, India, 122011.",
+    "pending": {"street_address": "flat 11"},
+    "expected_fields": {"city": "gurugram", "postal_code": "122011"}
+  }
+]

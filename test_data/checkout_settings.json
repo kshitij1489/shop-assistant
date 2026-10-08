@@ -1,0 +1,90 @@
+{
+  "timezone": "Asia/Kolkata",
+  "modes": {
+    "pickup": {
+      "required_fields": [
+        "name",
+        "phone"
+      ],
+      "payment_methods": [
+        "cash"
+      ],
+      "preparation_minutes": 30,
+      "scheduling_enabled": false,
+      "max_advance_days": 7,
+      "minimum_order": "0",
+      "fee": "0"
+    },
+    "delivery": {
+      "required_fields": [
+        "name",
+        "phone",
+        "address",
+        "postal_code"
+      ],
+      "payment_methods": [
+        "cash"
+      ],
+      "preparation_minutes": 30,
+      "scheduling_enabled": false,
+      "max_advance_days": 7,
+      "minimum_order": "700",
+      "fee": "100"
+    },
+    "dine_in": {
+      "required_fields": [
+        "name",
+        "phone",
+        "table_id"
+      ],
+      "payment_methods": [
+        "cash"
+      ],
+      "preparation_minutes": 30,
+      "scheduling_enabled": false,
+      "max_advance_days": 7,
+      "minimum_order": "0",
+      "fee": "0"
+    }
+  },
+  "opening_hours": {
+    "1": [
+      [
+        "12:00",
+        "23:30"
+      ]
+    ],
+    "2": [
+      [
+        "12:00",
+        "23:30"
+      ]
+    ],
+    "3": [
+      [
+        "12:00",
+        "23:30"
+      ]
+    ],
+    "4": [
+      [
+        "12:00",
+        "23:30"
+      ]
+    ],
+    "5": [
+      [
+        "12:00",
+        "23:30"
+      ]
+    ],
+    "6": [
+      [
+        "12:00",
+        "23:30"
+      ]
+    ]
+  },
+  "delivery_postal_codes": [],
+  "online_provider": ""
+}

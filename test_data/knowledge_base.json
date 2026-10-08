@@ -153,6 +153,11 @@
   },
   "menu_items": {
     "pricing": {
+      "note": "Published website listing prices, not a quote or size-specific checkout catalog. Serving size, taxes and current checkout price were not verified.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ],
       "items": {
         "Old Fashion Vanilla Ice Cream": {
           "listed_price": 380,
@@ -284,42 +289,13 @@
           "currency": "INR",
           "size": null
         }
-      },
-      "note": "Published website listing prices, not a quote or size-specific checkout catalog. Serving size, taxes and current checkout price were not verified.",
+      }
+    },
+    "explore_options": {
       "as_of": "2026-09-27",
       "source_urls": [
         "https://www.dachnona.com/online-ordering"
-      ]
-    },
-    "menu_category": {
-      "Old Fashion Vanilla Ice Cream": "Comfort Classics Ice Creams",
-      "Eggless Banoffee Ice Cream": "Comfort Classics Ice Creams",
-      "Pistachio Ice Cream": "Comfort Classics Ice Creams",
-      "Bean-to-Bar Chocolate Ice Cream": "Dach & Nona Originals",
-      "Rose Cardamom Ice Cream": "Dach & Nona Originals",
-      "Strawberry Cream Cheese Ice Cream": "Dach & Nona Originals",
-      "Coffee Mascarpone Ice Cream": "Dach & Nona Originals",
-      "Paan & Gulkand Ice Cream": "Dach & Nona Originals",
-      "Fig Orange Ice Cream": "The Curiosity Cabinet",
-      "Sunshine Limone Ice Cream": "The Curiosity Cabinet",
-      "Masala Chai Ice Cream": "The Curiosity Cabinet",
-      "Eggless Chocolate Overload": "The Curiosity Cabinet",
-      "Coconut and Pineapple": "The Curiosity Cabinet",
-      "Tiramisu": "Desserts",
-      "Boston Cream Pie": "Desserts",
-      "Classic Lamington": "Desserts",
-      "New York Baked Cheesecake": "Desserts",
-      "Tres Leches": "Desserts",
-      "Brownie Cheesecake": "Desserts",
-      "Orange Chocolate Cheesecake": "Desserts",
-      "Fudgy Chocolate Brownie (2pcs)": "Desserts",
-      "Coffee Banana Cheesecake": "Desserts",
-      "Brownie With Vanilla Ice Cream & Fudge Sauce": "Desserts",
-      "Dates with Chocolates": "Dates Sweetened Ice Creams",
-      "Dates with Fig & Orange": "Dates Sweetened Ice Creams",
-      "Dates Rose & Nuts": "Dates Sweetened Ice Creams"
-    },
-    "explore_options": {
+      ],
       "categories": {
         "Comfort Classics Ice Creams": [
           "Old Fashion Vanilla Ice Cream",
@@ -357,13 +333,15 @@
           "Dates with Fig & Orange",
           "Dates Rose & Nuts"
         ]
-      },
+      }
+    },
+    "availability": {
+      "live_stock_verified": false,
+      "note": "Being listed on the website does not establish current availability. No stock quantities were published.",
       "as_of": "2026-09-27",
       "source_urls": [
         "https://www.dachnona.com/online-ordering"
-      ]
-    },
-    "availability": {
+      ],
       "listed_items": [
         "Old Fashion Vanilla Ice Cream",
         "Eggless Banoffee Ice Cream",
@@ -391,12 +369,6 @@
         "Dates with Chocolates",
         "Dates with Fig & Orange",
         "Dates Rose & Nuts"
-      ],
-      "live_stock_verified": false,
-      "note": "Being listed on the website does not establish current availability. No stock quantities were published.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
       ]
     },
     "dietary_preferences": {
@@ -522,17 +494,17 @@
     },
     "specialty_items": {
       "category": "Dach & Nona Originals",
+      "note": "Official category, not a popularity ranking.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ],
       "items": [
         "Bean-to-Bar Chocolate Ice Cream",
         "Rose Cardamom Ice Cream",
         "Strawberry Cream Cheese Ice Cream",
         "Coffee Mascarpone Ice Cream",
         "Paan & Gulkand Ice Cream"
-      ],
-      "note": "Official category, not a popularity ranking.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
       ]
     },
     "flavor_profile": {
@@ -542,6 +514,34 @@
     "pairings": {
       "status": "not_verified",
       "note": "No verified official pairing recommendations were found."
+    },
+    "menu_category": {
+      "Old Fashion Vanilla Ice Cream": "Comfort Classics Ice Creams",
+      "Eggless Banoffee Ice Cream": "Comfort Classics Ice Creams",
+      "Pistachio Ice Cream": "Comfort Classics Ice Creams",
+      "Bean-to-Bar Chocolate Ice Cream": "Dach & Nona Originals",
+      "Rose Cardamom Ice Cream": "Dach & Nona Originals",
+      "Strawberry Cream Cheese Ice Cream": "Dach & Nona Originals",
+      "Coffee Mascarpone Ice Cream": "Dach & Nona Originals",
+      "Paan & Gulkand Ice Cream": "Dach & Nona Originals",
+      "Fig Orange Ice Cream": "The Curiosity Cabinet",
+      "Sunshine Limone Ice Cream": "The Curiosity Cabinet",
+      "Masala Chai Ice Cream": "The Curiosity Cabinet",
+      "Eggless Chocolate Overload": "The Curiosity Cabinet",
+      "Coconut and Pineapple": "The Curiosity Cabinet",
+      "Tiramisu": "Desserts",
+      "Boston Cream Pie": "Desserts",
+      "Classic Lamington": "Desserts",
+      "New York Baked Cheesecake": "Desserts",
+      "Tres Leches": "Desserts",
+      "Brownie Cheesecake": "Desserts",
+      "Orange Chocolate Cheesecake": "Desserts",
+      "Fudgy Chocolate Brownie (2pcs)": "Desserts",
+      "Coffee Banana Cheesecake": "Desserts",
+      "Brownie With Vanilla Ice Cream & Fudge Sauce": "Desserts",
+      "Dates with Chocolates": "Dates Sweetened Ice Creams",
+      "Dates with Fig & Orange": "Dates Sweetened Ice Creams",
+      "Dates Rose & Nuts": "Dates Sweetened Ice Creams"
     }
   },
   "placing_order": {

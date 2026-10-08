@@ -31,7 +31,9 @@ class DashboardAccessTests(TestCase):
         self.client.force_login(self.user)
         self.upload_url = reverse('tenant:upload_knowledge_prompt')
         self.token_url = reverse('tenant:generate_jwt_token')
-        self.upload = {'dtype': 'knowledge', 'json_blob': json.dumps({'cafe': {'hours': 'Open daily'}})}
+        self.upload = {'dtype': 'knowledge', 'json_blob': json.dumps({
+            'information_about_the_cafe': {'location_and_hours': 'Open daily'},
+        })}
 
     def assert_no_writes(self, client, expected_status):
         self.assertEqual(client.post(self.upload_url, self.upload, HTTP_ACCEPT='application/json').status_code, expected_status)
@@ -72,6 +74,7 @@ class DashboardAccessTests(TestCase):
         self.assertEqual(self.client.post(self.upload_url, self.upload).status_code, 302)
         doc = TenantJSONDoc.objects.get()
         self.assertEqual(doc.tenant_id, self.tenant.pk)
+        self.assertEqual((doc.intent, doc.sub_intent), ('information_about_the_cafe', 'location_and_hours'))
         self.assertEqual(doc.payload, 'Open daily')
         response = self.client.post(self.token_url)
         self.assertEqual(response.status_code, 200)

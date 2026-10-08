@@ -1,6 +1,6 @@
 # Commerce integration
 
-Studio Desk keeps the catalog, orders, accepted snapshots, and external mappings.
+Shop Assistant keeps the catalog, orders, accepted snapshots, and external mappings.
 An adapter is a separate application. It does not need this database. Provider
 SDKs and merchant onboarding stay in the adapter. This repository does not
 include certified Square, Clover, Toast, Adyen, or Mollie clients.
@@ -28,7 +28,7 @@ Keep at least these tables in the adapter:
 
 | Table | Uniqueness and contents |
 | --- | --- |
-| connection | Studio Desk connection UUID, merchant account, environment, secret reference |
+| connection | Shop Assistant connection UUID, merchant account, environment, secret reference |
 | entity_mapping | connection, kind, canonical ID, external ID, scope; unique both ways |
 | command_receipt | command UUID, exact request, request hash, provider idempotency key, outcome |
 | provider_inbox | provider event ID unique within the account |

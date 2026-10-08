@@ -135,7 +135,7 @@ class ProvisionTests(TestCase):
         basket, _, _ = self.provision('s01_add_pistachio')
         basket_docs = TenantRuntimeConfiguration.objects.get(
             tenant=self.provisioner.binding(basket)['tenant']).documents
-        self.assertFalse(any(d['sub_intent'] == 'confirm_delivery_address' for d in basket_docs))
+        self.assertTrue(any(d['sub_intent'] == 'confirm_delivery_address' for d in basket_docs))
 
     def scripted_turn(self, lease, identity, intent, topic, action=None):
         """Exercise real fixture permissions and handlers with only understanding scripted."""
@@ -167,7 +167,13 @@ class ProvisionTests(TestCase):
         lease, identity, _ = self.provision('s36_addresses_default_and_map_pin')
         contract = self.provisioner.inspect(lease)['publication']['capabilities']
         self.assertIn(['location_based', 'existing_addresses'], contract['required_routes'])
-        self.assertNotIn(['placing_order', 'check_order_cart'], contract['enabled_routes'])
+        self.assertIn(['placing_order', 'check_order_cart'], contract['enabled_routes'])
+        from chatbot_core.configuration_imports import import_documents
+        from chatbot_core.runtime_configuration import publish_configuration
+        tenant = self.provisioner.binding(lease)['tenant']
+        import_documents(tenant, 'intent_classification', {'placing_order': {'check_order_cart': {
+            'description': 'Inspect the current basket.', 'enabled': False}}})
+        publish_configuration(tenant.pk, expected_version=1)
         reply, decision = self.scripted_turn(lease, identity, 'location_based', 'existing_addresses')
         self.assertIn('Work', reply)
         self.assertIn('Home', reply)
@@ -179,7 +185,7 @@ class ProvisionTests(TestCase):
         self.assertEqual(decision['effective_route'], ['placing_order', 'check_order_cart'])
         self.assertEqual(decision['unavailable_routes'], [['placing_order', 'check_order_cart']])
         self.assertEqual(decision['action_kind'], 'SHOW_CART')
-        self.assertEqual(decision['configuration_version'], 1)
+        self.assertEqual(decision['configuration_version'], 2)
         self.assertFalse(om.Order.objects.exists())
 
     @override_settings(EVALUATION_ENABLED=True, EVALUATION_LOCATION_PROVIDER='emulator')

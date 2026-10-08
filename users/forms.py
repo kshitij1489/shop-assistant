@@ -84,9 +84,18 @@ class SignUpForm(forms.ModelForm):
 class CreateTenantForm(SignUpForm):
     """Master-created tenants require a new owner account, just like signup."""
     whatsapp_number = forms.CharField(max_length=20, required=False, label="WhatsApp number")
-    telegram_chat_id = forms.CharField(max_length=100, required=False, label="Telegram chat ID")
+    telegram_bot_token = forms.CharField(
+        max_length=200, required=False, label="Telegram Bot Token",
+        widget=forms.PasswordInput(attrs={'placeholder': 'e.g. 123456:ABC-DEF...'}),
+    )
     field_order = ['username', 'email', 'password', 'password2', 'business_name', 'slug', 'business_type',
-                   'address', 'whatsapp_number', 'telegram_chat_id']
+                   'address', 'whatsapp_number', 'telegram_bot_token']
+
+    def clean_telegram_bot_token(self):
+        token = self.cleaned_data['telegram_bot_token']
+        if token and TenantInfo.objects.filter(telegram_bot_token=token).exists():
+            raise forms.ValidationError("This Telegram bot token is already in use.")
+        return token
 
 
 class TenantProfileForm(forms.Form):

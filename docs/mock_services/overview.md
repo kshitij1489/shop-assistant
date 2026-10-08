@@ -12,7 +12,7 @@ python3 -m mock_services.commerce_adapter demo
 
 The demo prints `PASS` for a capture, a duplicate delivery, and a timeout after
 a side effect. It writes SQLite files under a new directory in
-`/tmp/commerce-adapter-demo`. It does not call a live Studio Desk checkout.
+`/tmp/commerce-adapter-demo`. It does not call a live Shop Assistant checkout.
 
 ## HTTP simulators
 
@@ -55,7 +55,7 @@ To attach them to a disposable tenant:
    ```
 
    Use `--role pos`, the POS secret, and a separate `--db` for the POS worker.
-   Studio Desk still requires HTTPS for adapter calls. Keep
+   Shop Assistant still requires HTTPS for adapter calls. Keep
    `reconcile_commerce` scheduled. See [commerce integration](../commerce/integration.md).
 
 The same package can run the reference adapter directly:

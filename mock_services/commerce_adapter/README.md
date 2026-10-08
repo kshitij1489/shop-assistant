@@ -3,7 +3,7 @@
 **Responsible for:** Standalone reference adapter (SQLite receipts/outbox, fake
 provider, demo CLI) shared with HTTP mock workers.
 
-**Not responsible for:** Django/Studio Desk DB access or certified real PSPs.
+**Not responsible for:** Django/Shop Assistant DB access or certified real PSPs.
 
 ## Read first
 

@@ -4,6 +4,14 @@ Ordering stays off until the tenant saves a schema version 2 commerce policy
 with `ordering_limits`. Commerce ceilings in the
 [integration contract](../commerce/integration.md) still apply.
 
+Menu JSON imports update items by name and variants by label. Omitted items and
+variants remain available until disabled in the dashboard. When a catalog includes
+reviewed `knowledge`, generated listings include retained items and variants too.
+The optional `pricing.variants_by_item` map is regenerated from catalog prices.
+Listed variant and size metadata are retained across partial imports; imported
+labels do not establish a verified serving weight or volume. Publish the resulting
+knowledge draft to update chatbot answers.
+
 Names the assistant may match:
 
 - `MenuItem.meta["aliases"]`: extra item names. Ingredient tags are not item aliases.

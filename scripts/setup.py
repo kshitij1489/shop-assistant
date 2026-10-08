@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Guided Compose setup. Requires only Python's standard library on the host."""
+"""Guided Compose setup using Python's standard library; production also needs curl and OpenSSL."""
 import argparse
+import errno
 import getpass
 import json
 import os
 from pathlib import Path
 import re
 import secrets
+import shlex
 import shutil
+import socket
+import ssl
 import subprocess
 import sys
 import time
@@ -15,6 +19,18 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SECRET_KEYS = ("SECRET_KEY", "JWT_SECRET", "POSTGRES_PASSWORD")
+LOG_PATH = None
+
+
+def report(message, error=False):
+    """Log setup decisions only: never expanded configuration or application logs."""
+    print(message, file=sys.stderr if error else sys.stdout, flush=True)
+    if LOG_PATH:
+        try:
+            with LOG_PATH.open("a") as log:
+                log.write(f"{time.strftime('%Y-%m-%dT%H:%M:%S%z')} {message}\n")
+        except OSError:
+            print("Could not append to the setup log; check disk space and permissions.", file=sys.stderr)
 
 
 def fail(message):
@@ -30,7 +46,7 @@ def quoted(value):
 
 def configure(path, production, interactive):
     if path.exists():
-        print(f"Using existing {path.name}; credentials and settings are preserved.", flush=True)
+        report(f"Using existing {path.name}; credentials and settings are preserved.")
         return
     values = {key: secrets.token_urlsafe(36) for key in SECRET_KEYS}
     values["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY", "")
@@ -47,7 +63,8 @@ def configure(path, production, interactive):
         values.update(PUBLIC_URL=f"https://{domain}", ALLOWED_HOSTS=domain,
                       NGINX_SERVER_NAME=domain, TLS_CERT_NAME=domain,
                       LETSENCRYPT_DIR=str(Path(cert_dir).expanduser().resolve()),
-                      HTTP_BIND="0.0.0.0", HTTP_PORT="80", DEBUG="false")
+                      HTTP_BIND="0.0.0.0", HTTP_PORT="80",
+                      HTTPS_BIND="0.0.0.0", HTTPS_PORT="443", DEBUG="false")
     else:
         password = os.environ.get("DEMO_OWNER_PASSWORD", "")
         if interactive and not password:
@@ -69,7 +86,7 @@ def configure(path, production, interactive):
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(descriptor, "w") as handle:
         handle.write("\n".join(lines) + "\n")
-    print(f"Created {path.name} with private file permissions and generated secrets.", flush=True)
+    report(f"Created {path.name} with private file permissions and generated secrets.")
 
 
 def environment(path, project):
@@ -146,7 +163,13 @@ def validate(config, production):
         mount = next(v["source"] for v in nginx["volumes"] if v["target"] == "/etc/letsencrypt")
         for name in ("fullchain.pem", "privkey.pem"):
             if not (Path(mount) / "live" / cert_name / name).is_file():
-                fail(f"Install TLS certificates under {mount}/live/{cert_name}/ before deploying (missing {name}).")
+                command = shlex.join(["sudo", "certbot", "certonly", "--standalone",
+                                      "--config-dir", mount, "--cert-name", cert_name,
+                                      "-d", origin.hostname])
+                fail(f"TLS certificate missing {name} under {mount}/live/{cert_name}/. "
+                     f"For a new server, point DNS here and free port 80, then run:\n{command}\n"
+                     "If a web server already uses port 80, use its webroot instead. "
+                     "See docs/operations/production.md#certificates.")
         if not app.get("OPENAI_API_KEY"):
             fail("Set OPENAI_API_KEY in the production environment file for live chat.")
     else:
@@ -159,11 +182,193 @@ def validate(config, production):
     return app
 
 
+def check_certificate(config):
+    nginx = config["services"]["nginx"]
+    domain = urlsplit(config["services"]["web"]["environment"]["PUBLIC_URL"]).hostname
+    root = next(v["source"] for v in nginx["volumes"] if v["target"] == "/etc/letsencrypt")
+    directory = Path(root) / "live" / nginx["environment"]["TLS_CERT_NAME"]
+    cert = directory / "fullchain.pem"
+    try:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.load_cert_chain(str(cert), str(directory / "privkey.pem"), password=lambda: "")
+    except (OSError, ssl.SSLError):
+        fail("Cannot load the TLS certificate and matching private key. Check PEM contents, "
+             "file permissions and that the key is unencrypted. See docs/operations/production.md#certificates.")
+    dates = subprocess.run(["openssl", "x509", "-in", str(cert), "-noout", "-dates"],
+                           capture_output=True, text=True, timeout=10)
+    try:
+        values = dict(line.split("=", 1) for line in dates.stdout.splitlines())
+        start = ssl.cert_time_to_seconds(values["notBefore"])
+        end = ssl.cert_time_to_seconds(values["notAfter"])
+        if dates.returncode:
+            raise ValueError
+    except (KeyError, ValueError):
+        fail("Cannot read TLS certificate dates with OpenSSL.")
+    now = time.time()
+    if end <= now:
+        fail("TLS certificate has expired. Renew it before deploying; "
+             "see docs/operations/production.md#renewal. Also check the server clock.")
+    if start > now:
+        fail("TLS certificate is not valid yet. Check the server clock and certificate dates.")
+    hostname = subprocess.run(["openssl", "x509", "-in", str(cert), "-noout", "-checkhost", domain],
+                              capture_output=True, text=True, timeout=10)
+    if hostname.returncode:
+        fail(f"TLS certificate does not cover {domain} (or OpenSSL lacks -checkhost). "
+             "Use a certificate covering PUBLIC_URL; see docs/operations/production.md#certificates.")
+    report(f"[OK] Certificate covers {domain}; expires {values['notAfter']}.")
+    if end - now < 30 * 86400:
+        report("[WARN] Certificate expires within 30 days. Check automatic renewal now.")
+
+
+def docker_containers(stack):
+    """Read only port ownership metadata; never return container environments."""
+    result = subprocess.run(["docker", "ps", "-q"], env=stack.env,
+                            capture_output=True, text=True, check=True)
+    ids = result.stdout.split()
+    if not ids:
+        return []
+    template = ('{"name":{{json .Name}},"labels":{{json .Config.Labels}},'
+                '"ports":{{json .NetworkSettings.Ports}}}')
+    result = subprocess.run(["docker", "inspect", "--format", template, *ids], env=stack.env,
+                            capture_output=True, text=True, check=True)
+    return [json.loads(line) for line in result.stdout.splitlines()]
+
+
+def addresses_overlap(first, second):
+    # Treat IPv6 wildcard conservatively: it may also accept IPv4 connections.
+    return first in {"0.0.0.0", "::", ""} or second in {"0.0.0.0", "::", ""} or first == second
+
+
+def check_ports(stack, config):
+    containers = docker_containers(stack)
+    for service, definition in config["services"].items():
+        for port in definition.get("ports", []):
+            if port.get("protocol", "tcp") != "tcp":
+                continue
+            address = port.get("host_ip") or "0.0.0.0"
+            published = int(port["published"])
+            own_addresses = set()
+            own_containers = set()
+            for container in containers:
+                labels = container["labels"] or {}
+                for container_port, bindings in (container["ports"] or {}).items():
+                    if not container_port.endswith("/tcp"):
+                        continue
+                    for binding in bindings or []:
+                        if (int(binding["HostPort"]) != published or
+                                not addresses_overlap(address, binding["HostIp"])):
+                            continue
+                        if (labels.get("com.docker.compose.project") == stack.env["COMPOSE_PROJECT_NAME"] and
+                                labels.get("com.docker.compose.service") == service):
+                            own_addresses.add(binding["HostIp"] or "0.0.0.0")
+                            own_containers.add(container["name"].lstrip("/"))
+                        else:
+                            fail(f"Port {address}:{published} is already published by {container['name']}. "
+                                 "Retire that deployment only if it is no longer needed, or choose another port/proxy. "
+                                 "See docs/operations/production.md#port-conflicts.")
+            if address in own_addresses:
+                report(f"[OK] Port {address}:{published} belongs to this deployment's {service} service.")
+                continue
+            if own_addresses:
+                # An overlapping listener prevents probing the new address while
+                # the service is running; it does not prove that address is free.
+                command = shlex.join(["docker", "stop", *sorted(own_containers)])
+                fail(f"Port {address}:{published} overlaps this deployment's {service} binding on "
+                     f"{', '.join(sorted(own_addresses))}. Before changing the bind address, "
+                     f"release its current listener with:\n{command}\n"
+                     "Then rerun setup to check the requested address before deployment. "
+                     "See docs/operations/production.md#port-conflicts.")
+            try:
+                with socket.socket(socket.AF_INET6 if ":" in address else socket.AF_INET) as probe:
+                    probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    probe.bind((address, published))
+            except OSError as exc:
+                if exc.errno == errno.EACCES:
+                    report(f"[WARN] Cannot check port {published} without elevated permissions. "
+                           "Inspect listeners with sudo ss -ltnp before deploying.")
+                    continue
+                fail(f"Cannot bind {address}:{published} for {service}. "
+                     f"Inspect listeners: sudo ss -ltnp 'sport = :{published}'. "
+                     "A host Nginx/Apache service may own this port. "
+                     "See docs/operations/production.md#port-conflicts.")
+            report(f"[OK] Port {address}:{published} is available for {service}.")
+
+
+def preflight(stack, config, production):
+    report("Checking configuration and host prerequisites…")
+    if production:
+        for executable in ("openssl", "curl"):
+            if not shutil.which(executable):
+                fail(f"Install {executable} on the server before production setup.")
+    app = validate(config, production)
+    check_ports(stack, config)
+    if production:
+        check_certificate(config)
+        domain = urlsplit(app["PUBLIC_URL"]).hostname
+        try:
+            addresses = sorted({item[4][0] for item in socket.getaddrinfo(domain, 443, type=socket.SOCK_STREAM)})
+        except socket.gaierror:
+            fail(f"DNS lookup failed for {domain}. Point its A record to this VPS; "
+                 "check any AAAA record too. See docs/operations/production.md#dns.")
+        report(f"[OK] DNS resolves {domain} to {', '.join(addresses)}. Confirm these are your server/proxy addresses.")
+    report("Preflight finished; no services have been changed.")
+    return app
+
+
+def https_probe(url, resolve=None):
+    command = ["curl", "--fail", "--silent", "--show-error", "--noproxy", "*",
+               "--connect-timeout", "5", "--max-time", "10"]
+    if resolve:
+        command.extend(["--resolve", resolve])
+    command.append(url)
+    # A newly started Nginx process can need a moment after Compose reports running.
+    for attempt in range(3):
+        result = subprocess.run(command, capture_output=True, text=True, timeout=15)
+        if result.returncode != 7 or attempt == 2:
+            break
+        time.sleep(2)
+    if result.returncode:
+        return f"curl exit {result.returncode} (7: connection, 22: HTTP error, 28: timeout, 60: TLS certificate)"
+    try:
+        if json.loads(result.stdout) == {"status": "ok"}:
+            return None
+    except ValueError:
+        pass
+    return "unexpected /health response"
+
+
+def verify_https(stack, config):
+    app = config["services"]["web"]["environment"]
+    domain = urlsplit(app["PUBLIC_URL"]).hostname
+    port = next(p for p in config["services"]["nginx"]["ports"] if int(p["target"]) == 443)
+    address = port.get("host_ip") or "0.0.0.0"
+    address = {"0.0.0.0": "127.0.0.1", "::": "::1"}.get(address, address)
+    if ":" in address:
+        address = f"[{address}]"
+    published = port["published"]
+    report("Checking local Nginx HTTPS, certificate trust and application health…")
+    error = https_probe(f"https://{domain}:{published}/health", f"{domain}:{published}:{address}")
+    if error:
+        report("Inspect this deployment with:\n" + shlex.join([*stack.command, "ps", "-a"]))
+        fail(f"Local HTTPS check failed: {error}. Check Nginx/web logs and their Docker network; "
+             "see docs/operations/production.md#troubleshooting. Services were not removed.")
+    report("[OK] Local HTTPS and /health passed.")
+    report("Checking the public HTTPS URL from this server…")
+    error = https_probe(app["PUBLIC_URL"].rstrip("/") + "/health")
+    if error:
+        fail(f"Local HTTPS works, but the public URL failed: {error}. "
+             "Check DNS A/AAAA records, host/provider firewalls and any external proxy. "
+             "Services remain running; see docs/operations/production.md#troubleshooting.")
+    report("[OK] Public HTTPS and /health passed from this server. Also test from your browser.")
+
+
 def start_local(stack, app):
-    print("Building and starting the local café and mock services…", flush=True)
+    report("Building and starting the local café and mock services…")
     stack.run("up", "--build", "-d", "--wait", "--wait-timeout", "180")
+    report("Seeding the demo café and running installation checks…")
     stack.run("exec", "-T", "web", "python", "manage.py", "seed_cafe_demo")
     stack.run("exec", "-T", "web", "python", "manage.py", "smoke_installation")
+    report("[OK] Local installation checks passed.")
     origin = app["PUBLIC_URL"].rstrip("/")
     print(f"\nDashboard: {origin}/accounts/login/\nUsername: demo-owner\n"
           f"Password: DEMO_OWNER_PASSWORD in {stack.path.name} (existing accounts keep their password)\n"
@@ -196,29 +401,83 @@ def run_demo(stack, config):
     print("Read the report's execution status and evaluation verdict; completion alone is not a pass.")
 
 
-def deploy(stack):
-    print("Building production images…", flush=True)
+def deploy(stack, config):
+    report("Building production images…")
     stack.run("build")
+    report("Starting database and Redis…")
     stack.run("up", "-d", "--wait", "db", "redis")
     # Stop application traffic/writers before migrations on repeat deployments.
     stack.run("stop", "nginx", "web", "celery_worker", "celery_beat")
+    report("Running migrations, collecting static files and auditing tenant ownership…")
     stack.run("run", "--rm", "--no-deps", "init")
+    # A failed initial port bind can leave an old proxy without a network endpoint.
+    # It has no writable application state; recreate it through the normal gate.
+    report("Replacing the stopped Nginx container to refresh its network and port mappings…")
+    stack.run("rm", "-f", "-s", "nginx")
+    report("Starting production services…")
     subprocess.run(["bash", str(ROOT / "scripts/start_production.sh"),
                     "--wait", "--wait-timeout", "180"], cwd=ROOT, env=stack.env, check=True)
-    print("Production services are running. Create the operator account:", flush=True)
-    import shlex
-    print(shlex.join(["env", f"APP_ENV_FILE={stack.path}", f"APP_IMAGE={stack.env['APP_IMAGE']}",
-                      *stack.command, "exec", "web", "python", "manage.py", "createsuperuser"]))
-    print("Then create and configure your restaurant. No demo tenant or mock services were installed.")
+    verify_https(stack, config)
+    report("Production HTTPS is ready.")
+
+
+def operator_account(stack, interactive):
+    """Offer Django's own account wizard without handling or logging passwords."""
+    command = shlex.join(["env", f"APP_ENV_FILE={stack.path}", f"APP_IMAGE={stack.env['APP_IMAGE']}",
+                          *stack.command, "exec", "web", "python", "manage.py", "createsuperuser"])
+
+    def later(message):
+        report(message + " HTTPS services remain running.")
+        report("Create an administrator later from the checkout with:\n" + command)
+
+    report("Checking for an active administrator account…")
+    query = ("from django.contrib.auth import get_user_model; "
+             "print('SETUP_OPERATOR_EXISTS=' + str(int(get_user_model().objects.filter("
+             "is_superuser=True, is_active=True).exists())))")
+    try:
+        result = stack.run("exec", "-T", "web", "python", "manage.py", "shell", "-c", query,
+                           capture=True, check=False)
+        markers = set(result.stdout.splitlines())
+        if result.returncode or not markers.intersection({"SETUP_OPERATOR_EXISTS=0", "SETUP_OPERATOR_EXISTS=1"}):
+            later("Could not check administrator accounts.")
+            return
+        if "SETUP_OPERATOR_EXISTS=1" in markers:
+            report("[OK] An active administrator already exists. Sign in with your existing account.")
+            return
+        if not interactive:
+            later("No active administrator exists; account creation needs an interactive terminal.")
+            return
+        while True:
+            answer = input("Create your administrator account now? [Y/n]: ").strip().lower()
+            if answer in {"", "y", "yes"}:
+                break
+            if answer in {"n", "no"}:
+                later("Administrator creation skipped.")
+                return
+            print("Enter Y to create an account or N to do this later.")
+        report("Enter the username, email and password in Django's account wizard.")
+        # Inherit the terminal. Django validates credentials and hides password input.
+        result = stack.run("exec", "web", "python", "manage.py", "createsuperuser", check=False)
+        if result.returncode:
+            later("Administrator creation did not complete.")
+        else:
+            report("[OK] Administrator account created.")
+    except (KeyboardInterrupt, EOFError):
+        later("Administrator creation cancelled.")
 
 
 def main(argv=None):
+    global LOG_PATH
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", nargs="?", choices=("local", "demo", "production"), default="local")
     parser.add_argument("--env-file", type=Path, help="Existing configuration, or a new file to generate")
     parser.add_argument("--project-name", help="Stable Compose project name; changing it selects new volumes")
     parser.add_argument("--no-input", action="store_true", help="Do not prompt; generate local credentials")
-    parser.add_argument("--configure-only", action="store_true", help="Create configuration without starting services")
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument("--configure-only", action="store_true", help="Create configuration without starting services")
+    action.add_argument("--check", action="store_true", help="Check existing configuration and prerequisites without changing services")
+    parser.add_argument("--log-file", type=Path, default=ROOT / "setup.log",
+                        help="Setup progress and checks (default: setup.log; excludes application logs and secrets)")
     parser.add_argument("--allow-live-chat", action="store_true", help="Allow paid model calls for the mock-service demo")
     parser.add_argument("--config", default="evaluate/configs/smoke.json", help="Demo evaluation preset")
     args = parser.parse_args(argv)
@@ -228,14 +487,36 @@ def main(argv=None):
     project = args.project_name or ("shop-assistant-production" if production else "shop-assistant-demo")
     if args.mode == "demo" and not args.allow_live_chat:
         parser.error("demo requires --allow-live-chat: commerce is mocked, but model calls incur API usage")
-    configure(path, production, not args.no_input and sys.stdin.isatty())
+    log_path = args.log_file.expanduser().resolve()
+    descriptor = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    os.close(descriptor)
+    LOG_PATH = log_path
+    report(f"Setup mode: {args.mode}. Configuration: {path.name}. Project: {project}.")
+    report(f"Setup log: {LOG_PATH} (checks and progress; application logs stay in Docker).")
+    if not production:
+        report("Local/demo setup uses loopback ports and mock services. For a public VPS use: python3 scripts/setup.py production")
+    if args.check and not path.exists():
+        fail(f"Create {path.name} first with: python3 scripts/setup.py {args.mode} --configure-only")
+    if not args.check:
+        configure(path, production, not args.no_input and sys.stdin.isatty())
     if args.configure_only:
+        if production:
+            report("Next: point DNS to this server, free the published ports, and create TLS certificates. "
+                   "Follow docs/operations/production.md, then run production --check.")
         return 0
+    report("Checking Docker Engine and Compose…")
     check_docker()
     stack = Stack(path, project, production)
-    app = validate(stack.configuration(), production)
+    config = stack.configuration()
+    app = preflight(stack, config, production)
+    if args.check:
+        return 0
     if production:
-        deploy(stack)
+        deploy(stack, config)
+        operator_account(stack, interactive=not args.no_input and sys.stdin.isatty())
+        report(f"Dashboard: {app['PUBLIC_URL'].rstrip('/')}/accounts/login/")
+        report("Create and configure your restaurant, then complete certificate renewal setup "
+               "in docs/operations/production.md#renewal.")
     else:
         if args.mode == "demo" and not app.get("OPENAI_API_KEY"):
             fail(f"Add OPENAI_API_KEY to {path.name} before running the end-to-end demo.")
@@ -249,11 +530,16 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except (ValueError, OSError) as exc:
-        print(f"Setup stopped: {exc}", file=sys.stderr)
+        report(f"Setup stopped: {exc}", error=True)
         raise SystemExit(1)
     except subprocess.CalledProcessError as exc:
-        print(f"Setup stopped: a command failed (exit {exc.returncode}). Fix the reported error and rerun; volumes are preserved.", file=sys.stderr)
+        report(f"Setup stopped: a command failed (exit {exc.returncode}). "
+               "See the command output above and docs/operations/production.md#troubleshooting. "
+               "Fix the reported error and rerun; volumes are preserved.", error=True)
         raise SystemExit(exc.returncode)
+    except subprocess.TimeoutExpired:
+        report("Setup stopped: a prerequisite or HTTPS check timed out. Check networking and rerun.", error=True)
+        raise SystemExit(1)
     except (KeyboardInterrupt, EOFError):
-        print("\nSetup cancelled. Existing configuration and volumes are preserved.", file=sys.stderr)
+        report("\nSetup cancelled. Existing configuration and volumes are preserved.", error=True)
         raise SystemExit(130)

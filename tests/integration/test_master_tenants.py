@@ -56,7 +56,9 @@ class MasterTenantTests(TestCase):
         self.assertContains(response, f'action="{self.active_url}"')
         self.assertContains(response, 'name="username"')
         self.assertContains(response, 'name="whatsapp_number"')
-        self.assertContains(response, 'name="telegram_chat_id"')
+        self.assertContains(response, 'Telegram Bot Token:')
+        self.assertContains(response, 'name="telegram_bot_token"')
+        self.assertNotContains(response, 'name="telegram_chat_id"')
         self.assertContains(response, 'name="address"')
         self.assertContains(response, '<th scope="col">Address</th>')
         self.assertContains(response, '<span class="muted">—</span>')
@@ -184,13 +186,24 @@ class MasterTenantTests(TestCase):
 
     def test_master_can_attach_channels_before_approval(self):
         response = self.client.post(self.create_url, {
-            **self.data, 'whatsapp_number': ' +15551234567 ', 'telegram_chat_id': ' -10012345 ',
+            **self.data, 'whatsapp_number': ' +15551234567 ', 'telegram_bot_token': ' 123456:test-bot-token ',
         })
         self.assertRedirects(response, self.tenants_url)
         tenant = TenantInfo.objects.get(display_name=self.data['business_name'])
         self.assertEqual(tenant.whatsapp_number, '+15551234567')
-        self.assertEqual(tenant.telegram_chat_id, '-10012345')
+        self.assertEqual(tenant.telegram_bot_token, '123456:test-bot-token')
+        self.assertFalse(tenant.telegram_chat_id)
         self.assertEqual(tenant.approval_status, 'PENDING')
+
+    def test_duplicate_bot_token_shows_error_without_creating_an_account(self):
+        token = '123456:existing-test-bot'
+        self.tenant.telegram_bot_token = token
+        self.tenant.save(update_fields=['telegram_bot_token'])
+        response = self.client.post(self.create_url, {**self.data, 'telegram_bot_token': token})
+        self.assertContains(response, 'This Telegram bot token is already in use.')
+        self.assertNotContains(response, token)
+        self.assertEqual(get_user_model().objects.count(), 2)
+        self.assertEqual(TenantInfo.objects.count(), 1)
 
     def test_optional_address_is_stored_and_wraps_in_the_tenant_list(self):
         long_address = '12 Example Road, ' * 12
@@ -515,6 +528,8 @@ class TenantAddressSettingsTests(TestCase):
         self.assertIn('name="street_address_1"', contact)
         self.assertNotIn('name="telegram_bot_token"', contact)
         self.assertIn('name="telegram_bot_token"', integrations)
+        self.assertNotContains(response, 'name="telegram_chat_id"')
+        self.assertIn('Paste your token from BotFather. Saving registers the Telegram webhook.', integrations)
         self.assertNotIn('name="geocoding_provider"', integrations)
         self.assertNotIn('name="geocoding_provider"', contact)
         self.assertIn('/commerce/settings/', checkout)
@@ -582,7 +597,7 @@ class TenantAddressSettingsTests(TestCase):
             webhook.return_value.ok = True
             webhook.return_value.json.return_value = {'ok': True}
             response = self.client.post(self.url, {
-                'section': 'integrations', 'telegram_chat_id': 'new-chat',
+                'section': 'integrations',
                 'telegram_bot_token': 'new-token', 'address': 'ignored',
             })
         self.assertRedirects(response, f'{self.url}?tab=integrations')
@@ -590,13 +605,14 @@ class TenantAddressSettingsTests(TestCase):
         self.tenant.refresh_from_db()
         self.assertEqual(self.tenant.address, 'New address, Kolkata, West Bengal, India, 700016')
         self.assertEqual(self.tenant.whatsapp_number, '+15551234567')
-        self.assertEqual(self.tenant.telegram_chat_id, 'new-chat')
+        self.assertEqual(self.tenant.telegram_chat_id, 'old-chat')
         self.assertEqual(self.tenant.telegram_bot_token, 'new-token')
 
         response = self.client.post(self.url, {'section': 'integrations', 'telegram_chat_id': '', 'telegram_bot_token': ''})
         self.assertRedirects(response, f'{self.url}?tab=integrations')
         self.tenant.refresh_from_db()
         self.assertEqual(self.tenant.telegram_bot_token, '')
+        self.assertEqual(self.tenant.telegram_chat_id, 'old-chat')
         self.assertEqual(self.tenant.address, 'New address, Kolkata, West Bengal, India, 700016')
 
     def test_legacy_blank_and_overlong_addresses_cannot_bypass_validation(self):

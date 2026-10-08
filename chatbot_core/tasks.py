@@ -1,11 +1,10 @@
 from evaluate.controls.celery import EvaluationTask
 import os
-from celery import shared_task, signals
+from celery import shared_task
 import json, redis, logging
 from django.conf import settings
 import numpy as np
 from chatbot_core.vector_store.faiss_index import rebuild_faiss_from_db
-from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -80,18 +79,11 @@ def drain_user_queue_task(self, tenant_id, user_id, platform=None):
         if getattr(lock, "owned", None) and lock.owned():
             lock.release()
 
-@lru_cache(maxsize=1)
-def _model():
-    from chatbot_core.vector_store.embeddings import get_sbert_model
-    return get_sbert_model()
-
-@signals.worker_process_init.connect
-def _warm_model(**kwargs):
-    _model()   # load at process start
-
-@shared_task(base=EvaluationTask, name="chatbot_core.embed_text", expires=15, soft_time_limit=10)
+@shared_task(base=EvaluationTask, name="chatbot_core.embed_text", expires=15)
 def embed_text(q: str) -> list[float]:
-    model = _model()
+    # The first request also loads the model; use the normal task time limits.
+    from chatbot_core.vector_store.embeddings import get_sbert_model
+    model = get_sbert_model()
     vec = model.encode([q])[0].astype("float32")
     n = np.linalg.norm(vec)
     if n > 0:

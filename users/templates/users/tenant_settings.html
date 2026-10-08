@@ -115,16 +115,12 @@
         <input type="hidden" name="section" value="integrations">
         <fieldset>
             <legend>Telegram</legend>
-            <p>Saving a bot token registers the Telegram webhook.</p>
-            <label for="telegram_chat_id">Telegram Chat ID:</label>
-            <input type="text" id="telegram_chat_id" name="telegram_chat_id"
-                   value="{{ tenant.telegram_chat_id|default_if_none:'' }}" placeholder="12345678"
-                   class="form-group">
-
             <label for="telegram_bot_token">Telegram Bot Token:</label>
             <input type="text" id="telegram_bot_token" name="telegram_bot_token"
                    value="{{ tenant.telegram_bot_token|default_if_none:'' }}" placeholder="e.g. 123456:ABC-DEF..."
+                   aria-describedby="telegram_bot_token_help"
                    class="form-group">
+            <p id="telegram_bot_token_help">Paste your token from BotFather. Saving registers the Telegram webhook.</p>
         </fieldset>
         <button type="submit">Save Telegram settings</button>
     </form>

@@ -1,0 +1,20 @@
+{
+  "variant_name": "QA standard",
+  "quantity_per_variant": 1000,
+  "public_stock_fact": false,
+  "default_modes": [
+    "pickup"
+  ],
+  "payment_connections": {
+    "payment": [
+      "payment.create",
+      "payment.reconcile"
+    ],
+    "pos": [
+      "order.submit",
+      "order.reconcile"
+    ]
+  },
+  "contact": "QA Guest / 0000000000, synthetic, no notifications",
+  "coverage_and_fees_public_fact": false
+}

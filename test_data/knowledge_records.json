@@ -2,6 +2,80 @@
   {
     "dtype": "knowledge",
     "intent": "information_about_the_cafe",
+    "sub_intent": "about_the_brand",
+    "payload": {
+      "brand_name": "Dach & Nona",
+      "legal_entity": "Subira Desserts Private Limited",
+      "website": "https://www.dachnona.com/",
+      "business_type": "Craft ice creams and desserts",
+      "founder_names": null,
+      "founding_date": null,
+      "note": "The published story gives an equipment milestone, not a verified incorporation date.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/",
+        "https://www.dachnona.com/about-3"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "information_about_the_cafe",
+    "sub_intent": "amenities",
+    "payload": {
+      "wifi": {
+        "available": null,
+        "password": null
+      },
+      "parking": null,
+      "pet_friendly": null,
+      "wheelchair_accessible": null,
+      "outdoor_seating": null,
+      "note": "These amenities were not verified in the reviewed sources. Ask the cafe instead of treating unknown as unavailable.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/contact-10"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "information_about_the_cafe",
+    "sub_intent": "brand_story",
+    "payload": {
+      "summary": "A family-inspired ice cream and dessert business focused on ingredient transparency. Its published story describes getting an ice cream machine in June 2024.",
+      "mission_summary": "Make desserts with straightforward ingredients and earn families’ trust.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/about-3"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "information_about_the_cafe",
+    "sub_intent": "events_and_tours",
+    "payload": {
+      "factory_visit": {
+        "name": "Ice Cream Factory Visit and Tasting",
+        "booking_link": "https://www.dachnona.com/book-online",
+        "listed_price": 1000,
+        "currency": "INR",
+        "price_basis": null,
+        "duration_minutes": null,
+        "available_slots": null,
+        "description": "A family-oriented factory experience with ingredient discovery and tasting.",
+        "booking_note": "Check the booking page or contact the cafe for dates, duration, capacity and whether the price is per person or booking."
+      },
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/book-online"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "information_about_the_cafe",
     "sub_intent": "location_and_hours",
     "payload": {
       "name": "Dach & Nona",
@@ -80,38 +154,6 @@
   {
     "dtype": "knowledge",
     "intent": "information_about_the_cafe",
-    "sub_intent": "brand_story",
-    "payload": {
-      "summary": "A family-inspired ice cream and dessert business focused on ingredient transparency. Its published story describes getting an ice cream machine in June 2024.",
-      "mission_summary": "Make desserts with straightforward ingredients and earn families’ trust.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/about-3"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "information_about_the_cafe",
-    "sub_intent": "about_the_brand",
-    "payload": {
-      "brand_name": "Dach & Nona",
-      "legal_entity": "Subira Desserts Private Limited",
-      "website": "https://www.dachnona.com/",
-      "business_type": "Craft ice creams and desserts",
-      "founder_names": null,
-      "founding_date": null,
-      "note": "The published story gives an equipment milestone, not a verified incorporation date.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/",
-        "https://www.dachnona.com/about-3"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "information_about_the_cafe",
     "sub_intent": "team_and_policy",
     "payload": {
       "brand_claims": {
@@ -139,43 +181,292 @@
   },
   {
     "dtype": "knowledge",
-    "intent": "information_about_the_cafe",
-    "sub_intent": "amenities",
+    "intent": "location_based",
+    "sub_intent": "verify_address_for_delivery",
     "payload": {
-      "wifi": {
-        "available": null,
-        "password": null
+      "typical_radius_km": {
+        "min": 5,
+        "max": 7
       },
-      "parking": null,
-      "pet_friendly": null,
-      "wheelchair_accessible": null,
-      "outdoor_seating": null,
-      "note": "These amenities were not verified in the reviewed sources. Ask the cafe instead of treating unknown as unavailable.",
+      "minimum_order_inr": 700,
+      "estimated_delivery_minutes": {
+        "min": 45,
+        "max": 60
+      },
+      "estimate_guaranteed": false,
+      "published_delivery_fees": [
+        {
+          "distance_km": "less than 8",
+          "fee_inr": 100
+        },
+        {
+          "distance_km": "8 to 15",
+          "fee_inr": 175
+        }
+      ],
+      "conflict_note": "The same policy describes a typical 5–7 km service radius but lists fees out to 15 km. These fee bands do not establish serviceability; confirm the address and current fee at checkout.",
       "as_of": "2026-09-27",
       "source_urls": [
-        "https://www.dachnona.com/contact-10"
+        "https://www.dachnona.com/english-shipping-policy"
       ]
     }
   },
   {
     "dtype": "knowledge",
-    "intent": "information_about_the_cafe",
-    "sub_intent": "events_and_tours",
+    "intent": "menu_items",
+    "sub_intent": "allergens",
     "payload": {
-      "factory_visit": {
-        "name": "Ice Cream Factory Visit and Tasting",
-        "booking_link": "https://www.dachnona.com/book-online",
-        "listed_price": 1000,
-        "currency": "INR",
-        "price_basis": null,
-        "duration_minutes": null,
-        "available_slots": null,
-        "description": "A family-oriented factory experience with ingredient discovery and tasting.",
-        "booking_note": "Check the booking page or contact the cafe for dates, duration, capacity and whether the price is per person or booking."
+      "explicitly_contains_eggs": [
+        "Tiramisu",
+        "Boston Cream Pie",
+        "Classic Lamington"
+      ],
+      "nut_ingredients_named": {
+        "Pistachio Ice Cream": [
+          "pistachio"
+        ],
+        "Dates Rose & Nuts": [
+          "nuts; types unspecified"
+        ]
       },
+      "complete_allergen_matrix": null,
+      "cross_contact_policy": null,
+      "note": "Ingredient mentions are incomplete. Absence from this list never means allergen-free. Contact the cafe for an item-specific check.",
       "as_of": "2026-09-27",
       "source_urls": [
-        "https://www.dachnona.com/book-online"
+        "https://www.dachnona.com/online-ordering"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "availability",
+    "payload": {
+      "live_stock_verified": false,
+      "note": "Being listed on the website does not establish current availability. No stock quantities were published.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ],
+      "listed_items": [
+        "Old Fashion Vanilla Ice Cream",
+        "Eggless Banoffee Ice Cream",
+        "Pistachio Ice Cream",
+        "Bean-to-Bar Chocolate Ice Cream",
+        "Rose Cardamom Ice Cream",
+        "Strawberry Cream Cheese Ice Cream",
+        "Coffee Mascarpone Ice Cream",
+        "Paan & Gulkand Ice Cream",
+        "Fig Orange Ice Cream",
+        "Sunshine Limone Ice Cream",
+        "Masala Chai Ice Cream",
+        "Eggless Chocolate Overload",
+        "Coconut and Pineapple",
+        "Tiramisu",
+        "Boston Cream Pie",
+        "Classic Lamington",
+        "New York Baked Cheesecake",
+        "Tres Leches",
+        "Brownie Cheesecake",
+        "Orange Chocolate Cheesecake",
+        "Fudgy Chocolate Brownie (2pcs)",
+        "Coffee Banana Cheesecake",
+        "Brownie With Vanilla Ice Cream & Fudge Sauce",
+        "Dates with Chocolates",
+        "Dates with Fig & Orange",
+        "Dates Rose & Nuts"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "dietary_preferences",
+    "payload": {
+      "explicitly_eggless": [
+        "Eggless Banoffee Ice Cream",
+        "Eggless Chocolate Overload",
+        "New York Baked Cheesecake",
+        "Tres Leches",
+        "Dates with Chocolates",
+        "Dates with Fig & Orange"
+      ],
+      "explicitly_contains_eggs": [
+        "Tiramisu",
+        "Boston Cream Pie",
+        "Classic Lamington"
+      ],
+      "dates_sweetened_no_added_sugar_claim": [
+        "Dates with Chocolates",
+        "Dates with Fig & Orange",
+        "Dates Rose & Nuts"
+      ],
+      "vegan_options": null,
+      "gluten_free_options": null,
+      "nut_free_options": null,
+      "note": "Only explicit item claims are included. Unlisted items have unknown egg status. No-added-sugar is not a sugar-free claim. Confirm dietary requirements with staff.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "explore_options",
+    "payload": {
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ],
+      "categories": {
+        "Comfort Classics Ice Creams": [
+          "Old Fashion Vanilla Ice Cream",
+          "Eggless Banoffee Ice Cream",
+          "Pistachio Ice Cream"
+        ],
+        "Dach & Nona Originals": [
+          "Bean-to-Bar Chocolate Ice Cream",
+          "Rose Cardamom Ice Cream",
+          "Strawberry Cream Cheese Ice Cream",
+          "Coffee Mascarpone Ice Cream",
+          "Paan & Gulkand Ice Cream"
+        ],
+        "The Curiosity Cabinet": [
+          "Fig Orange Ice Cream",
+          "Sunshine Limone Ice Cream",
+          "Masala Chai Ice Cream",
+          "Eggless Chocolate Overload",
+          "Coconut and Pineapple"
+        ],
+        "Desserts": [
+          "Tiramisu",
+          "Boston Cream Pie",
+          "Classic Lamington",
+          "New York Baked Cheesecake",
+          "Tres Leches",
+          "Brownie Cheesecake",
+          "Orange Chocolate Cheesecake",
+          "Fudgy Chocolate Brownie (2pcs)",
+          "Coffee Banana Cheesecake",
+          "Brownie With Vanilla Ice Cream & Fudge Sauce"
+        ],
+        "Dates Sweetened Ice Creams": [
+          "Dates with Chocolates",
+          "Dates with Fig & Orange",
+          "Dates Rose & Nuts"
+        ]
+      }
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "flavor_profile",
+    "payload": {
+      "status": "not_verified",
+      "note": "Use the named flavors in the catalog; detailed tasting profiles are not included in this fixture."
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "ingredients",
+    "payload": {
+      "examples_only": {
+        "Old Fashion Vanilla Ice Cream": [
+          "Madagascar vanilla"
+        ],
+        "Pistachio Ice Cream": [
+          "pistachios"
+        ],
+        "Coffee Mascarpone Ice Cream": [
+          "coffee",
+          "mascarpone"
+        ]
+      },
+      "complete_recipes": null,
+      "note": "Only selected ingredients mentioned in public descriptions; not full recipes or allergen lists.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "menu_category",
+    "payload": {
+      "Old Fashion Vanilla Ice Cream": "Comfort Classics Ice Creams",
+      "Eggless Banoffee Ice Cream": "Comfort Classics Ice Creams",
+      "Pistachio Ice Cream": "Comfort Classics Ice Creams",
+      "Bean-to-Bar Chocolate Ice Cream": "Dach & Nona Originals",
+      "Rose Cardamom Ice Cream": "Dach & Nona Originals",
+      "Strawberry Cream Cheese Ice Cream": "Dach & Nona Originals",
+      "Coffee Mascarpone Ice Cream": "Dach & Nona Originals",
+      "Paan & Gulkand Ice Cream": "Dach & Nona Originals",
+      "Fig Orange Ice Cream": "The Curiosity Cabinet",
+      "Sunshine Limone Ice Cream": "The Curiosity Cabinet",
+      "Masala Chai Ice Cream": "The Curiosity Cabinet",
+      "Eggless Chocolate Overload": "The Curiosity Cabinet",
+      "Coconut and Pineapple": "The Curiosity Cabinet",
+      "Tiramisu": "Desserts",
+      "Boston Cream Pie": "Desserts",
+      "Classic Lamington": "Desserts",
+      "New York Baked Cheesecake": "Desserts",
+      "Tres Leches": "Desserts",
+      "Brownie Cheesecake": "Desserts",
+      "Orange Chocolate Cheesecake": "Desserts",
+      "Fudgy Chocolate Brownie (2pcs)": "Desserts",
+      "Coffee Banana Cheesecake": "Desserts",
+      "Brownie With Vanilla Ice Cream & Fudge Sauce": "Desserts",
+      "Dates with Chocolates": "Dates Sweetened Ice Creams",
+      "Dates with Fig & Orange": "Dates Sweetened Ice Creams",
+      "Dates Rose & Nuts": "Dates Sweetened Ice Creams"
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "nutrition",
+    "payload": {
+      "status": "not_verified",
+      "note": "No verified calorie, macronutrient or sugar-per-serving table was found. Do not reuse estimated values from the older fixture."
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "pairings",
+    "payload": {
+      "status": "not_verified",
+      "note": "No verified official pairing recommendations were found."
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "portion_and_size",
+    "payload": {
+      "status": "not_verified",
+      "note": "Website listing prices were visible, but volume and weight variants were not. Do not infer scoop or tub volumes. The brownie listing explicitly names 2 pieces."
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
+    "sub_intent": "preparation",
+    "payload": {
+      "brand_process": [
+        "small-batch production",
+        "bean-to-bar chocolate"
+      ],
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/"
       ]
     }
   },
@@ -184,6 +475,11 @@
     "intent": "menu_items",
     "sub_intent": "pricing",
     "payload": {
+      "note": "Published website listing prices, not a quote or size-specific checkout catalog. Serving size, taxes and current checkout price were not verified.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ],
       "items": {
         "Old Fashion Vanilla Ice Cream": {
           "listed_price": 380,
@@ -315,269 +611,7 @@
           "currency": "INR",
           "size": null
         }
-      },
-      "note": "Published website listing prices, not a quote or size-specific checkout catalog. Serving size, taxes and current checkout price were not verified.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "menu_category",
-    "payload": {
-      "Old Fashion Vanilla Ice Cream": "Comfort Classics Ice Creams",
-      "Eggless Banoffee Ice Cream": "Comfort Classics Ice Creams",
-      "Pistachio Ice Cream": "Comfort Classics Ice Creams",
-      "Bean-to-Bar Chocolate Ice Cream": "Dach & Nona Originals",
-      "Rose Cardamom Ice Cream": "Dach & Nona Originals",
-      "Strawberry Cream Cheese Ice Cream": "Dach & Nona Originals",
-      "Coffee Mascarpone Ice Cream": "Dach & Nona Originals",
-      "Paan & Gulkand Ice Cream": "Dach & Nona Originals",
-      "Fig Orange Ice Cream": "The Curiosity Cabinet",
-      "Sunshine Limone Ice Cream": "The Curiosity Cabinet",
-      "Masala Chai Ice Cream": "The Curiosity Cabinet",
-      "Eggless Chocolate Overload": "The Curiosity Cabinet",
-      "Coconut and Pineapple": "The Curiosity Cabinet",
-      "Tiramisu": "Desserts",
-      "Boston Cream Pie": "Desserts",
-      "Classic Lamington": "Desserts",
-      "New York Baked Cheesecake": "Desserts",
-      "Tres Leches": "Desserts",
-      "Brownie Cheesecake": "Desserts",
-      "Orange Chocolate Cheesecake": "Desserts",
-      "Fudgy Chocolate Brownie (2pcs)": "Desserts",
-      "Coffee Banana Cheesecake": "Desserts",
-      "Brownie With Vanilla Ice Cream & Fudge Sauce": "Desserts",
-      "Dates with Chocolates": "Dates Sweetened Ice Creams",
-      "Dates with Fig & Orange": "Dates Sweetened Ice Creams",
-      "Dates Rose & Nuts": "Dates Sweetened Ice Creams"
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "explore_options",
-    "payload": {
-      "categories": {
-        "Comfort Classics Ice Creams": [
-          "Old Fashion Vanilla Ice Cream",
-          "Eggless Banoffee Ice Cream",
-          "Pistachio Ice Cream"
-        ],
-        "Dach & Nona Originals": [
-          "Bean-to-Bar Chocolate Ice Cream",
-          "Rose Cardamom Ice Cream",
-          "Strawberry Cream Cheese Ice Cream",
-          "Coffee Mascarpone Ice Cream",
-          "Paan & Gulkand Ice Cream"
-        ],
-        "The Curiosity Cabinet": [
-          "Fig Orange Ice Cream",
-          "Sunshine Limone Ice Cream",
-          "Masala Chai Ice Cream",
-          "Eggless Chocolate Overload",
-          "Coconut and Pineapple"
-        ],
-        "Desserts": [
-          "Tiramisu",
-          "Boston Cream Pie",
-          "Classic Lamington",
-          "New York Baked Cheesecake",
-          "Tres Leches",
-          "Brownie Cheesecake",
-          "Orange Chocolate Cheesecake",
-          "Fudgy Chocolate Brownie (2pcs)",
-          "Coffee Banana Cheesecake",
-          "Brownie With Vanilla Ice Cream & Fudge Sauce"
-        ],
-        "Dates Sweetened Ice Creams": [
-          "Dates with Chocolates",
-          "Dates with Fig & Orange",
-          "Dates Rose & Nuts"
-        ]
-      },
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "availability",
-    "payload": {
-      "listed_items": [
-        "Old Fashion Vanilla Ice Cream",
-        "Eggless Banoffee Ice Cream",
-        "Pistachio Ice Cream",
-        "Bean-to-Bar Chocolate Ice Cream",
-        "Rose Cardamom Ice Cream",
-        "Strawberry Cream Cheese Ice Cream",
-        "Coffee Mascarpone Ice Cream",
-        "Paan & Gulkand Ice Cream",
-        "Fig Orange Ice Cream",
-        "Sunshine Limone Ice Cream",
-        "Masala Chai Ice Cream",
-        "Eggless Chocolate Overload",
-        "Coconut and Pineapple",
-        "Tiramisu",
-        "Boston Cream Pie",
-        "Classic Lamington",
-        "New York Baked Cheesecake",
-        "Tres Leches",
-        "Brownie Cheesecake",
-        "Orange Chocolate Cheesecake",
-        "Fudgy Chocolate Brownie (2pcs)",
-        "Coffee Banana Cheesecake",
-        "Brownie With Vanilla Ice Cream & Fudge Sauce",
-        "Dates with Chocolates",
-        "Dates with Fig & Orange",
-        "Dates Rose & Nuts"
-      ],
-      "live_stock_verified": false,
-      "note": "Being listed on the website does not establish current availability. No stock quantities were published.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "dietary_preferences",
-    "payload": {
-      "explicitly_eggless": [
-        "Eggless Banoffee Ice Cream",
-        "Eggless Chocolate Overload",
-        "New York Baked Cheesecake",
-        "Tres Leches",
-        "Dates with Chocolates",
-        "Dates with Fig & Orange"
-      ],
-      "explicitly_contains_eggs": [
-        "Tiramisu",
-        "Boston Cream Pie",
-        "Classic Lamington"
-      ],
-      "dates_sweetened_no_added_sugar_claim": [
-        "Dates with Chocolates",
-        "Dates with Fig & Orange",
-        "Dates Rose & Nuts"
-      ],
-      "vegan_options": null,
-      "gluten_free_options": null,
-      "nut_free_options": null,
-      "note": "Only explicit item claims are included. Unlisted items have unknown egg status. No-added-sugar is not a sugar-free claim. Confirm dietary requirements with staff.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "allergens",
-    "payload": {
-      "explicitly_contains_eggs": [
-        "Tiramisu",
-        "Boston Cream Pie",
-        "Classic Lamington"
-      ],
-      "nut_ingredients_named": {
-        "Pistachio Ice Cream": [
-          "pistachio"
-        ],
-        "Dates Rose & Nuts": [
-          "nuts; types unspecified"
-        ]
-      },
-      "complete_allergen_matrix": null,
-      "cross_contact_policy": null,
-      "note": "Ingredient mentions are incomplete. Absence from this list never means allergen-free. Contact the cafe for an item-specific check.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "ingredients",
-    "payload": {
-      "examples_only": {
-        "Old Fashion Vanilla Ice Cream": [
-          "Madagascar vanilla"
-        ],
-        "Pistachio Ice Cream": [
-          "pistachios"
-        ],
-        "Coffee Mascarpone Ice Cream": [
-          "coffee",
-          "mascarpone"
-        ]
-      },
-      "complete_recipes": null,
-      "note": "Only selected ingredients mentioned in public descriptions; not full recipes or allergen lists.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "nutrition",
-    "payload": {
-      "status": "not_verified",
-      "note": "No verified calorie, macronutrient or sugar-per-serving table was found. Do not reuse estimated values from the older fixture."
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "portion_and_size",
-    "payload": {
-      "status": "not_verified",
-      "note": "Website listing prices were visible, but volume and weight variants were not. Do not infer scoop or tub volumes. The brownie listing explicitly names 2 pieces."
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "preparation",
-    "payload": {
-      "brand_process": [
-        "small-batch production",
-        "bean-to-bar chocolate"
-      ],
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "source_quality",
-    "payload": {
-      "published_suppliers": {
-        "milk": "Country Delight (A2 milk)",
-        "eggs": "Bajaj Eggs"
-      },
-      "note": "Published brand sourcing claims; not proof of every item’s recipe.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/"
-      ]
+      }
     }
   },
   {
@@ -610,109 +644,73 @@
   {
     "dtype": "knowledge",
     "intent": "menu_items",
+    "sub_intent": "source_quality",
+    "payload": {
+      "published_suppliers": {
+        "milk": "Country Delight (A2 milk)",
+        "eggs": "Bajaj Eggs"
+      },
+      "note": "Published brand sourcing claims; not proof of every item’s recipe.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "menu_items",
     "sub_intent": "specialty_items",
     "payload": {
       "category": "Dach & Nona Originals",
+      "note": "Official category, not a popularity ranking.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering"
+      ],
       "items": [
         "Bean-to-Bar Chocolate Ice Cream",
         "Rose Cardamom Ice Cream",
         "Strawberry Cream Cheese Ice Cream",
         "Coffee Mascarpone Ice Cream",
         "Paan & Gulkand Ice Cream"
-      ],
-      "note": "Official category, not a popularity ranking.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering"
       ]
     }
   },
   {
     "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "flavor_profile",
+    "intent": "order_enquiry",
+    "sub_intent": "address_or_contact_update",
     "payload": {
-      "status": "not_verified",
-      "note": "Use the named flavors in the catalog; detailed tasting profiles are not included in this fixture."
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "menu_items",
-    "sub_intent": "pairings",
-    "payload": {
-      "status": "not_verified",
-      "note": "No verified official pairing recommendations were found."
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "placing_order",
-    "sub_intent": "order_channels_and_modes",
-    "payload": {
-      "online_order_links": [
-        "https://order.dachnona.com/",
-        "https://www.dachnona.com/online-ordering"
-      ],
-      "website_pickup_listed": true,
-      "website_delivery_policy_published": true,
-      "pickup_address": "2173, Ramgarh Road, Sector 64, Gurugram, Haryana 122102, India",
-      "note": "The order subdomain is linked from the official website but its checkout could not be inspected.",
+      "guidance": "Contact support immediately. Changes may be unavailable after preparation or dispatch.",
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
       "as_of": "2026-09-27",
       "source_urls": [
-        "https://www.dachnona.com/online-ordering",
-        "https://www.dachnona.com/english-shipping-policy"
+        "https://www.dachnona.com/english-shipping-policy",
+        "https://www.dachnona.com/contact-10"
       ]
     }
   },
   {
     "dtype": "knowledge",
-    "intent": "placing_order",
-    "sub_intent": "how_to_order",
-    "payload": {
-      "steps": [
-        "Open the official ordering link.",
-        "Select items and any available options.",
-        "Select pickup or check delivery for your address.",
-        "Review current prices, fees and payment options before submitting."
-      ],
-      "note": "General testing guidance; checkout controls and availability were not verified.",
-      "ordering_url": "https://order.dachnona.com/",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/online-ordering",
-        "https://www.dachnona.com/english-shipping-policy"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "placing_order",
-    "sub_intent": "special_requests",
+    "intent": "order_enquiry",
+    "sub_intent": "delivery_problems",
     "payload": {
       "contact": {
         "cafe_phone": "+919220840600",
         "customer_care_phone": "+917428846234",
         "email": "info@dachnona.com"
       },
-      "note": "Refer the customer directly to the store. Do not collect details, save the request, change the basket or checkout, or promise staff can fulfill it.",
+      "guidance": "Ask support about delays or delivery issues. Published delivery times are estimates.",
       "as_of": "2026-09-27",
       "source_urls": [
+        "https://www.dachnona.com/english-shipping-policy",
         "https://www.dachnona.com/contact-10"
-      ],
-      "chatbot_supported": false,
-      "response": "Sorry, we cannot take special requests through the chatbot. Please contact the store directly for any special requests."
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "placing_order",
-    "sub_intent": "order_scheduling",
-    "payload": {
-      "status": "not_verified",
-      "note": "Refer the customer directly to the store. Do not collect details, save the request, change the basket or checkout, or promise staff can fulfill it.",
-      "chatbot_supported": false,
-      "response": "Sorry, we cannot schedule orders through the chatbot. Please contact the store directly to arrange a scheduled order."
+      ]
     }
   },
   {
@@ -765,24 +763,11 @@
   {
     "dtype": "knowledge",
     "intent": "order_enquiry",
-    "sub_intent": "order_status_tracking",
+    "sub_intent": "get_order_history",
     "payload": {
-      "contact": {
-        "cafe_phone": "+919220840600",
-        "customer_care_phone": "+917428846234",
-        "email": "info@dachnona.com"
-      },
-      "published_confirmation_channels": [
-        "SMS",
-        "WhatsApp"
-      ],
-      "live_order_status": null,
-      "note": "Use a real order record or contact support; this fixture cannot establish payment, dispatch or delivery.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/english-shipping-policy",
-        "https://www.dachnona.com/contact-10"
-      ]
+      "status": "requires_live_customer_data",
+      "orders": null,
+      "note": "No customer histories are included in public business knowledge."
     }
   },
   {
@@ -796,6 +781,29 @@
         "email": "info@dachnona.com"
       },
       "guidance": "Report the issue promptly; staff assess possible remedies.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/english-shipping-policy",
+        "https://www.dachnona.com/contact-10"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "order_enquiry",
+    "sub_intent": "order_status_tracking",
+    "payload": {
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "published_confirmation_channels": [
+        "SMS",
+        "WhatsApp"
+      ],
+      "live_order_status": null,
+      "note": "Use a real order record or contact support; this fixture cannot establish payment, dispatch or delivery.",
       "as_of": "2026-09-27",
       "source_urls": [
         "https://www.dachnona.com/english-shipping-policy",
@@ -827,80 +835,72 @@
   },
   {
     "dtype": "knowledge",
-    "intent": "order_enquiry",
-    "sub_intent": "address_or_contact_update",
+    "intent": "placing_order",
+    "sub_intent": "how_to_order",
     "payload": {
-      "guidance": "Contact support immediately. Changes may be unavailable after preparation or dispatch.",
-      "contact": {
-        "cafe_phone": "+919220840600",
-        "customer_care_phone": "+917428846234",
-        "email": "info@dachnona.com"
-      },
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/english-shipping-policy",
-        "https://www.dachnona.com/contact-10"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "order_enquiry",
-    "sub_intent": "delivery_problems",
-    "payload": {
-      "contact": {
-        "cafe_phone": "+919220840600",
-        "customer_care_phone": "+917428846234",
-        "email": "info@dachnona.com"
-      },
-      "guidance": "Ask support about delays or delivery issues. Published delivery times are estimates.",
-      "as_of": "2026-09-27",
-      "source_urls": [
-        "https://www.dachnona.com/english-shipping-policy",
-        "https://www.dachnona.com/contact-10"
-      ]
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "order_enquiry",
-    "sub_intent": "get_order_history",
-    "payload": {
-      "status": "requires_live_customer_data",
-      "orders": null,
-      "note": "No customer histories are included in public business knowledge."
-    }
-  },
-  {
-    "dtype": "knowledge",
-    "intent": "location_based",
-    "sub_intent": "verify_address_for_delivery",
-    "payload": {
-      "typical_radius_km": {
-        "min": 5,
-        "max": 7
-      },
-      "minimum_order_inr": 700,
-      "estimated_delivery_minutes": {
-        "min": 45,
-        "max": 60
-      },
-      "estimate_guaranteed": false,
-      "published_delivery_fees": [
-        {
-          "distance_km": "less than 8",
-          "fee_inr": 100
-        },
-        {
-          "distance_km": "8 to 15",
-          "fee_inr": 175
-        }
+      "steps": [
+        "Open the official ordering link.",
+        "Select items and any available options.",
+        "Select pickup or check delivery for your address.",
+        "Review current prices, fees and payment options before submitting."
       ],
-      "conflict_note": "The same policy describes a typical 5–7 km service radius but lists fees out to 15 km. These fee bands do not establish serviceability; confirm the address and current fee at checkout.",
+      "note": "General testing guidance; checkout controls and availability were not verified.",
+      "ordering_url": "https://order.dachnona.com/",
       "as_of": "2026-09-27",
       "source_urls": [
+        "https://www.dachnona.com/online-ordering",
         "https://www.dachnona.com/english-shipping-policy"
       ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "placing_order",
+    "sub_intent": "order_channels_and_modes",
+    "payload": {
+      "online_order_links": [
+        "https://order.dachnona.com/",
+        "https://www.dachnona.com/online-ordering"
+      ],
+      "website_pickup_listed": true,
+      "website_delivery_policy_published": true,
+      "pickup_address": "2173, Ramgarh Road, Sector 64, Gurugram, Haryana 122102, India",
+      "note": "The order subdomain is linked from the official website but its checkout could not be inspected.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/online-ordering",
+        "https://www.dachnona.com/english-shipping-policy"
+      ]
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "placing_order",
+    "sub_intent": "order_scheduling",
+    "payload": {
+      "status": "not_verified",
+      "note": "Refer the customer directly to the store. Do not collect details, save the request, change the basket or checkout, or promise staff can fulfill it.",
+      "chatbot_supported": false,
+      "response": "Sorry, we cannot schedule orders through the chatbot. Please contact the store directly to arrange a scheduled order."
+    }
+  },
+  {
+    "dtype": "knowledge",
+    "intent": "placing_order",
+    "sub_intent": "special_requests",
+    "payload": {
+      "contact": {
+        "cafe_phone": "+919220840600",
+        "customer_care_phone": "+917428846234",
+        "email": "info@dachnona.com"
+      },
+      "note": "Refer the customer directly to the store. Do not collect details, save the request, change the basket or checkout, or promise staff can fulfill it.",
+      "as_of": "2026-09-27",
+      "source_urls": [
+        "https://www.dachnona.com/contact-10"
+      ],
+      "chatbot_supported": false,
+      "response": "Sorry, we cannot take special requests through the chatbot. Please contact the store directly for any special requests."
     }
   }
 ]

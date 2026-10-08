@@ -2,7 +2,6 @@
 
 from copy import deepcopy
 from decimal import Decimal
-import json
 from pathlib import Path
 from uuid import uuid4
 
@@ -16,36 +15,46 @@ from chatbot_core.runtime_configuration import publish_configuration
 from chatbot_core.scope import session_identity
 from orders import models as om
 from commerce import models as cm
-from commerce.policy import evaluation_policy
 from orders.checkout_config import CheckoutPolicy
 from evaluate.contracts.interfaces import Blocked, Lease
 from evaluate.identity import canonical_hash
-from evaluate.datasets.loader import classification_documents, DatasetError
+from evaluate.datasets.loader import read_json, contained
+from chatbot_core.configuration_files import CONFIGURATION_FILES, knowledge_exports
+from chatbot_core.configuration_imports import import_configuration, import_checkout
 from evaluate.fixtures.definitions import ADDRESS_CASES, address
 from evaluate.fixtures.capabilities import attest_publication, required_routes
 
 OWNER_KEY = 'evaluation_owned_v1'
-STOCK_QUANTITY = 1000
 FOREIGN_ADDRESS_ID = '11111111-1111-4111-8111-111111111111'
 
 
-def checkout_policy(setup):
-    modes = {}
-    for mode in setup.modes if setup.modes is not None else ['pickup']:
-        delivery = mode == 'delivery'
-        modes[mode] = dict(
-            required_fields=(setup.required_delivery if setup.required_delivery is not None else ['name', 'phone', 'address', 'postal_code']) if delivery else
-                            ['name', 'phone', 'table_id'] if mode == 'dine_in' else (setup.required_pickup if setup.required_pickup is not None else ['name', 'phone']),
-            payment_methods=['cash'] if mode == 'dine_in' else (setup.payment_methods if setup.payment_methods is not None else ['cash']),
-            preparation_minutes=setup.preparation_minutes if setup.preparation_minutes is not None else 30,
-            scheduling_enabled=bool(setup.scheduling) if mode == 'pickup' else False,
-            max_advance_days=setup.horizon_days if setup.horizon_days is not None else 7,
-            minimum_order=str(Decimal((setup.delivery_minimum_minor if delivery else setup.pickup_minimum_minor) or 0) / 100),
-            fee=str(Decimal((setup.delivery_fee_minor if delivery else setup.pickup_fee_minor) or 0) / 100))
-    return CheckoutPolicy(modes=modes,
-        opening_hours={str(day): [['12:00', '23:30']] for day in range(1, 7)},
-        delivery_postal_codes=setup.allowed_postal_codes or [],
-        online_provider='adapter' if setup.payment == 'fake_adapter' else '').model_dump(mode='json')
+def checkout_policy(setup, root=None):
+    root = Path(root) if root is not None else Path(__file__).resolve().parents[2] / 'test_data'
+    config = read_json(contained(root, CONFIGURATION_FILES['checkout']))
+    assumptions = read_json(contained(root, 'evaluation_setup.json'))
+    modes = setup.modes if setup.modes is not None else assumptions['default_modes']
+    config['modes'] = {mode: deepcopy(config['modes'][mode]) for mode in modes}
+    for mode, policy in config['modes'].items():
+        required = setup.required_delivery if mode == 'delivery' else setup.required_pickup if mode == 'pickup' else None
+        if required is not None:
+            policy['required_fields'] = required
+        if setup.payment_methods is not None and mode != 'dine_in':
+            policy['payment_methods'] = setup.payment_methods
+        for field, value in (('preparation_minutes', setup.preparation_minutes),
+                             ('max_advance_days', setup.horizon_days)):
+            if value is not None:
+                policy[field] = value
+        if setup.scheduling is not None and mode == 'pickup':
+            policy['scheduling_enabled'] = setup.scheduling
+        for field, value in (('minimum_order', setup.delivery_minimum_minor if mode == 'delivery' else setup.pickup_minimum_minor),
+                             ('fee', setup.delivery_fee_minor if mode == 'delivery' else setup.pickup_fee_minor)):
+            if value is not None:
+                policy[field] = str(Decimal(value) / 100)
+    if setup.allowed_postal_codes is not None:
+        config['delivery_postal_codes'] = setup.allowed_postal_codes
+    if setup.payment == 'fake_adapter':
+        config['online_provider'] = 'adapter'
+    return CheckoutPolicy.model_validate(config).model_dump(mode='json')
 
 
 class DjangoProvisioner:
@@ -107,44 +116,37 @@ class DjangoProvisioner:
                 owner['maps'] = {'tenant': str(tenant.pk), 'customer:active': str(customer.pk),
                                  'session:active': str(chat.pk), 'catalog': {}, 'addresses': {},
                                  'connections': {}, 'orders': {}, 'categories': {}, 'stock': {}, 'knowledge': {}}
-                if scenario.setup.catalog == 'published_synthetic':
-                    menu = json.loads((Path(config.dataset_directory) / '02_menu_knowledge.json').read_text())['menu_items']
-                    categories = {}
-                    for name, row in menu['pricing']['items'].items():
-                        category = menu['menu_category'][name]
-                        if category not in categories:
-                            categories[category] = om.MenuCategory.objects.create(tenant=tenant, name=category)
-                            owner['maps']['categories'][category] = str(categories[category].pk)
-                        price = Decimal(str(row['listed_price']))
-                        if row['currency'] != 'INR' or not price.is_finite() or price < 0:
-                            raise Blocked('Invalid catalog currency or price')
-                        item = om.MenuItem.objects.create(tenant=tenant, category_fk=categories[category],
-                            name=name, quantity=0, is_available=True,
-                            description='Synthetic evaluation catalog; serving size and live inventory unverified.',
-                            meta={'evaluation_synthetic': True})
-                        variant = om.MenuItemVariant.objects.create(menu_item=item, size='QA standard', price=price,
-                            is_available=True, aliases=[], volume_ml=None, weight_grams=None)
-                        owner['maps']['catalog'][name] = {'item': str(item.pk), 'variant': str(variant.pk)}
-                # Every evaluation tenant gets the deterministic ordering caps.
-                # Adapter connections and stock stay limited to the fake-adapter profile.
-                location = cm.Location.objects.create(tenant=tenant, code='evaluation', name=slug)
+                root = Path(config.dataset_directory)
+                assumptions = read_json(contained(root, 'evaluation_setup.json'))
+                commerce = self.import_configuration(tenant, root,
+                    catalog=scenario.setup.catalog == 'published_synthetic')
+                for item in om.MenuItem.objects.filter(tenant=tenant).select_related('category_fk').prefetch_related('variants'):
+                    variants = list(item.variants.all())
+                    label = scenario.setup.variant_name or assumptions['variant_name']
+                    variant = next((v for v in variants if v.size == label), None)
+                    if variant is None:
+                        raise Blocked('Declared scenario variant is absent from the canonical catalog')
+                    owner['maps']['catalog'][item.name] = {'item': str(item.pk), 'variant': str(variant.pk)}
+                    if item.category_fk:
+                        owner['maps']['categories'][item.category_fk.name] = str(item.category_fk_id)
+                location = commerce.location
                 commerce_enabled = scenario.setup.payment == 'fake_adapter'
-                commerce = cm.Configuration.objects.create(tenant=tenant, location=location, enabled=commerce_enabled,
-                    policy=evaluation_policy())
+                commerce.enabled = commerce_enabled
+                commerce.save(update_fields=['enabled'])
                 owner['maps'].update(location=str(location.pk), commerce_configuration=str(commerce.pk))
                 if commerce_enabled:
-                    for role, capabilities in [('payment', ['payment.create', 'payment.reconcile']),
-                                               ('pos', ['order.submit', 'order.reconcile'])]:
+                    for role, capabilities in assumptions['payment_connections'].items():
                         connection = cm.Connection.objects.create(location=location, role=role, provider='custom',
                             account_id=str(uuid4()), environment='test', active=True,
                             secret_ref='managed:' + uuid4().hex, capabilities=capabilities,
                             metadata={'evaluation_owned': lease.handle})
                         owner['maps']['connections'][role] = str(connection.pk)
+                if scenario.setup.stock == 'finite_local':
                     for name, ids in owner['maps']['catalog'].items():
                         stock = cm.StockItem.objects.create(location=location, variant_id=ids['variant'],
-                            mode='quantity', on_hand=STOCK_QUANTITY, observed_at=timezone.now())
+                            mode='quantity', on_hand=assumptions['quantity_per_variant'], observed_at=timezone.now())
                         owner['maps']['stock'][name] = str(stock.pk)
-                settings = om.CheckoutSettings.objects.create(tenant=tenant, configuration=checkout_policy(scenario.setup))
+                settings = import_checkout(tenant, checkout_policy(scenario.setup, root))
                 owner['maps']['checkout_settings'] = str(settings.pk)
                 pins = set(scenario.setup.allowed_postal_codes or [])
                 if scenario.setup.address_lookup == 'complete_supplied_only':
@@ -158,12 +160,13 @@ class DjangoProvisioner:
                     'geocoding': 'success' if scenario.setup.address_lookup == 'complete_supplied_only' else 'unavailable',
                     'reverse_geocoding': 'unavailable', 'classification': 'success'}
                 owner['assumptions'] = {
-                    'variant': 'QA standard; deliberately overrides mock Standard (test); not a serving size',
+                    'variant': assumptions['variant_name'],
+                    'scenario_overrides': scenario.setup.model_dump(exclude_none=True),
                     'stock': {'kind': scenario.setup.stock or 'none',
-                              'quantity_per_variant': STOCK_QUANTITY if scenario.setup.stock == 'finite_local' else None,
-                              'public_fact': False},
-                    'contact': 'QA Guest / 0000000000, synthetic, no notifications',
-                    'coverage_and_fees_public_fact': False,
+                              'quantity_per_variant': assumptions['quantity_per_variant'] if scenario.setup.stock == 'finite_local' else None,
+                              'public_fact': assumptions['public_stock_fact']},
+                    'contact': assumptions['contact'],
+                    'coverage_and_fees_public_fact': assumptions['coverage_and_fees_public_fact'],
                 }
                 self.save_owner(tenant, owner)
                 owner['capabilities'] = self.publish(tenant, scenario, Path(config.dataset_directory))
@@ -185,28 +188,27 @@ class DjangoProvisioner:
         tenant.save(update_fields=['meta'])
 
     @staticmethod
+    @transaction.atomic
+    def import_configuration(tenant, root, *, catalog=True):
+        root = Path(root)
+        exports = knowledge_exports(root)
+        for filename, generated in exports.items():
+            if read_json(contained(root, filename)) != generated:
+                raise Blocked(f'Derived knowledge is stale: {filename}')
+        commerce = import_configuration(tenant, 'commerce_policy',
+            contained(root, CONFIGURATION_FILES['commerce_policy']).read_text())
+        if catalog:
+            import_configuration(tenant, 'catalog', contained(root, CONFIGURATION_FILES['catalog']).read_text())
+        import_configuration(tenant, 'knowledge', exports['knowledge_base.json'])
+        for kind in ('intent_classification', 'response_intents', 'checkout'):
+            import_configuration(tenant, kind, contained(root, CONFIGURATION_FILES[kind]).read_text())
+        return commerce
+
+    @staticmethod
     def publish(tenant, scenario, root):
-        knowledge = {}
-        for filename in scenario.setup_inputs:
-            path = (root / filename).resolve()
-            if not path.is_relative_to(root.resolve()):
-                raise Blocked('Knowledge input escapes dataset root')
-            for intent, topics in json.loads(path.read_text()).items():
-                for topic, payload in topics.items():
-                    if (intent, topic) in knowledge:
-                        raise Blocked('Duplicate knowledge input')
-                    knowledge[intent, topic] = payload
-                    TenantJSONDoc.objects.create(tenant=tenant, dtype='knowledge', intent=intent, sub_intent=topic, payload=payload)
+        knowledge = set(TenantJSONDoc.objects.filter(tenant=tenant, dtype='knowledge')
+                        .values_list('intent', 'sub_intent'))
         routes = required_routes(scenario, knowledge)
-        try:
-            classifications = classification_documents(root, routes)
-        except DatasetError as exc:
-            raise Blocked(f'Fixture classification invalid: {exc}') from exc
-        for document in classifications:
-            TenantJSONDoc.objects.create(tenant=tenant, **document)
-            TenantJSONDoc.objects.create(tenant=tenant, dtype='response_intents',
-                intent=document['intent'], sub_intent=document['sub_intent'],
-                payload='Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.')
         try:
             publication = publish_configuration(tenant.pk, expected_version=0)
         except ValidationError as exc:

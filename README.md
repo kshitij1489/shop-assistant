@@ -18,7 +18,7 @@ Built for **developers and agencies creating restaurant chatbots**.
 - **Commerce connections:** integrate external menus, payments, and POS systems through adapters.
 - **A local playground:** get started with Docker, sample café data, and payment/POS simulators.
 
-## Quick setup
+## Local quick setup
 
 Install **Docker with Compose v2** and **Python 3.10+**, then run:
 
@@ -49,16 +49,23 @@ Runs the existing smoke evaluation with synthetic tenants and simulated commerce
 then generates a report. Model calls use your API key and incur API usage;
 payment/POS services are mocked. See [evaluation](docs/evaluate/integration.md).
 
-**B. Deploy to production** — run on your server, with a domain and TLS certificates:
+**B. Deploy to production** — on your VPS, first follow the
+[production guide](docs/operations/production.md) to set up DNS, free ports 80/443,
+and create a TLS certificate. Then run:
 
 ```sh
+python3 scripts/setup.py production --check
 python3 scripts/setup.py production
 ```
 
-Prompts for production settings and checks certificates before building, migrating,
-and starting the HTTPS stack. Uses separate configuration and volumes, without demo
-data or mock services. See [production setup](docs/operations/production.md) for
-DNS, certificates, and the operator account.
+The guide starts with `production --configure-only` to generate settings.
+`--check` checks existing configuration, port conflicts, certificate validity and
+DNS without changing services. Deployment verifies local and public HTTPS before
+reporting success, records progress in `setup.log`, and offers to create your
+administrator account in the same terminal. Existing active administrators are
+detected on reruns. Production uses separate
+configuration and volumes, without demo data or mock services. The guide also
+covers certificate renewal, the operator account and troubleshooting.
 
 ## Documentation
 

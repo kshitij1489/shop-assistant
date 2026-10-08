@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "currency": "INR",
+  "ordering_limits": {
+    "max_line_quantity": 20,
+    "max_item_quantity": 30,
+    "max_basket_units": 60,
+    "max_basket_lines": 20,
+    "max_subtotal_minor": 500000,
+    "max_payable_minor": 600000
+  }
+}

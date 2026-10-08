@@ -1,10 +1,10 @@
 import os, logging
-from celery import signals
 
 log = logging.getLogger(__name__)
 _MODEL = None
 
 def get_sbert_model():
+    """Load once on first use, outside Celery's child-startup timeout."""
     global _MODEL
     if _MODEL is None:
         from sentence_transformers import SentenceTransformer
@@ -13,7 +13,3 @@ def get_sbert_model():
         _MODEL = SentenceTransformer(name, cache_folder=cache_dir, device="cpu")
         log.info("SBERT model created in PID=%s, cache=%s", os.getpid(), cache_dir)
     return _MODEL
-
-@signals.worker_process_init.connect
-def _prewarm_sbert(**kwargs):
-    _ = get_sbert_model()  # ensure load happens at child start, not first task

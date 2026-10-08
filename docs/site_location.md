@@ -23,8 +23,12 @@ NOMINATIM_BASE_URL=https://nominatim.example.com
 ```
 
 No public endpoint is used by default. `NOMINATIM_API_KEY`, `NOMINATIM_USER_AGENT`,
-and the timeout settings also apply. The default user agent is
-`StudioDesk/1.0 (site postal directory)`.
+and the timeout settings also apply. Set a user agent that identifies your
+deployment, for example:
+
+```dotenv
+NOMINATIM_USER_AGENT=ShopAssistant/1.0 (https://www.example.com)
+```
 
 The postal check needs the full code plus matching city, state, and country. If
 the city has no state, it uses city, country, and the full code. A confirmed

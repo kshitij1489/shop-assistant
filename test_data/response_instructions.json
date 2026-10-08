@@ -1,0 +1,78 @@
+{
+  "placing_order": {
+    "initiate_order": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "add_to_basket": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "update_order": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "delete_entry": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "check_order_cart": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "reorder_or_repeat": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "order_scheduling": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "order_channels_and_modes": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "special_requests": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "how_to_order": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "insufficient_information_order": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "order_payment": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "customize_confirmation": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "payment_confirmation": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "order_confirmation": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "cancel_and_abort": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge."
+  },
+  "order_enquiry": {
+    "order_status_tracking": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "missing_or_wrong_items": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "refund_and_cancellation": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "address_or_contact_update": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "delivery_problems": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "general_order_enquiry": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "get_order_history": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge."
+  },
+  "menu_items": {
+    "availability": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "recommendations": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "dietary_preferences": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "allergens": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "ingredients": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "nutrition": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "preparation": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "pricing": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "specialty_items": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "explore_options": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "pairings": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "source_quality": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "flavor_profile": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "portion_and_size": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge."
+  },
+  "location_based": {
+    "choose_delivery_address": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "add_delivery_address": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "update_delivery_address": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "existing_addresses": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "delete_delivery_address": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "set_default_delivery_address": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "verify_address_for_delivery": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "confirm_delivery_address": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "deny_delivery_address": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge."
+  },
+  "information_about_the_cafe": {
+    "location_and_hours": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "brand_story": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "amenities": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "events_and_tours": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "team_and_policy": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "about_the_brand": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge."
+  },
+  "out_of_context": {
+    "out_of_scope": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge."
+  },
+  "insufficient_information": {
+    "insufficient_information": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge."
+  },
+  "general": {
+    "greeting": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "goodbye": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "thanks": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "small_talk": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "cancel_and_abort": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge.",
+    "wait": "Use supplied published knowledge. Synthetic catalog identifiers are not serving sizes. Never infer live stock, payments or facts absent from knowledge."
+  }
+}

@@ -1,5 +1,5 @@
 from django import forms
-from orders.checkout_config import CheckoutPolicy, FIELDS, MODES, default_checkout_config, validate_checkout_config
+from orders.checkout_config import FIELDS, MODES, default_checkout_config
 
 
 class CheckoutSettingsForm(forms.Form):
@@ -91,8 +91,6 @@ class CheckoutSettingsForm(forms.Form):
         config = {'modes': modes, 'timezone': data.get('timezone'), 'opening_hours': hours,
                   'delivery_postal_codes': [c.strip() for c in data.get('delivery_postal_codes', '').split(',') if c.strip()],
                   'online_provider': data.get('online_provider', '')}
-        validate_checkout_config(config)
-        from orders.checkout_config import validate_online_readiness
-        validate_online_readiness(config, self.tenant)
-        self.configuration = CheckoutPolicy.model_validate(config).model_dump(mode='json')
+        from chatbot_core.configuration_imports import validated_checkout
+        self.configuration = validated_checkout(config, self.tenant)
         return data

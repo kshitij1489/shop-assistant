@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.1.0 — 2026-10-08
+
+- Share validated configuration imports between the dashboard and evaluation
+  fixtures; generate knowledge exports from canonical catalog data.
+- Make catalog imports atomic, retain existing items during partial updates,
+  and save zero quantities correctly.
+- Load embedding models on first use to avoid Celery child startup timeouts.
+- Improve guided production setup, TLS checks, deployment environment selection,
+  and configurable Compose image names.
+- Configure Telegram integrations with bot tokens and reject duplicate tokens.
+- Preserve supplied address details after pauses and conversational filler,
+  including previously supplied street details and original-language values.
+- Add configuration, embedding, setup, and address regression coverage, demo
+  configuration, and updated deployment documentation.
+
+Restart web and background workers after updating. See
+[production operations](docs/operations/production.md) for deployment instructions.
+
 ## 1.0.0 — 2026-10-06
 
 First tagged release of Shop Assistant: a configurable café/restaurant chatbot

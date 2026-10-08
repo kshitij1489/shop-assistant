@@ -3,7 +3,7 @@
 **Responsible for:** Loopback HTTP simulators (menu, payment, POS, location) and
 the reusable reference commerce adapter package.
 
-**Not responsible for:** Studio Desk business logic, live provider SDKs, or
+**Not responsible for:** Shop Assistant business logic, live provider SDKs, or
 evaluate scoring.
 
 ## Read first
