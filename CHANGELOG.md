@@ -2,6 +2,14 @@
 
 ## 1.2.0 — 2026-10-09
 
+- Reject TLS certificates for the wrong hostname during production preflight,
+  including on systems using OpenSSL 3.0.
+
+- Enforce chatbot rate limits on the deployed endpoint.
+- Restore chat, voice, and dashboard scripts under the production Content Security Policy.
+- Validate Telegram delivery responses and apply request timeouts so failed sends
+  are not reported as successful.
+
 - Improve dashboard notifications, keyboard navigation, dialogs, and form feedback.
 - Keep chat selection, drafts, reading position, and agent controls consistent
   during refreshes; report message delivery and storage failures clearly.
@@ -11,7 +19,8 @@
   session durations.
 
 **Upgrade:** apply database migrations (including orders migration `0022`) before
-restarting web and background workers. See
+restarting web and background workers. Deploy the updated application and
+collected static assets together. See
 [production operations](docs/operations/production.md) for deployment instructions.
 
 ## 1.1.0 — 2026-10-08

@@ -1,11 +1,12 @@
 {% extends "users/base_tenant.html" %}
+{% load static %}
 {% block title %}Import Configuration JSON{% endblock %}
 
 {% block tenant_content %}
 <div style="max-width:900px;margin:0 auto">
   <h1 style="font-size:1.5rem;font-weight:600;margin-bottom:1rem">Import Configuration JSON</h1>
 
-  <form id="uploadForm" method="post" action="" onsubmit="return confirmAndValidate()">
+  <form id="uploadForm" method="post" action="">
     {% csrf_token %}
 
     <div class="card" style="margin-bottom:.75rem">
@@ -41,11 +42,5 @@
   </form>
 </div>
 
-<script>
-function confirmAndValidate(){
-  const ta = document.getElementById("json_blob");
-  if (!JSONEditor.check(ta, { notifySuccess: false })) return false;
-  return confirm("Save all entries? This will upsert rows for the selected dtype.");
-}
-</script>
+<script src="{% static 'users/js/upload_knowledge_prompt.js' %}"></script>
 {% endblock %}

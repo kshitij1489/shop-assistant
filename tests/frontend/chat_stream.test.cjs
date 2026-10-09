@@ -81,15 +81,14 @@ function chatPage(fetch) {
   const page = { TextDecoder, ReadableStream, fetch, console: { error() {} },
     localStorage: { getItem: () => JSON.stringify({ token: 'test-token', expiry: Date.now() + 10000 }) },
     document: {
-      getElementById: id => ({ 'chat-form': form, 'message-input': input, 'chat-window': chat, 'reply-announcement': announcement })[id],
+      getElementById: id => ({ 'chat-config': { dataset: { tenantSlug:'test', tokenUrl:'/token/', chatbotEndpoint:'/agent_core/chatbot-api/', tenantApiKey:'test' } }, 'chat-form': form, 'message-input': input, 'chat-window': chat, 'reply-announcement': announcement })[id],
       createElement: tag => new Element(tag),
       createTextNode: text => ({ textContent: text })
     }
   };
   vm.createContext(page);
   vm.runInContext(fs.readFileSync('chatbot_core/static/chatbot_core/js/chat_stream.js', 'utf8'), page);
-  const template = fs.readFileSync('chatbot_core/templates/chatbot_core/ai_agent.html', 'utf8');
-  vm.runInContext(template.match(/<script>([\s\S]*?)<\/script>/)[1], page);
+  vm.runInContext(fs.readFileSync('chatbot_core/static/chatbot_core/js/ai_agent.js', 'utf8'), page);
   return { form, input, button, chat, announcement };
 }
 

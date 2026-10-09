@@ -212,7 +212,9 @@ def check_certificate(config):
         fail("TLS certificate is not valid yet. Check the server clock and certificate dates.")
     hostname = subprocess.run(["openssl", "x509", "-in", str(cert), "-noout", "-checkhost", domain],
                               capture_output=True, text=True, timeout=10)
-    if hostname.returncode:
+    # OpenSSL 3.0 can exit zero even when -checkhost reports a mismatch.
+    # Require its explicit positive result as well as a successful command.
+    if hostname.returncode or hostname.stdout.strip() != f"Hostname {domain} does match certificate":
         fail(f"TLS certificate does not cover {domain} (or OpenSSL lacks -checkhost). "
              "Use a certificate covering PUBLIC_URL; see docs/operations/production.md#certificates.")
     report(f"[OK] Certificate covers {domain}; expires {values['notAfter']}.")

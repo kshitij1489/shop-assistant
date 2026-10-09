@@ -135,7 +135,7 @@
               <td>{{ tenant.get_approval_status_display }}</td>
               <td>{{ tenant.created_at|date:"M d, Y" }}</td>
               <td>
-                <form method="post" action="{% url 'set_tenant_active' tenant.id %}"{% if tenant.is_active %} onsubmit="return confirm('Deactivate this tenant? This will immediately block its access.')"{% endif %}>
+                <form method="post" action="{% url 'set_tenant_active' tenant.id %}"{% if tenant.is_active %} data-confirm="Deactivate this tenant? This will immediately block its access."{% endif %}>
                   {% csrf_token %}
                   <input type="hidden" name="is_active" value="{% if tenant.is_active %}false{% else %}true{% endif %}">
                   <button type="submit" class="tenant-switch" role="switch" aria-checked="{{ tenant.is_active|yesno:'true,false' }}" aria-label="Active status for {{ tenant.display_name }}">

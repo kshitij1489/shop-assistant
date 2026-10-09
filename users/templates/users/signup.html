@@ -1,4 +1,5 @@
 {% extends "users/base_auth.html" %}
+{% load static %}
 {% block title %}Sign up - Chat-Wise{% endblock %}
 {% block extra_css %}<style>
   #signup-errors {
@@ -116,8 +117,5 @@
     <p style="text-align: center; margin-top: 1rem;">
       Already have an account? <a href="{% url 'login' %}">Sign in</a>
     </p>
-<script>
-  const signupErrors = document.getElementById('signup-errors');
-  if (signupErrors) signupErrors.focus();
-</script>
+<script src="{% static 'users/js/signup.js' %}"></script>
 {% endblock %}

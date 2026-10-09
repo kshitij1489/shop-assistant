@@ -17,7 +17,7 @@
             {% csrf_token %}
             <input type="hidden" name="return_to" value="{{ approval_return_to }}">
             <input type="text" name="note" placeholder="reason (optional)" style="padding:.25rem .5rem">
-            <button type="submit" onclick="return confirm('Reject this tenant?')">Reject</button>
+            <button type="submit" data-confirm="Reject this tenant?">Reject</button>
           </form>
         </li>
       {% empty %}

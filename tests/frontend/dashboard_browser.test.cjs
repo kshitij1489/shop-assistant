@@ -188,6 +188,8 @@ async function browserChecks(assets) {
       if (url.includes('messages_api')) return new Promise(resolve => pending.set(new URL(url, location.href).searchParams.get('chat_id'), resolve));
       return { ok:true, json:async () => ({ chats, enabled:true }) };
     };
+    const config = b.doc.createElement("div"); config.id = "chats-config";
+    Object.assign(config.dataset, {"listUrl": "/test/tenant:tenant_chats_list_api", "messagesUrl": "/test/tenant:tenant_chats_messages_api", "toggleUrl": "/test/tenant:tenant_chats_toggle_api", "sendUrl": "/test/tenant:tenant_chats_send_api", "globalStatusUrl": "/test/tenant:tenant_chats_global_status_api", "toggleGlobalUrl": "/test/tenant:tenant_chats_toggle_global_api"}); b.doc.body.appendChild(config);
     b.load(assets.chats);
     await settle();
     const a = b.win.selectChat(chats[0]), bb = b.win.selectChat(chats[1]);
@@ -222,6 +224,8 @@ async function browserChecks(assets) {
       }
       return { ok:true, json:async () => ({ chats:[{ chat_id:'A' }, { chat_id:'B' }], messages:[], enabled:true }) };
     };
+    const config = b.doc.createElement("div"); config.id = "chats-config";
+    Object.assign(config.dataset, {"listUrl": "/test/tenant:tenant_chats_list_api", "messagesUrl": "/test/tenant:tenant_chats_messages_api", "toggleUrl": "/test/tenant:tenant_chats_toggle_api", "sendUrl": "/test/tenant:tenant_chats_send_api", "globalStatusUrl": "/test/tenant:tenant_chats_global_status_api", "toggleGlobalUrl": "/test/tenant:tenant_chats_toggle_global_api"}); b.doc.body.appendChild(config);
     b.load(assets.chats); await settle();
     b.select = async index => {
       b.get('chat-list').children[index].click();
@@ -303,6 +307,8 @@ async function browserChecks(assets) {
     b.win.setInterval = () => 1;
     const chats = [{ chat_id:'A' }];
     b.win.fetch = async () => ({ ok:true, json:async () => ({ chats, messages:[], enabled:false }) });
+    const config = b.doc.createElement("div"); config.id = "chats-config";
+    Object.assign(config.dataset, {"listUrl": "/test/tenant:tenant_chats_list_api", "messagesUrl": "/test/tenant:tenant_chats_messages_api", "toggleUrl": "/test/tenant:tenant_chats_toggle_api", "sendUrl": "/test/tenant:tenant_chats_send_api", "globalStatusUrl": "/test/tenant:tenant_chats_global_status_api", "toggleGlobalUrl": "/test/tenant:tenant_chats_toggle_global_api"}); b.doc.body.appendChild(config);
     b.load(assets.chats); await settle();
     await b.win.selectChat(chats[0]);
     check(b.get('toggle-agent-global').getAttribute('aria-checked') === 'false', 'Initial switch should be off');
@@ -327,6 +333,8 @@ async function browserChecks(assets) {
       if (String(url).includes('global_status')) return new Promise(resolve => { releaseStatus = resolve; });
       return { ok:true, json:async () => ({ chats, messages:[], enabled:true }) };
     };
+    const config = b.doc.createElement("div"); config.id = "chats-config";
+    Object.assign(config.dataset, {"listUrl": "/test/tenant:tenant_chats_list_api", "messagesUrl": "/test/tenant:tenant_chats_messages_api", "toggleUrl": "/test/tenant:tenant_chats_toggle_api", "sendUrl": "/test/tenant:tenant_chats_send_api", "globalStatusUrl": "/test/tenant:tenant_chats_global_status_api", "toggleGlobalUrl": "/test/tenant:tenant_chats_toggle_global_api"}); b.doc.body.appendChild(config);
     b.load(assets.chats);
     await settle();
     await b.win.selectChat(chats[0]);
@@ -353,6 +361,8 @@ async function browserChecks(assets) {
       if (url.includes('toggle')) return new Promise(resolve => { releaseToggle = resolve; });
       return { ok:true, json:async () => ({ chats, messages:[], enabled:true, ok:true }) };
     };
+    const config = b.doc.createElement("div"); config.id = "chats-config";
+    Object.assign(config.dataset, {"listUrl": "/test/tenant:tenant_chats_list_api", "messagesUrl": "/test/tenant:tenant_chats_messages_api", "toggleUrl": "/test/tenant:tenant_chats_toggle_api", "sendUrl": "/test/tenant:tenant_chats_send_api", "globalStatusUrl": "/test/tenant:tenant_chats_global_status_api", "toggleGlobalUrl": "/test/tenant:tenant_chats_toggle_global_api"}); b.doc.body.appendChild(config);
     b.load(assets.chats); await settle();
     await b.win.selectChat(chats[0]);
     check(b.get('toggle-agent').getAttribute('aria-checked') === 'true', 'Selected switch should start on');
@@ -385,6 +395,8 @@ async function browserChecks(assets) {
       }
       return { ok:!failRefresh, json:async () => ({ chats:[{ chat_id:'A', agent_enabled:'1' }], messages:[], enabled:true }) };
     };
+    const config = b.doc.createElement("div"); config.id = "chats-config";
+    Object.assign(config.dataset, {"listUrl": "/test/tenant:tenant_chats_list_api", "messagesUrl": "/test/tenant:tenant_chats_messages_api", "toggleUrl": "/test/tenant:tenant_chats_toggle_api", "sendUrl": "/test/tenant:tenant_chats_send_api", "globalStatusUrl": "/test/tenant:tenant_chats_global_status_api", "toggleGlobalUrl": "/test/tenant:tenant_chats_toggle_global_api"}); b.doc.body.appendChild(config);
     b.load(assets.chats); await settle();
     await b.win.selectChat({ chat_id:'A', agent_enabled:'1' });
     const pending = b.win.toggleAgent();
@@ -494,6 +506,20 @@ async function browserChecks(assets) {
     check(notice.classList.contains('notification--leaving'), 'Dismiss did not start');
     b.frame.remove();
   });
+  await run('CSP-compatible form and button confirmations prompt exactly once', () => {
+    const b = page('<form id="form" data-confirm="Deactivate tenant?"><button id="reject" data-confirm="Reject tenant?">Reject</button></form>');
+    b.load(assets.ui);
+    const prompts = [];
+    b.win.confirm = message => { prompts.push(message); return false; };
+    for (const [submitter, expected] of [[null, 'Deactivate tenant?'], [b.get('reject'), 'Reject tenant?']]) {
+      const event = new b.win.SubmitEvent('submit', { bubbles: true, cancelable: true, submitter });
+      b.get('form').dispatchEvent(event);
+      check(event.defaultPrevented, 'Cancelled confirmation allowed submission');
+      check(prompts.length === 1 && prompts[0] === expected, 'Confirmation missing or repeated');
+      prompts.length = 0;
+    }
+    b.frame.remove();
+  });
   document.getElementById('results').textContent = JSON.stringify(results);
 }
 
@@ -504,7 +530,7 @@ test('native browser dashboard regressions', { skip: !chrome }, async t => {
     notifications:read('users/static/users/js/notifications.js'),
     notificationsCss:read('users/static/users/css/notifications.css'),
     knowledge:read('users/static/users/js/knowledge.js'), json:read('users/static/users/js/json_editor.js'),
-    chats:read('users/templates/users/tenant_chats.html').match(/<script>([\s\S]*?)<\/script>/)[1].replace(/\{% url "([^"]+)" %\}/g, '/test/$1'),
+    chats:read('users/static/users/js/tenant_chats.js'),
     css:read('users/static/users/css/dashboard.css') + read('users/static/users/css/master_tenants.css'),
   };
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-dashboard-browser-'));
@@ -541,7 +567,7 @@ test('native browser dashboard regressions', { skip: !chrome }, async t => {
     const raw = stdout.match(/<pre id="results">([\s\S]*?)<\/pre>/)?.[1];
     assert.ok(raw, 'Browser did not finish its checks: ' + stderr.slice(-1500));
     const results = JSON.parse(raw.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'));
-    assert.equal(results.length, 17);
+    assert.equal(results.length, 18);
     for (const result of results) await t.test(result.name, () => assert.ok(result.ok, result.error));
   } finally {
     fs.rmSync(directory, { recursive:true, force:true });

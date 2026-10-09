@@ -467,6 +467,29 @@ class CertificateChecks(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "does not cover"):
             setup.check_certificate(self.config)
 
+    def test_hostname_check_requires_explicit_match_even_with_zero_exit_status(self):
+        # OpenSSL 3.0 prints a mismatch but exits zero for x509 -checkhost.
+        run = subprocess.run
+        cases = [
+            (0, "Hostname cafe.example.org does NOT match certificate\n", False),
+            (0, "", False),
+            (0, "Hostname other.example.org does match certificate\n", False),
+            (1, "Hostname cafe.example.org does match certificate\n", False),
+            (0, "Hostname cafe.example.org does match certificate\n", True),
+        ]
+        for code, output, accepted in cases:
+            def openssl(command, **kwargs):
+                if "-checkhost" in command:
+                    return subprocess.CompletedProcess(command, code, output, "")
+                return run(command, **kwargs)
+
+            with self.subTest(code=code, output=output), patch.object(setup.subprocess, "run", side_effect=openssl):
+                if accepted:
+                    setup.check_certificate(self.config)
+                else:
+                    with self.assertRaisesRegex(ValueError, "does not cover"):
+                        setup.check_certificate(self.config)
+
     def test_mismatched_private_key_is_rejected(self):
         original = (self.cert_dir / "privkey.pem").read_bytes()
         try:

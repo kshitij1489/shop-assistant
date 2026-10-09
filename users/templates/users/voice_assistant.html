@@ -34,15 +34,9 @@
     </div>
   </header>
 
-  <script>
-    window.VA_CONFIG = {
-      tenantId: "{{ tenant_id }}",
-      chatId: "{{ chat_id }}",
-      webhookUrl: "{{ webhook_url }}",
-      pollUrl: "{{ poll_url }}",
-      csrfToken: "{{ csrf_token }}"
-    };
-  </script>
+  <div id="voice-config" hidden data-tenant-id="{{ tenant_id }}" data-chat-id="{{ chat_id }}"
+       data-webhook-url="{{ webhook_url }}" data-poll-url="{{ poll_url }}"
+       data-csrf-token="{{ csrf_token }}"></div>
 
   <!-- Main -->
   <main class="va-app">
@@ -120,6 +114,6 @@
     </section>
   </main>
 
-  <script src="{% static 'users/js/voice.js' %}?v=20261009-review-followup"></script>
+  <script src="{% static 'users/js/voice.js' %}?v=20261009-csp"></script>
 </body>
 </html>

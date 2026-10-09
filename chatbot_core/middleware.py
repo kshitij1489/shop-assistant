@@ -14,7 +14,12 @@ class ChatbotRateLimitMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.path.startswith("/chatbot-api/") and request.method == "POST":
+        return self.get_response(request)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        match = request.resolver_match
+        if (request.method == "POST" and match is not None
+                and match.url_name == "chatbot_api" and "chatbot_core" in match.app_names):
             tenant_slug = None
             auth_header = request.META.get("HTTP_AUTHORIZATION", "")
             if auth_header.startswith("Bearer "):
@@ -37,4 +42,4 @@ class ChatbotRateLimitMiddleware:
             history.append(now_ts)
             cache.set(key, history, timeout=self.TIME_WINDOW)
 
-        return self.get_response(request)
+        return None

@@ -1,4 +1,5 @@
 {% extends "users/base_tenant.html" %}
+{% load static %}
 {% block tenant_content %}
 {% if external_menu %}<p>This menu is externally managed. Update products, prices and modifiers in your connected application.</p>{% endif %}
 <a href="{% url 'tenant:tenant_menu' %}" class="muted" style="text-decoration:none;">← Back to Menu</a>
@@ -89,7 +90,7 @@
         {% endfor %}
 
         <div class="actions full-row">
-          <button type="button" class="btn" onclick="formatAllJSON(this.form)">Format All JSON</button>
+          <button type="button" class="btn" data-format-all-json>Format All JSON</button>
           <button type="submit" class="btn primary">Save Catalog Meta</button>
         </div>
       </form>
@@ -134,25 +135,5 @@
 
 </div>
 
-<script>
-// Both editors consume JSON encoded by Django, preserving booleans and quotes.
-document.querySelectorAll('textarea[data-json-source]').forEach(ta => {
-  const source = document.getElementById(ta.dataset.jsonSource);
-  if (!source) return;
-  try {
-    const value = JSON.parse(source.textContent);
-    ta.value = JSON.stringify(value ?? JSON.parse(ta.dataset.jsonEmpty || '{}'), null, 2);
-  } catch (e) {
-    // Preserve malformed content for correction without interrupting other editors.
-    ta.value = source.textContent;
-  }
-});
-
-function formatAllJSON(form){
-  for (const field of form.querySelectorAll("textarea.json:not([name='preparation'])")) {
-    if (!JSONEditor.check(field, { format: true, notifySuccess: false })) return;
-  }
-  notify('JSON Formatted');
-}
-</script>
+<script src="{% static 'users/js/menu_item_detail.js' %}"></script>
 {% endblock %}

@@ -105,19 +105,30 @@ class TelegramAdapterImpl:
             return None
 
 
+    def _send(self, payload: Dict[str, Any], method: str, **kwargs) -> None:
+        try:
+            response = requests.post(
+                f"{TELEGRAM_API_URL}/bot{self._bot_token(payload)}/{method}",
+                timeout=(5, 30),
+                **kwargs,
+            )
+            response.raise_for_status()
+            result = response.json()
+        except requests.exceptions.Timeout:
+            raise RuntimeError("Telegram send timed out; delivery could not be confirmed.") from None
+        except (requests.exceptions.RequestException, ValueError):
+            raise RuntimeError("Telegram send failed; delivery could not be confirmed.") from None
+        if not isinstance(result, dict) or result.get("ok") is not True:
+            raise RuntimeError("Telegram rejected the message.")
+
     def send_text(self, payload: Dict[str, Any], text: str) -> None:
-        requests.post(
-            f"{TELEGRAM_API_URL}/bot{self._bot_token(payload)}/sendMessage",
-            json={"chat_id": self._chat_id(payload), "text": text or "Thanks!"}
-        )
+        self._send(payload, "sendMessage",
+                   json={"chat_id": self._chat_id(payload), "text": text or "Thanks!"})
 
     def send_voice(self, payload: Dict[str, Any], audio_path: str) -> None:
         with open(audio_path, "rb") as f:
-            requests.post(
-                f"{TELEGRAM_API_URL}/bot{self._bot_token(payload)}/sendVoice",
-                data={"chat_id": self._chat_id(payload)},
-                files={"voice": f}
-            )
+            self._send(payload, "sendVoice",
+                       data={"chat_id": self._chat_id(payload)}, files={"voice": f})
 
     def augment_text(self, text: str, payload: Dict[str, Any]) -> str:
         return text or "User sent a media message but it couldn't be transcribed clearly."

@@ -26,6 +26,7 @@ function browser() {
     };
   }
   const get = id => {
+    if (id === 'voice-config') return null;
     if (!elements.has(id)) elements.set(id, element());
     return elements.get(id);
   };
@@ -51,9 +52,6 @@ function browser() {
   return { page, get, events, notices, intervals, run, load };
 }
 
-function inlineScript(path) {
-  return fs.readFileSync(path, 'utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
-}
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 
@@ -61,7 +59,7 @@ test('Format All preserves preparation and uses arrays for cleared catalog lists
   const b = browser();
   b.load('users/static/users/js/json_editor.js');
   const template = fs.readFileSync('users/templates/users/menu_item_detail.html', 'utf8');
-  b.run(inlineScript('users/templates/users/menu_item_detail.html'));
+  b.load('users/static/users/js/menu_item_detail.js');
   const names = ['dietary_preferences', 'allergens', 'preparation', 'nutrition', 'explore_options',
     'ingredients', 'recommendations', 'specialty_items', 'source_quality', 'pairings'];
   const fields = names.map(name => {
@@ -127,7 +125,7 @@ test('token generation stays disabled for the entire display and uses one countd
     requests++;
     return { ok: true, json: async () => ({ token: `token-${requests}` }) };
   };
-  b.run(inlineScript('users/templates/users/tenant_settings.html'));
+  b.load('users/static/users/js/tenant_settings.js');
   b.events.DOMContentLoaded();
   const button = b.get('generate-token-button');
   button.events.click();
@@ -157,7 +155,7 @@ test('token generation stays disabled for the entire display and uses one countd
 test('failed token generation permits retry and leaves no token or countdown', async () => {
   const b = browser();
   b.page.fetch = async () => ({ ok: false });
-  b.run(inlineScript('users/templates/users/tenant_settings.html'));
+  b.load('users/static/users/js/tenant_settings.js');
   b.events.DOMContentLoaded();
   b.get('generate-token-button').events.click();
   await settle();
