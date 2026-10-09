@@ -12,7 +12,7 @@
   <section class="card card-flush">
     <div class="section-head">Item Basics</div>
     <div class="section-body">
-      <form method="post" action="{% url 'tenant:tenant_menu_item_update' item.id %}">
+      <form method="post" action="{% url 'tenant:tenant_menu_item_update' item.id %}" data-json-validate="textarea.json">
         <fieldset class="two fieldset-plain" {% if external_menu %}disabled{% endif %}>
         {% csrf_token %}
         <div>
@@ -60,7 +60,7 @@
 
         <div class="actions full-row">
           <button type="button" class="btn"
-            onclick="(function(el){try{const o=JSON.parse(el.value); el.value=JSON.stringify(o,null,2);}catch(e){alert('Meta JSON invalid: '+e.message)}})(this.form.meta_json)">
+            data-json-action="format" data-json-target="meta-ta-{{ item.id }}">
             Format Meta
           </button>
           <button type="submit" class="btn primary">Save Item</button>
@@ -73,63 +73,20 @@
   <section class="card card-flush">
     <div class="section-head">Catalog Meta (this item)</div>
     <div class="section-body">
-      <form method="post" action="{% url 'tenant:tenant_menu_item_catalog_update' item.id %}" class="two">
+      <form method="post" action="{% url 'tenant:tenant_menu_item_catalog_update' item.id %}" class="two" data-json-validate="textarea.json:not([name='preparation'])">
         {% csrf_token %}
 
-        <div>
-          <label class="muted" for="item-dietary_preferences">Dietary Preferences (JSON)</label>
-          {{ catmeta.dietary_preferences|json_script:"catalog-json-dietary_preferences" }}
-          <textarea id="item-dietary_preferences" name="dietary_preferences" class="json" rows="6" data-json-source="catalog-json-dietary_preferences"></textarea>
+        {% for field in catalog_fields %}
+        <div{% if field.full_row %} class="full-row"{% endif %}>
+          <label class="muted" for="item-{{ field.name }}">{{ field.label }}</label>
+          {% if field.is_json %}
+          {{ field.value|json_script:field.source_id }}
+          <textarea id="item-{{ field.name }}" name="{{ field.name }}" class="json" rows="{{ field.rows }}" data-json-source="{{ field.source_id }}" data-json-empty="{{ field.empty }}"></textarea>
+          {% else %}
+          <textarea id="item-{{ field.name }}" name="{{ field.name }}" rows="{{ field.rows }}">{{ field.value|default_if_none:"" }}</textarea>
+          {% endif %}
         </div>
-        <div>
-          <label class="muted" for="item-allergens">Allergens (JSON)</label>
-          {{ catmeta.allergens|json_script:"catalog-json-allergens" }}
-          <textarea id="item-allergens" name="allergens" class="json" rows="6" data-json-source="catalog-json-allergens"></textarea>
-        </div>
-        <div>
-          <label class="muted" for="item-preparation">Preparation (JSON or text)</label>
-          {{ catmeta.preparation|json_script:"catalog-json-preparation" }}
-          <textarea id="item-preparation" name="preparation" class="json" rows="4" data-json-source="catalog-json-preparation"></textarea>
-        </div>
-        <div>
-          <label class="muted" for="item-nutrition">Nutrition (JSON)</label>
-          {{ catmeta.nutrition|json_script:"catalog-json-nutrition" }}
-          <textarea id="item-nutrition" name="nutrition" class="json" rows="4" data-json-source="catalog-json-nutrition"></textarea>
-        </div>
-        <div>
-          <label class="muted" for="item-explore_options">Explore Options (JSON)</label>
-          {{ catmeta.explore_options|json_script:"catalog-json-explore_options" }}
-          <textarea id="item-explore_options" name="explore_options" class="json" rows="4" data-json-source="catalog-json-explore_options"></textarea>
-        </div>
-        <div>
-          <label class="muted" for="item-ingredients">Ingredients (JSON array)</label>
-          {{ catmeta.ingredients|json_script:"catalog-json-ingredients" }}
-          <textarea id="item-ingredients" name="ingredients" class="json" rows="4" data-json-source="catalog-json-ingredients"></textarea>
-        </div>
-        <div>
-          <label class="muted" for="item-recommendations">Recommendations (JSON array)</label>
-          {{ catmeta.recommendations|json_script:"catalog-json-recommendations" }}
-          <textarea id="item-recommendations" name="recommendations" class="json" rows="4" data-json-source="catalog-json-recommendations"></textarea>
-        </div>
-        <div>
-          <label class="muted" for="item-specialty_items">Specialty Items (JSON array)</label>
-          {{ catmeta.specialty_items|json_script:"catalog-json-specialty_items" }}
-          <textarea id="item-specialty_items" name="specialty_items" class="json" rows="4" data-json-source="catalog-json-specialty_items"></textarea>
-        </div>
-        <div>
-          <label class="muted" for="item-source_quality">Source Quality (JSON array)</label>
-          {{ catmeta.source_quality|json_script:"catalog-json-source_quality" }}
-          <textarea id="item-source_quality" name="source_quality" class="json" rows="4" data-json-source="catalog-json-source_quality"></textarea>
-        </div>
-        <div class="full-row">
-          <label class="muted" for="item-pairings">Pairings (JSON array)</label>
-          {{ catmeta.pairings|json_script:"catalog-json-pairings" }}
-          <textarea id="item-pairings" name="pairings" class="json" rows="4" data-json-source="catalog-json-pairings"></textarea>
-        </div>
-        <div class="full-row">
-          <label class="muted" for="item-flavor_profile">Flavor Profile (text)</label>
-          <textarea id="item-flavor_profile" name="flavor_profile" rows="4">{{ catmeta.flavor_profile|default:"" }}</textarea>
-        </div>
+        {% endfor %}
 
         <div class="actions full-row">
           <button type="button" class="btn" onclick="formatAllJSON(this.form)">Format All JSON</button>
@@ -143,64 +100,35 @@
   <section class="card card-flush">
     <div class="section-head">Variants</div>
     <div class="section-body">
-      {% for v in variants %}
-        <form method="post" action="{% url 'tenant:tenant_menu_variant_update' v.id %}">
-        <fieldset class="form-grid fieldset-plain" {% if external_menu %}disabled{% endif %}>
-          {% csrf_token %}
-          <label>Variant <input name="size" value="{{ v.size }}" maxlength="50" required></label>
-          <input type="hidden" name="variant_availability_present" value="1">
-          <label><input type="checkbox" name="is_available" {% if v.is_available %}checked{% endif %}> Available</label>
-          <label>Order <input type="number" name="sort_order" value="{{ v.sort_order }}" min="0" required></label>
-          <label>Price <input type="number" step="0.01" min="0" name="price" value="{{ v.price }}" required></label>
-          <label>Volume (ml) <input type="number" name="volume_ml" value="{{ v.volume_ml|default_if_none:'' }}"></label>
-          <label>Weight (g) <input type="number" name="weight_grams" value="{{ v.weight_grams|default_if_none:'' }}"></label>
-          <label>Aliases (comma separated) <input name="aliases" value="{{ v.aliases|join:', ' }}" placeholder="e.g. Grande, 12 oz"></label>
-          <label>Description <input name="variant_description" value="{{ v.description|default:'' }}"></label>
-          <button class="btn primary" type="submit">Save</button>
-        </fieldset></form>
-        <form method="post" action="{% url 'tenant:tenant_menu_variant_delete' v.id %}"><fieldset {% if external_menu %}disabled{% endif %}>
-          {% csrf_token %}<button class="btn" type="submit">Delete {{ v.size }}</button>
-        </fieldset></form>
+      {% for variant_form in variant_forms %}
+        <form method="post" action="{% url 'tenant:tenant_menu_variant_update' variant_form.instance.id %}">
+          <fieldset class="form-grid fieldset-plain" {% if external_menu %}disabled{% endif %}>
+            {% csrf_token %}
+            {% include "users/partials/variant_fields.html" with form=variant_form %}
+            <div class="full-row">
+              <button class="btn primary" type="submit">Save</button>
+            </div>
+          </fieldset>
+        </form>
+        <form method="post" action="{% url 'tenant:tenant_menu_variant_delete' variant_form.instance.id %}" data-confirm="Delete this variant? Variants with stock records must be disabled instead.">
+          <fieldset {% if external_menu %}disabled{% endif %}>
+            {% csrf_token %}
+            <button class="btn danger" type="submit">Delete {{ variant_form.instance.size }}</button>
+          </fieldset>
+        </form>
       {% empty %}<p class="muted">No variants yet.</p>{% endfor %}
 
-      <!-- Add variant -->
+      {% if add_variant_form %}
       <form method="post" action="{% url 'tenant:tenant_menu_variant_add' item.id %}">
         <fieldset class="form-grid fieldset-plain" {% if external_menu %}disabled{% endif %}>
-        {% csrf_token %}
-        <input type="hidden" name="variant_availability_present" value="1">
-        <label><input type="checkbox" name="is_available" checked> Available</label>
-        <div>
-          <label class="muted" for="item-size">Variant name</label>
-          <input id="item-size" name="size" maxlength="50" placeholder="e.g. Small or Half" required>
-        </div>
-        <div>
-          <label class="muted" for="item-sort_order">Display order</label>
-          <input id="item-sort_order" type="number" name="sort_order" value="0" min="0" required>
-        </div>
-        <div>
-          <label class="muted" for="item-price">Price</label>
-          <input id="item-price" type="number" step="0.01" name="price" required>
-        </div>
-        <div>
-          <label class="muted" for="item-volume_ml">Volume (ml)</label>
-          <input id="item-volume_ml" type="number" name="volume_ml">
-        </div>
-        <div>
-          <label class="muted" for="item-weight_grams">Weight (g)</label>
-          <input id="item-weight_grams" type="number" name="weight_grams">
-        </div>
-        <div class="full-row">
-          <label class="muted" for="item-aliases">Aliases (comma separated)</label>
-          <input id="item-aliases" name="aliases" placeholder="e.g. Grande, 12 oz">
-        </div>
-        <div class="full-row">
-          <label class="muted" for="item-variant_description">Description</label>
-          <input id="item-variant_description" type="text" name="variant_description">
-        </div>
-        <div class="full-row">
-          <button class="btn primary" type="submit">+ Add Variant</button>
-        </div>
-      </fieldset></form>
+          {% csrf_token %}
+          {% include "users/partials/variant_fields.html" with form=add_variant_form %}
+          <div class="full-row">
+            <button class="btn primary" type="submit">+ Add Variant</button>
+          </div>
+        </fieldset>
+      </form>
+      {% endif %}
     </div>
   </section>
 
@@ -208,13 +136,12 @@
 
 <script>
 // Both editors consume JSON encoded by Django, preserving booleans and quotes.
-const listJSONFields = new Set(['ingredients', 'recommendations', 'specialty_items', 'source_quality', 'pairings']);
 document.querySelectorAll('textarea[data-json-source]').forEach(ta => {
   const source = document.getElementById(ta.dataset.jsonSource);
   if (!source) return;
   try {
     const value = JSON.parse(source.textContent);
-    ta.value = JSON.stringify(value ?? (listJSONFields.has(ta.name) ? [] : {}), null, 2);
+    ta.value = JSON.stringify(value ?? JSON.parse(ta.dataset.jsonEmpty || '{}'), null, 2);
   } catch (e) {
     // Preserve malformed content for correction without interrupting other editors.
     ta.value = source.textContent;
@@ -222,12 +149,10 @@ document.querySelectorAll('textarea[data-json-source]').forEach(ta => {
 });
 
 function formatAllJSON(form){
-  ['dietary_preferences','allergens','preparation','nutrition','explore_options','ingredients','recommendations','specialty_items','source_quality','pairings']
-    .forEach(name=>{
-      const el = form[name];
-      if(!el) return;
-      try{ const o = JSON.parse(el.value); el.value = JSON.stringify(o, null, 2); } catch(e){}
-    });
+  for (const field of form.querySelectorAll("textarea.json:not([name='preparation'])")) {
+    if (!JSONEditor.check(field, { format: true, notifySuccess: false })) return;
+  }
+  notify('JSON Formatted');
 }
 </script>
 {% endblock %}

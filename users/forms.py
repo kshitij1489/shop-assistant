@@ -276,10 +276,15 @@ class MenuCategoryForm(forms.ModelForm):
 
 
 class MenuVariantForm(forms.ModelForm):
-    aliases = forms.CharField(required=False, help_text="Comma-separated names, e.g. Grande, 12 oz")
+    aliases = forms.CharField(
+        required=False,
+        label="Aliases (comma separated)",
+        widget=forms.TextInput(attrs={"placeholder": "e.g. Grande, 12 oz"}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["price"].widget.attrs["min"] = "0"
         if self.instance.pk:
             self.initial["aliases"] = ", ".join(self.instance.aliases or [])
 
@@ -288,7 +293,18 @@ class MenuVariantForm(forms.ModelForm):
 
     class Meta:
         model = MenuItemVariant
-        fields = ["size", "sort_order", "price", "volume_ml", "weight_grams", "description", "aliases", "is_available"]
+        fields = ["is_available", "size", "sort_order", "price", "volume_ml", "weight_grams", "aliases", "description"]
+        labels = {
+            "is_available": "Available",
+            "size": "Variant name",
+            "sort_order": "Display order",
+            "volume_ml": "Volume (ml)",
+            "weight_grams": "Weight (g)",
+        }
+        widgets = {
+            "size": forms.TextInput(attrs={"placeholder": "e.g. Small or Half"}),
+            "description": forms.TextInput(),
+        }
 
     def clean_size(self):
         size = self.cleaned_data["size"]

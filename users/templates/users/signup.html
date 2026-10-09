@@ -1,20 +1,6 @@
-{% extends "users/base.html" %}
+{% extends "users/base_auth.html" %}
 {% block title %}Sign up - Chat-Wise{% endblock %}
-{% block content %}
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-  }
-  main.fullscreen-center {
-    min-height: 100vh;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: column;
-    padding-top: 8vh;
-  }
+{% block extra_css %}<style>
   #signup-errors {
     background: #fef2f2;
     color: #991b1b;
@@ -25,15 +11,12 @@
   }
   #signup-errors a { color: inherit; text-decoration: underline; }
   #signup-errors ul { padding-left: 1.25rem; }
-</style>
-
-<main class="fullscreen-center">
-  <section style="text-align: center; margin-bottom: 1.5rem;">
-    <h1>Create your account</h1>
-    <p>Get started with Chat-Wise for your business</p>
-  </section>
-
-  <section style="max-width: 400px; width: 100%;">
+</style>{% endblock %}
+{% block auth_heading %}
+<h1>Create your account</h1>
+<p>Get started with Chat-Wise for your business</p>
+{% endblock %}
+{% block auth_content %}
     <form method="post" action="{% url 'signup' %}" class="card" novalidate id="signup-form">
       {% csrf_token %}
 
@@ -133,9 +116,6 @@
     <p style="text-align: center; margin-top: 1rem;">
       Already have an account? <a href="{% url 'login' %}">Sign in</a>
     </p>
-  </section>
-</main>
-
 <script>
   const signupErrors = document.getElementById('signup-errors');
   if (signupErrors) signupErrors.focus();

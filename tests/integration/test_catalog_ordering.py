@@ -473,6 +473,7 @@ class CatalogOrderingTests(TestCase):
         self.assertEqual(row.unit_price, 150)
         self.assertEqual(row.total_price, 300)
         self.assertEqual(row.addons.count(), 2)
+        self.assertEqual(set(row.addons.values_list('addon_name', flat=True)), {self.oat.name, self.shot.name})
         self.assertEqual(sum(x.total_price for x in row.addons.all()), 120)
         self.assertEqual(row.total_price + sum(x.total_price for x in row.addons.all()), order.total_amount)
 

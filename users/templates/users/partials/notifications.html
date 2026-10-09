@@ -1,0 +1,8 @@
+<div id="notifications" class="notifications" role="region" aria-label="Notifications" aria-live="polite" aria-relevant="additions"></div>
+{% if messages %}
+  <div id="notification-messages">
+    {% for message in messages %}
+      <div class="notification notification--{{ message.level_tag }}" role="alert" data-notification-level="{{ message.level_tag }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}

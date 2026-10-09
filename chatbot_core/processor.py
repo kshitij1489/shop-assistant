@@ -5,6 +5,7 @@ import inspect
 from typing import Dict, Any, Optional
 
 from django.conf import settings
+from redis.exceptions import RedisError
 
 from .active_chats import (
     touch_active_chat,
@@ -29,6 +30,13 @@ log = logging.getLogger(__name__)
 
 # Default user-facing fallback message
 DEFAULT_ERROR_MSG = "Oops something happened. Please try again later."
+
+def _record_message(*args, **kwargs):
+    """Transcript outages must not resend a reply already delivered by an adapter."""
+    try:
+        append_message(*args, **kwargs)
+    except RedisError:
+        log.exception('Could not save chat transcript message')
 
 def _safe_send_text(adapter, payload, message: str) -> None:
     """Best-effort send; never raises back to caller."""
@@ -219,7 +227,7 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
         phone = getattr(customer, "phone", None) or ident.get("phone")
 
         # Record inbound message best-effort (does not raise)
-        append_message(str(tenant.id), channel, chat_id, direction="in", text=text or "")
+        _record_message(str(tenant.id), channel, chat_id, direction="in", text=text or "")
         touch_active_chat(
             str(tenant.id),
             channel,
@@ -231,7 +239,12 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
         )
 
         # Gate the bot by the Agent toggle
-        if not is_global_agent_enabled(str(tenant.id), channel):
+        try:
+            global_enabled = is_global_agent_enabled(str(tenant.id), channel)
+        except RedisError:
+            log.exception('Agent status unavailable; skipping bot routing')
+            return
+        if not global_enabled:
             log.info("Global agent disabled for tenant=%s channel=%s; skipping bot routing", tenant_id, channel)
             return
 
@@ -245,11 +258,11 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
             reply_en, meta_data = route_message_for_tenant(
                 tenant, routing_text, session_store, customer=customer,
             )
-            meta_data = meta_data if isinstance(meta_data, list) else []
+            meta_data = meta_data if isinstance(meta_data, list) else None
         except Exception:
             log.exception("route_message_for_tenant failed")
             reply_en = ""
-            meta_data = []
+            meta_data = None
 
         # 6) Translate reply back to user's language (if needed)
         #ui_lang = (payload.get("ui_lang") or "").strip()
@@ -282,15 +295,15 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
                     _safe_send_text(adapter, payload, reply_local or reply_en or DEFAULT_ERROR_MSG)
 
                 # record textual reply (store local-language text)
-                append_message(str(tenant.id), channel, chat_id, direction="out", text=reply_local or reply_en or "")
-                set_latest_meta(str(tenant.id), channel, chat_id, meta_data)
+                _record_message(str(tenant.id), channel, chat_id, direction="out", text=reply_local or reply_en or "")
             except Exception:
                 log.exception("TTS or send_voice failed; falling back to text")
                 _safe_send_text(adapter, payload, reply_local or reply_en or DEFAULT_ERROR_MSG)
-                append_message(str(tenant.id), channel, chat_id, direction="out", text=reply_local or reply_en or "")
+                _record_message(str(tenant.id), channel, chat_id, direction="out", text=reply_local or reply_en or "")
         else:
             _safe_send_text(adapter, payload, reply_local or reply_en or "Thanks for your message!")
-            append_message(str(tenant.id), channel, chat_id, direction="out", text=reply_local or reply_en or "")
+            _record_message(str(tenant.id), channel, chat_id, direction="out", text=reply_local or reply_en or "")
+        if isinstance(meta_data, list):
             set_latest_meta(str(tenant.id), channel, chat_id, meta_data)
         log.info("Replied to %s/%s via %s", tenant_id, user_id, channel)
 

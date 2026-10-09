@@ -1,0 +1,13 @@
+<input type="hidden" name="variant_availability_present" value="1">
+{% for field in form %}
+  {% if field.name == "is_available" %}
+    <div>
+      <label for="{{ field.id_for_label }}">{{ field }} {{ field.label }}</label>
+    </div>
+  {% else %}
+    <div{% if field.name == "aliases" or field.name == "description" %} class="full-row"{% endif %}>
+      <label class="muted" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+    </div>
+  {% endif %}
+{% endfor %}

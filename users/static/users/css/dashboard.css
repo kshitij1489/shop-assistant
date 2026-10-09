@@ -1,4 +1,4 @@
-/* Shared dashboard primitives. Marketing pages keep their own main.css. */
+/* Shared dashboard primitives. */
 :root {
   --ui-text: #1f2937;
   --ui-muted: #6b7280;
@@ -39,6 +39,14 @@ button, input, select, textarea { font: inherit; }
 .footer { background: var(--ui-surface); padding: 1.5rem; color: var(--ui-muted); font-size: .875rem; text-align: center; }
 .skip-link { position: absolute; left: 1rem; top: -10rem; padding: .75rem; background: #fff; z-index: 200; }
 .skip-link:focus { top: 1rem; }
+.auth-layout { display: flex; align-items: center; flex-direction: column; padding: 6vh 0 2rem; }
+.auth-heading { text-align: center; margin-bottom: 1.5rem; }
+.auth-content { width: 100%; max-width: 400px; }
+.dashboard-dialog { width: min(700px, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; border: 1px solid var(--ui-border); border-radius: .75rem; padding: 1.25rem; }
+.dashboard-dialog::backdrop, .tenant-edit-dialog::backdrop { background: rgb(15 23 42 / .45); }
+.tabs { display: flex; flex-wrap: wrap; gap: .5rem; padding: .5rem 0; border-bottom: 1px solid var(--ui-border); }
+.tabs [role="tab"] { white-space: nowrap; }
+.tabs [role="tab"][aria-selected="true"] { background: var(--ui-primary); color: #fff; border-color: var(--ui-primary); }
 
 /* All buttons, including Django-generated form actions, use the same metrics. */
 :where(button, .btn) { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: .5rem .875rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); background: #fff; color: var(--ui-text); font-size: .95rem; font-weight: 600; line-height: 1.5; text-decoration: none; cursor: pointer; text-align: center; }
@@ -48,7 +56,6 @@ button, input, select, textarea { font: inherit; }
 .btn-secondary { color: var(--ui-primary); border-color: var(--ui-primary); }
 .btn.success { background: #047857; border-color: #047857; color: #fff; }
 .btn.danger { background: #b91c1c; border-color: #b91c1c; color: #fff; }
-.btn.warning { background: #fef3c7; border-color: #d97706; color: #92400e; }
 button:disabled, input:disabled, select:disabled, textarea:disabled { opacity: .6; cursor: not-allowed; }
 .actions, .btn-row, .form-row { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
 .form-row { align-items: end; margin-bottom: 1rem; }
@@ -96,10 +103,10 @@ a.card:hover, .menu-grid .card:focus-within { border-color: var(--ui-primary); b
 .badge { display: inline-block; flex-shrink: 0; padding: .2rem .5rem; border-radius: 999px; font-size: .75rem; border: 1px solid var(--ui-border); }
 .badge.on { background: #ecfdf5; color: #065f46; border-color: #10b981; }
 .badge.off { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
-.importer, .catmeta { border: 1px solid var(--ui-border); border-radius: .75rem; margin: 1rem 0; overflow: hidden; }
+.importer { border: 1px solid var(--ui-border); border-radius: .75rem; margin: 1rem 0; overflow: hidden; }
 summary { cursor: pointer; font-weight: 600; }
-.importer > summary, .catmeta > summary { padding: 1rem; background: var(--ui-surface); }
-.importer > div, .catmeta > div { padding: 1rem; }
+.importer > summary { padding: 1rem; background: var(--ui-surface); }
+.importer > div { padding: 1rem; }
 details[open] > summary { margin-bottom: .75rem; }
 hr { border: 0; border-top: 1px solid var(--ui-border); margin: 2rem 0; }
 .table-wrap { max-width: 100%; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); }
@@ -109,11 +116,9 @@ th { background: var(--ui-surface); font-weight: 600; }
 tbody tr:last-child td { border-bottom: 0; }
 td ul { margin: 0; }
 pre { max-width: 100%; overflow-x: auto; padding: 1rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-surface); }
-.messages { margin-bottom: 1.5rem; }
-.alert { padding: 1rem; margin-bottom: 1rem; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-left-width: 4px; border-radius: var(--ui-radius); }
-.alert.success { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
-.alert.error { background: #fef2f2; color: #991b1b; border-color: #fecaca; font-size: 1rem; }
-.alert.warning { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
+.form-errors, .status-notice { padding: 1rem; margin-bottom: 1rem; border: 1px solid; border-left-width: 4px; border-radius: var(--ui-radius); }
+.form-errors { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+.status-notice { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
 .tenant-actions { list-style: none; padding: 0; }
 .tenant-actions li { padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); }
 .settings-tabs { display: flex; width: min(100%, 40rem); margin: 0 0 1.5rem; padding: .25rem; gap: .25rem; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: .75rem; }

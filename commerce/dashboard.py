@@ -53,9 +53,11 @@ def issue_view(request, issue_id):
                 issue.resolution_evidence = form.cleaned_data['evidence']
                 issue.resolution_note = form.cleaned_data['note']
                 issue.save(update_fields=['resolved_at', 'resolved_by', 'resolution_evidence', 'resolution_note'])
-                messages.success(request, 'Resolution recorded. Order, payment, stock and command states are unchanged.')
+                messages.success(request, 'Resolution Recorded')
                 return redirect('commerce:issue', issue_id=issue.pk)
     record = issue.accepted_order
+    if request.method == 'POST':
+        messages.error(request, 'Resolution Not Recorded')
     return render(request, 'commerce/issue.html', {'issue': issue, 'record': record, 'form': form,
         'commands': record.commands.select_related('connection').order_by('created_at'),
         'payments': record.payments.select_related('connection').all(),
@@ -81,8 +83,10 @@ def settings_view(request):
                 location, _ = Location.objects.get_or_create(tenant=tenant, code='default', defaults={'name': tenant.display_name})
                 Configuration.objects.update_or_create(tenant=tenant, defaults={'location': config.location if config else location,
                     'enabled': form.cleaned_data['enabled'], 'policy': form.policy})
-            messages.success(request, 'Commerce settings saved. Confirmed orders retain their accepted prices.')
+            messages.success(request, 'Commerce Settings Saved')
             return redirect('commerce:settings')
+    if request.method == 'POST':
+        messages.error(request, 'Commerce Settings Not Saved')
     issues = ReconciliationIssue.objects.filter(accepted_order__location__tenant=tenant, resolved_at__isnull=True).order_by('-created_at')[:50]
     return render(request, 'commerce/settings.html', {'tenant': tenant, 'form': form, 'issues': issues,
         'config': config, 'readiness': readiness_issues(tenant, configuration=config),
@@ -106,6 +110,7 @@ def connections_view(request, connection_id=None):
             if request.POST.get('action') == 'rotate' and connection_id:
                 secret = rotate_credentials(connection)
                 form = ConnectionForm(instance=connection)
+                messages.success(request, 'Signing Secret Rotated')
             elif form.is_valid():
                 creating = connection._state.adding
                 try:
@@ -116,8 +121,11 @@ def connections_view(request, connection_id=None):
                 except IntegrityError:
                     form.add_error(None, 'Another active connection already uses this role. Reload and try again.')
                 else:
+                    messages.success(request, 'Connection Saved')
                     if not creating:
                         return redirect('commerce:connections')
+    if request.method == 'POST' and form.errors:
+        messages.error(request, 'Connection Not Saved')
     return render(request, 'commerce/connections.html', {'form': form, 'connection': connection,
         'adapter_secret': secret, 'connections': Connection.objects.filter(location=config.location)}, status=400 if form.errors else 200)
 
@@ -137,6 +145,9 @@ def stock_view(request, stock_id=None):
             except IntegrityError:
                 form.add_error(None, 'Stock already exists for this selection. Reload and edit that record.')
             else:
+                messages.success(request, 'Stock Saved')
                 return redirect('commerce:stock')
+    if request.method == 'POST':
+        messages.error(request, 'Stock Not Saved')
     return render(request, 'commerce/stock.html', {'form': form,
         'stocks': StockItem.objects.filter(location=config.location).select_related('item', 'variant__menu_item', 'addon')}, status=400 if form.errors else 200)

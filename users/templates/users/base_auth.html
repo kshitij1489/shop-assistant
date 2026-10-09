@@ -1,0 +1,11 @@
+{% extends "users/base.html" %}
+{% block content %}
+<div class="auth-layout">
+  <div class="auth-heading">
+    {% block auth_heading %}{% endblock %}
+  </div>
+  <div class="auth-content">
+    {% block auth_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

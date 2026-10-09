@@ -6,6 +6,7 @@ from uuid import UUID
 
 from django.template.loader import render_to_string
 from django.test import SimpleTestCase, override_settings
+from users.catalog_fields import CATALOG_FIELDS, catalog_editor_fields
 
 
 @override_settings(ROOT_URLCONF='tests.support.urls')
@@ -14,9 +15,10 @@ class DashboardEditorTests(SimpleTestCase):
         item_id = UUID('11111111-1111-1111-1111-111111111111')
         metadata = {'enabled': True, 'note': '</script><b>Customer text</b>'}
         catalog = {'dietary_preferences': {'vegan': False}, 'ingredients': ['Chef\'s coffee']}
+        catmeta = SimpleNamespace(**{name: catalog.get(name, default()) for name, _, default, _, _ in CATALOG_FIELDS})
         html = render_to_string('users/menu_item_detail.html', {
             'item': SimpleNamespace(id=item_id, pk=item_id, meta=metadata),
-            'catmeta': SimpleNamespace(**catalog),
+            'catalog_fields': catalog_editor_fields(catmeta),
         })
         for source_id, expected in [
             (f'meta-json-{item_id}', metadata),

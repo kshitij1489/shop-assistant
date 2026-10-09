@@ -14,6 +14,7 @@
 
   const saveButton = form.querySelector("[data-save-edits]");
   const dialog = document.querySelector("[data-tenant-edit-dialog]");
+  const modal = UIComponents.dialog(dialog);
   const saved = JSON.parse(savedNode.textContent);
   const fields = Array.from(form.querySelectorAll("input, textarea")).filter(function (field) {
     return field.type !== "hidden";
@@ -39,14 +40,14 @@
   form.addEventListener("submit", function (event) {
     if (approved) return;
     event.preventDefault();
-    if (!saveButton.disabled) dialog.showModal();
+    if (!saveButton.disabled) modal.open(saveButton);
   });
   dialog.querySelector("[data-cancel-edits]").addEventListener("click", function () {
-    dialog.close();
+    modal.close();
   });
   dialog.querySelector("[data-confirm-edits]").addEventListener("click", function () {
     approved = true;
-    dialog.close();
+    modal.close();
     form.requestSubmit();
   });
 })();

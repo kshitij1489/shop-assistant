@@ -3,7 +3,7 @@
 
 {% block title %}Tenant Knowledge{% endblock %}
 
-{% block extra_css %}<link rel="stylesheet" href="{% static 'users/css/knowledge.css' %}">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'users/css/knowledge.css' %}?v=20261009-review">{% endblock %}
 
 {% block tenant_content %}
 {{ docs_payload|json_script:"docs_json" }}
@@ -56,14 +56,18 @@
   <!-- 2) Two-layer tabs -->
   <div class="card" style="padding: .25rem 1rem; margin-bottom: .75rem;">
     <div class="muted" style="margin:.25rem 0 .25rem;">Intents</div>
-    <div id="intentTabs" class="tabs"></div>
-    <div class="muted" style="margin:.5rem 0 .25rem;">Sub-intents</div>
-    <div id="subIntentTabs" class="tabs"></div>
+    <div id="intentTabs" class="tabs" role="tablist" aria-label="Knowledge intents"></div>
+    <div id="knowledge-topics-panel" role="tabpanel">
+      <div class="muted" style="margin:.5rem 0 .25rem;">Sub-intents</div>
+      <div id="subIntentTabs" class="tabs" role="tablist" aria-label="Knowledge topics"></div>
+    </div>
   </div>
 
   <!-- Payload editor -->
-  <div class="card" style="padding: 1rem; margin-bottom:.75rem;">
+  <div id="knowledge-payload-panel" role="tabpanel" class="card" style="padding: 1rem; margin-bottom:.75rem;">
     <div class="muted" id="selectionPath" style="margin-bottom:.35rem;">—</div>
+    <label for="payloadTA">Entry payload (JSON)</label>
+    <p id="draftStatus" class="muted" role="status"></p>
     <textarea id="payloadTA" class="mono" placeholder="{ }"></textarea>
   </div>
 
@@ -106,8 +110,7 @@
 </div>
 
 <!-- Modal for Add Entry -->
-<div id="addModal" class="modal-backdrop" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+<dialog id="addModal" class="dashboard-dialog" aria-labelledby="addModalTitle">
     <h3 id="addModalTitle" style="font-size:1.125rem; font-weight:600; margin-bottom:.5rem;">Add Entry</h3>
     <form id="addForm" method="post" action="">
       {% csrf_token %}
@@ -142,9 +145,8 @@
         <button type="submit" class="btn success" id="btnAddSave">Save</button>
       </div>
     </form>
-  </div>
-</div>
+</dialog>
 
 <!-- Load external JS (served from your origin) -->
-<script src="{% static 'users/js/knowledge.js' %}" defer></script>
+<script src="{% static 'users/js/knowledge.js' %}?v=20261009-review" defer></script>
 {% endblock %}

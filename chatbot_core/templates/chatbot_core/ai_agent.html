@@ -4,14 +4,16 @@
 
 {% block content %}
 <section class="chatbot-container">
-  <div class="chat-window" id="chat-window">
+  <div class="chat-window" id="chat-window" role="log" aria-label="Conversation" aria-live="off" tabindex="0">
     <div class="message bot">Hi there! I'm your AI Assistant. How can I help today?</div>
   </div>
 
   <form class="chat-form" id="chat-form">
+    <label class="visually-hidden" for="message-input">Message to assistant</label>
     <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off" required />
     <button type="submit">Send</button>
   </form>
+  <div id="reply-announcement" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 </section>
 {% endblock %}
 
@@ -83,6 +85,7 @@ form.addEventListener('submit', async function (e) {
   input.disabled = true;
   submitButton.disabled = true;
   const botMessage = appendMessage('bot', 'Thinking…');
+  document.getElementById('reply-announcement').textContent = '';
   botMessage.setAttribute('aria-busy', 'true');
   let streamedText = '';
 
@@ -127,6 +130,7 @@ form.addEventListener('submit', async function (e) {
     renderMessage(botMessage, 'The reply could not be completed. Please check your basket before trying again.');
   } finally {
     botMessage.removeAttribute('aria-busy');
+    document.getElementById('reply-announcement').textContent = botMessage.textContent;
     input.disabled = false;
     submitButton.disabled = false;
     input.focus();

@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, Optional, List
 from users.analytics.db_utils import SCHEMA_WHITELIST
 from chatbot_core.llm.chains import structured_chain
 from chatbot_core.llm.schemas import SQLProposal

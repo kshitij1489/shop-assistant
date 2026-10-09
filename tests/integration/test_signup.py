@@ -85,8 +85,7 @@ class SignupFeedbackTests(TestCase):
         self.assertEqual(response.redirect_chain, [
             (reverse('dashboard'), 302), (reverse('pending_review'), 302),
         ])
-        self.assertContains(response, 'Your account has been created successfully.')
-        self.assertContains(response, 'Your café is awaiting administrator approval.')
+        self.assertContains(response, '<div class="notification notification--success" role="alert" data-notification-level="success">Account Created: Approval Pending</div>', html=True)
         self.assertNotContains(response, 'id="signup-errors"')
         owner = get_user_model().objects.get(username=self.data['username'])
         self.assertTrue(owner.check_password(self.data['password']))

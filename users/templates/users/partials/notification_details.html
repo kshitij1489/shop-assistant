@@ -1,0 +1,8 @@
+{% load notification_details %}
+{% consume_notification_details as details %}
+{% if details %}
+  <details class="form-errors" open>
+    <summary>Validation details</summary>
+    <ul>{% for detail in details %}<li>{{ detail }}</li>{% endfor %}</ul>
+  </details>
+{% endif %}

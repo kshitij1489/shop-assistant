@@ -1,13 +1,13 @@
 from __future__ import annotations
 from django.db.models import Func
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 from decimal import Decimal
 from typing import Dict, Any, List
 
 from django.db.models import Prefetch, Q
 
-from orders.models import MenuItem, MenuItemVariant, MenuCatalogMeta, MenuCategory
+from orders.models import MenuItem, MenuItemVariant, MenuCatalogMeta
 
 INR = "₹"
 

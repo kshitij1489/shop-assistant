@@ -26,15 +26,18 @@
       <td>{{ order.customer.name|default:"—" }}</td>
       <td>
         <ul>
-          {% for item in order.items.all %}
+          {% for item in order.display_items %}
           <li>
-            {{ item.item_name }} × {{ item.quantity }}
-            ({{ item.unit_price|floatformat:2 }} ea)
+            {{ item.name }}{% if item.size %} ({{ item.size }}){% endif %} × {{ item.quantity }}
+            ({{ item.unit_price }} ea)
+            {% if item.modifiers %}
+            <ul>{% for modifier in item.modifiers %}<li>{{ modifier.name }} × {{ modifier.quantity }} per item ({{ modifier.unit_price }} ea)</li>{% endfor %}</ul>
+            {% endif %}
           </li>
           {% endfor %}
         </ul>
       </td>
-      <td>₹{{ order.total_amount|floatformat:2 }}</td>
+      <td>{{ order.display_total }}</td>
       <td>
         {{ order.delivery_partner.name|default:"—" }}
       </td>

@@ -39,7 +39,7 @@
   </div>
   <div class="card">
     <div class="muted">Average Session Time</div>
-    <div class="summary-value">{{ summary.avg_duration|default:"—" }}</div>
+    <div class="summary-value">{{ summary.avg_duration|default_if_none:"—" }}</div>
   </div>
   <div class="card">
     <div class="muted">Feedback Score</div>
@@ -48,9 +48,9 @@
 </div>
 {% endif %}
 
-<div class="tabs" role="tablist" aria-label="Analytics tabs">
-  <button class="tab-btn active" data-target="db-panel" role="tab" aria-selected="true">DB Results</button>
-  <button class="tab-btn" data-target="charts-panel" role="tab" aria-selected="false">Charts</button>
+<div id="analytics-tabs" class="tabs" role="tablist" aria-label="Analytics tabs">
+  <button class="tab-btn active" type="button" aria-controls="db-panel" role="tab" aria-selected="true">DB Results</button>
+  <button class="tab-btn" type="button" aria-controls="charts-panel" role="tab" aria-selected="false">Charts</button>
 </div>
 
 <!-- DB Results -->
@@ -143,31 +143,7 @@
     button.textContent = el.hidden ? 'Show SQL' : 'Hide SQL';
   }
 
-  // Tab toggling
-  (function(){
-    const tabs = document.querySelectorAll('.tab-btn');
-    const panels = { 'db-panel': document.getElementById('db-panel'), 'charts-panel': document.getElementById('charts-panel') };
-    tabs.forEach(btn=>{
-      btn.addEventListener('click', ()=> {
-        tabs.forEach(t=> {
-          t.classList.remove('active');
-          t.setAttribute('aria-selected', 'false');
-        });
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected', 'true');
-        Object.keys(panels).forEach(k=>{
-          const panel = panels[k];
-          if (k === btn.dataset.target) {
-            panel.hidden = false;
-            panel.setAttribute('aria-hidden','false');
-          } else {
-            panel.hidden = true;
-            panel.setAttribute('aria-hidden','true');
-          }
-        });
-      });
-    });
-  })();
+  UIComponents.tabs(document.getElementById("analytics-tabs"));
 
   // Chart placeholders
   (function initCharts(){

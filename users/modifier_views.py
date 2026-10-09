@@ -24,6 +24,7 @@ def modifiers(request, group_id=None):
                 with transaction.atomic():
                     group.delete()
                     publish_menu(tenant)
+                messages.success(request, 'Modifier Group Deleted')
                 return redirect('tenant:modifiers')
             except ProtectedError:
                 form.add_error(None, 'This group has stock records. Disable its options instead.')
@@ -33,11 +34,12 @@ def modifiers(request, group_id=None):
                     form.save()
                     options.save()
                     publish_menu(tenant)
-                messages.success(request, 'Modifier group saved.')
+                messages.success(request, 'Modifier Group Saved')
                 return redirect('tenant:modifier_edit', group_id=group.pk)
             except ProtectedError:
                 form.add_error(None, 'An option has stock records. Disable it instead of deleting it.')
-    return render(request, 'users/modifiers.html', {**menu_context(tenant), 'form': form, 'options': options, 'group': group,
+        messages.error(request, 'Modifier Group Not Deleted' if request.POST.get('action') == 'delete' else 'Modifier Group Not Saved')
+    return render(request, 'users/modifiers.html', {'active_page': 'menu', **menu_context(tenant), 'form': form, 'options': options, 'group': group,
         'groups': AddonGroup.objects.filter(tenant=tenant).order_by('name')}, status=400 if form.errors or options.errors else 200)
 
 
@@ -54,11 +56,14 @@ def item_modifiers(request, item_id, link_id=None):
             with transaction.atomic():
                 link.delete()
                 publish_menu(tenant)
+            messages.success(request, 'Modifier Group Detached')
             return redirect('tenant:item_modifiers', item_id=item.pk)
         if form.is_valid():
             with transaction.atomic():
                 form.save()
                 publish_menu(tenant)
+            messages.success(request, 'Item Rules Saved')
             return redirect('tenant:item_modifiers', item_id=item.pk)
-    return render(request, 'users/item_modifiers.html', {**menu_context(tenant), 'item': item, 'form': form, 'link': link,
+        messages.error(request, 'Item Rules Not Saved')
+    return render(request, 'users/item_modifiers.html', {'active_page': 'menu', **menu_context(tenant), 'item': item, 'form': form, 'link': link,
         'links': item.addon_groups.filter(tenant=tenant).select_related('group')}, status=400 if form.errors else 200)

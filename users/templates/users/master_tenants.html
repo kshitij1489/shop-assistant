@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Tenants - Chat-Wise{% endblock %}
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'users/css/master_tenants.css' %}?v=20260927-edit-spacing">
+  <link rel="stylesheet" href="{% static 'users/css/master_tenants.css' %}?v=20261009-review">
 {% endblock %}
 {% block content %}
 <div class="dashboard-home">
@@ -20,7 +20,7 @@
       <form method="post" action="{% url 'create_tenant' %}" novalidate>
         {% csrf_token %}
         {% if form.errors %}
-          <div class="alert error" role="alert">
+          <div class="form-errors" role="alert">
             <h2>Tenant was not created.</h2>
             <p>Correct the errors below and re-enter the passwords.</p>
             {{ form.non_field_errors }}
@@ -66,7 +66,7 @@
         <form method="post" action="{% url 'update_tenant_details' edit_form.tenant.pk %}" autocomplete="off" data-tenant-edit-form>
           {% csrf_token %}
           {% if edit_form.non_field_errors %}
-            <div class="alert error" role="alert">{{ edit_form.non_field_errors }}</div>
+            <div class="form-errors" role="alert">{{ edit_form.non_field_errors }}</div>
           {% endif %}
           <div class="form-grid">
             {% for field in edit_form %}
@@ -85,7 +85,7 @@
           </div>
           <button type="submit" class="btn btn-primary" data-save-edits disabled>Save Edits</button>
         </form>
-        <dialog class="tenant-edit-dialog" data-tenant-edit-dialog aria-labelledby="tenant-edit-confirm-title">
+        <dialog class="dashboard-dialog tenant-edit-dialog" data-tenant-edit-dialog aria-labelledby="tenant-edit-confirm-title">
           <h3 id="tenant-edit-confirm-title">Save edits?</h3>
           <p>Save changes to <strong>{{ edit_form.tenant.display_name }}</strong>?</p>
           <div class="actions">
@@ -153,5 +153,5 @@
     </div>
   </section>
 </div>
-<script src="{% static 'users/js/tenant_directory.js' %}?v=20260927-edit-section"></script>
+<script src="{% static 'users/js/tenant_directory.js' %}?v=20261009-review"></script>
 {% endblock %}

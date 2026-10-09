@@ -1,0 +1,88 @@
+.notifications, .notification { box-sizing: border-box; }
+.notifications {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 10000;
+  display: grid;
+  gap: .75rem;
+  width: min(380px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overflow-x: clip;
+  pointer-events: none;
+}
+.notification {
+  --notification-color: #1e40af;
+  --notification-background: #eff6ff;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .875rem 1rem;
+  border: 1px solid var(--notification-color);
+  border-left-width: 4px;
+  border-radius: .625rem;
+  background: var(--notification-background);
+  color: var(--notification-color);
+  box-shadow: 0 6px 24px #0f172a1f;
+  font-size: .9375rem;
+  line-height: 1.5;
+  pointer-events: auto;
+  animation: notification-in 240ms ease-out both;
+}
+.notification--success { --notification-color: #065f46; --notification-background: #ecfdf5; }
+.notification--error { --notification-color: #991b1b; --notification-background: #fef2f2; }
+.notification--warning { --notification-color: #9a3412; --notification-background: #fff7ed; }
+.notification-icon { flex-shrink: 0; font-weight: 700; }
+.notification-message { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 600; }
+.notification-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1.375rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.notification-close:hover { background: #ffffff80; }
+.notification-close:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.notification--leaving { animation: notification-out 240ms ease-in both; }
+@keyframes notification-in {
+  from { transform: translateX(calc(100% + 1rem)); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes notification-out {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(calc(100% + 1rem)); opacity: 0; }
+}
+/* Fixed page toasts sit outside a modal top layer, so dialog feedback stays in the dialog. */
+.notifications--dialog {
+  position: static;
+  top: auto;
+  right: auto;
+  z-index: auto;
+  width: 100%;
+  max-height: none;
+  margin-bottom: .75rem;
+  overflow: visible;
+}
+.notifications--dialog:empty { margin: 0; }
+.notifications--dialog .notification { animation-name: notification-in-dialog; }
+.notifications--dialog .notification--leaving { animation-name: notification-out-dialog; }
+@keyframes notification-in-dialog {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes notification-out-dialog {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notification, .notification--leaving { animation-duration: 1ms; }
+}

@@ -3,17 +3,17 @@
 <div class="dashboard-layout">
   <aside class="sidebar" aria-label="Tenant navigation">
     <ul>
-      <li><a href="{% url 'tenant:tenant_chats' %}" class="{% if active_page == 'chats' %}active{% endif %}">Chats</a></li>
-      <li><a href="{% url 'tenant:tenant_analytics' %}" class="{% if active_page == 'analytics' %}active{% endif %}">Analytics</a></li>
-      <li><a href="{% url 'tenant:tenant_orders' %}" class="{% if active_page == 'orders' %}active{% endif %}">Orders</a></li>
-      <li><a href="{% url 'tenant:tenant_menu' %}" class="{% if active_page == 'menu' %}active{% endif %}">Menu</a></li>
-      <li><a href="{% url 'tenant:tenant_activity' %}" class="{% if active_page == 'activity' %}active{% endif %}">Activity</a></li>
-      <li><a href="{% url 'tenant:tenant_campaigns' %}" class="{% if active_page == 'campaigns' %}active{% endif %}">Campaigns</a></li>
-      <li><a href="{% url 'tenant:tenant_users' %}" class="{% if active_page == 'users' %}active{% endif %}">Users</a></li>
-      <li><a href="{% url 'tenant:tenant_billing' %}" class="{% if active_page == 'billing' %}active{% endif %}">Billing</a></li>
-      <li><a href="{% url 'tenant:tenant_settings' %}" class="{% if active_page == 'settings' or request.resolver_match.url_name == 'tenant_settings' %}active{% endif %}">Settings</a></li>
-      <li><a href="{% url 'tenant:tenant_knowledge' %}" class="{% if request.resolver_match.url_name == 'tenant_knowledge' %}active{% endif %}">Knowledge</a></li>
-      <li><a href="{% url 'tenant:upload_knowledge_prompt' %}" class="{% if request.resolver_match.url_name == 'upload_knowledge_prompt' %}active{% endif %}">Upload Knowledge Prompts</a></li>
+      <li><a href="{% url 'tenant:tenant_chats' %}" class="{% if active_page == 'chats' %}active{% endif %}"{% if active_page == 'chats' %} aria-current="page"{% endif %}>Chats</a></li>
+      <li><a href="{% url 'tenant:tenant_analytics' %}" class="{% if active_page == 'analytics' %}active{% endif %}"{% if active_page == 'analytics' %} aria-current="page"{% endif %}>Analytics</a></li>
+      <li><a href="{% url 'tenant:tenant_orders' %}" class="{% if active_page == 'orders' %}active{% endif %}"{% if active_page == 'orders' %} aria-current="page"{% endif %}>Orders</a></li>
+      <li><a href="{% url 'tenant:tenant_menu' %}" class="{% if active_page == 'menu' %}active{% endif %}"{% if active_page == 'menu' %} aria-current="page"{% endif %}>Menu</a></li>
+      <li><a href="{% url 'tenant:tenant_activity' %}" class="{% if active_page == 'activity' %}active{% endif %}"{% if active_page == 'activity' %} aria-current="page"{% endif %}>Activity</a></li>
+      <li><a href="{% url 'tenant:tenant_campaigns' %}" class="{% if active_page == 'campaigns' %}active{% endif %}"{% if active_page == 'campaigns' %} aria-current="page"{% endif %}>Campaigns</a></li>
+      <li><a href="{% url 'tenant:tenant_users' %}" class="{% if active_page == 'users' %}active{% endif %}"{% if active_page == 'users' %} aria-current="page"{% endif %}>Users</a></li>
+      <li><a href="{% url 'tenant:tenant_billing' %}" class="{% if active_page == 'billing' %}active{% endif %}"{% if active_page == 'billing' %} aria-current="page"{% endif %}>Billing</a></li>
+      <li><a href="{% url 'tenant:tenant_settings' %}" class="{% if active_page == 'settings' or request.resolver_match.url_name == 'tenant_settings' %}active{% endif %}"{% if active_page == 'settings' or request.resolver_match.url_name == 'tenant_settings' %} aria-current="page"{% endif %}>Settings</a></li>
+      <li><a href="{% url 'tenant:tenant_knowledge' %}" class="{% if request.resolver_match.url_name == 'tenant_knowledge' %}active{% endif %}"{% if request.resolver_match.url_name == 'tenant_knowledge' %} aria-current="page"{% endif %}>Knowledge</a></li>
+      <li><a href="{% url 'tenant:upload_knowledge_prompt' %}" class="{% if request.resolver_match.url_name == 'upload_knowledge_prompt' %}active{% endif %}"{% if request.resolver_match.url_name == 'upload_knowledge_prompt' %} aria-current="page"{% endif %}>Upload Knowledge Prompts</a></li>
     </ul>
   </aside>
 

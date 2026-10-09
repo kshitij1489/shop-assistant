@@ -25,9 +25,9 @@
           <label><input type="checkbox" name="is_active" {% if category.is_active %}checked{% endif %}> Active</label>
           <button class="btn primary" type="submit">Save</button>
         </form>
-        <form class="form-row" method="post" action="{% url 'tenant:tenant_menu_category_delete' category.id %}">
+        <form class="form-row" method="post" action="{% url 'tenant:tenant_menu_category_delete' category.id %}" data-confirm="Delete this category? Its products will become uncategorized.">
           {% csrf_token %}
-          <button class="btn" type="submit">Delete category</button>
+          <button class="btn danger" type="submit">Delete category</button>
         </form>
       </div>
     {% empty %}<p class="muted">No categories yet.</p>{% endfor %}
@@ -45,12 +45,12 @@
 <details class="importer" open>
   <summary>Import Menu JSON (per-item array) → Upsert DB</summary>
   <div>
-    <form method="post" action="{% url 'tenant:tenant_menu_ingest_json' %}" class="stack">
+    <form method="post" action="{% url 'tenant:tenant_menu_ingest_json' %}" class="stack" data-json-validate="textarea">
       {% csrf_token %}
       <label for="menu-items-json">Menu JSON</label>
       <textarea id="menu-items-json" class="json" name="menu_items_json" placeholder='{"menu_items": [ ... ]}' spellcheck="false">{{ sample_menu_json|default:"" }}</textarea>
       <div class="actions">
-        <button type="button" class="btn" onclick="(function(t){try{const o=JSON.parse(t.value); t.value=JSON.stringify(o,null,2);}catch(e){alert('Invalid JSON: '+e.message)}})(this.form.menu_items_json)">Validate JSON</button>
+        <button type="button" class="btn" data-json-action="validate" data-json-target="menu-items-json">Validate JSON</button>
         <button type="submit" class="btn primary">Import & Upsert</button>
         <small class="muted">Understands fields like: availability.quantity, pricing (sizes), portion_and_size, dietary_preferences, allergens, ingredients, nutrition, preparation, recommendations, specialty_items, source_quality, pairings, flavor_profile, menu_category.</small>
       </div>

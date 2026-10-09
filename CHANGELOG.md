@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0 — 2026-10-09
+
+- Improve dashboard notifications, keyboard navigation, dialogs, and form feedback.
+- Keep chat selection, drafts, reading position, and agent controls consistent
+  during refreshes; report message delivery and storage failures clearly.
+- Improve voice playback, cancellation, message history, and basket display.
+- Preserve knowledge drafts, login destinations, and order pagination filters.
+- Show saved order currencies, variants, modifier names and prices, and elapsed
+  session durations.
+
+**Upgrade:** apply database migrations (including orders migration `0022`) before
+restarting web and background workers. See
+[production operations](docs/operations/production.md) for deployment instructions.
+
 ## 1.1.0 — 2026-10-08
 
 - Share validated configuration imports between the dashboard and evaluation

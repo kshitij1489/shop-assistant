@@ -1,22 +1,22 @@
 from .menu_source import local_menu_required, menu_context
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 from django.contrib.auth.views import LogoutView as DjangoLogoutView, LoginView
 from django.contrib import messages
+from .notifications import action_error
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST, require_http_methods, require_GET
 from django.utils.decorators import method_decorator
 from django.http import HttpRequest, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from chatbot_core.channels.utils import generate_tenant_jwt
-import os, json
-from datetime import datetime, timezone as dt_timezone
-from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_exempt
+import json
 from django.conf import settings
 from orders.models import Customer, Order, MenuItem, MenuItemVariant, MenuCatalogMeta, MenuCategory, ChatSession
-from orders.models import ChatSession, PlatformWebhookLog
-from django.db.models import Count, Avg, Max, Avg, F
+from orders.models import PlatformWebhookLog
+from django.db.models import Avg, Case, DurationField, ExpressionWrapper, F, Prefetch, Value, When
+from django.db.models.deletion import ProtectedError
+from redis.exceptions import RedisError
 from django.utils.timezone import now
 from datetime import timedelta
 from .forms import (
@@ -35,24 +35,17 @@ from django_ratelimit.decorators import ratelimit
 import requests
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ValidationError
-import datetime
-from datetime import timezone
-from .utils import ExtractEpoch, publish_menu as _publish_menu
+from .utils import publish_menu as _publish_menu
+from .catalog_fields import catalog_editor_fields, parse_catalog_fields
+from .order_history import prepare_order_history
 from orders.tasks import task_sync_tenant_from_folder
 from chatbot_core.active_chats import list_active_chats, set_agent_enabled, get_messages, append_message, is_global_agent_enabled, set_global_agent_enabled, get_latest_meta
 from chatbot_core.channels.registry import get_adapter
 from chatbot_core.knowledge_cache import initialize_caches
 from django.core.mail import send_mail
 from django.urls import reverse
-from types import SimpleNamespace
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.utils import timezone
-from django.db.models import Avg, Count, Max
-import datetime
 from users.analytics.db_utils import execute_db_query
 from users.analytics.prompt_builder import create_db_query
-from django.db import connection
 
 import logging
 
@@ -157,10 +150,10 @@ def signup_view(request):
             login(request, user)
             messages.success(
                 request,
-                'Your account has been created successfully. '
-                'Your café is awaiting administrator approval.',
+                'Account Created: Approval Pending',
             )
             return redirect('dashboard')
+        messages.error(request, 'Account Not Created')
     else:
         form = SignUpForm()
     return render(request, 'users/signup.html', {'form': form})
@@ -175,7 +168,7 @@ class SignInView(LoginView):
 class LogoutView(DjangoLogoutView):
     def dispatch(self, request, *args, **kwargs):
         request.session.pop('impersonated_tenant_id', None)
-        messages.success(request, "You have been securely logged out.")
+        messages.success(request, "Logged Out")
         return super().dispatch(request, *args, **kwargs)
 
 # -------------------------------
@@ -190,7 +183,7 @@ def dashboard_redirect_view(request):
         if getattr(profile.tenant, 'approval_status', 'APPROVED') != 'APPROVED':
             return redirect('pending_review')
         return redirect('tenant:tenant_dashboard')
-    messages.error(request, "Your account is not linked to a tenant yet.")
+    messages.error(request, "Account Not Linked to a Tenant")
     return redirect('login')
 
 
@@ -198,7 +191,6 @@ def dashboard_redirect_view(request):
 @tenant_required
 def tenant_dashboard_view(request):
     return render(request, "users/dashboard_tenant.html", {
-        "is_master": False,
         "tenant": request.user.tenantprofile.tenant,
     })
 
@@ -216,7 +208,7 @@ def impersonate_tenant_view(request, tenant_id):
     try:
         tenant = TenantInfo.objects.get(id=tenant_id)
         request.session['impersonated_tenant_id'] = tenant.id
-        messages.success(request, f"Now impersonating {tenant.display_name}")
+        messages.success(request, "Impersonation Started")
     except TenantInfo.DoesNotExist:
         return HttpResponseBadRequest("Invalid tenant ID")
 
@@ -228,7 +220,7 @@ def impersonate_tenant_view(request, tenant_id):
 @csrf_protect
 def stop_impersonation_view(request):
     request.session.pop('impersonated_tenant_id', None)
-    messages.info(request, "Stopped impersonating.")
+    messages.info(request, "Impersonation Stopped")
     return redirect('master_dashboard')
 
 
@@ -270,8 +262,9 @@ def create_tenant_view(request):
     form = CreateTenantForm(request.POST)
     if form.is_valid():
         _register_tenant_account(request, form, created_by_master=True)
-        messages.success(request, 'Tenant and login account created successfully. Awaiting administrator approval.')
+        messages.success(request, 'Tenant Created: Approval Pending')
         return redirect('master_tenants')
+    messages.error(request, 'Tenant Not Created')
     return _render_master_tenants(request, form)
 
 
@@ -290,8 +283,7 @@ def set_tenant_active_view(request, tenant_id):
         "Tenant activation changed: user_id=%s tenant_id=%s is_active=%s",
         request.user.pk, tenant.pk, tenant.is_active,
     )
-    action = 'Activated' if tenant.is_active else 'Deactivated'
-    messages.success(request, f'{action} {tenant.display_name}.')
+    messages.success(request, 'Tenant Activated' if tenant.is_active else 'Tenant Deactivated')
     return redirect('master_tenants')
 
 
@@ -313,7 +305,7 @@ def update_tenant_details_view(request: HttpRequest, tenant_id: int):
         saved = _save_tenant_directory(request, tenant, form)
         if saved:
             return redirect('master_tenants')
-    messages.error(request, f'Changes for {tenant.display_name} were not saved.')
+    messages.error(request, 'Tenant Details Not Saved')
     return _render_master_tenants(request, CreateTenantForm(), edit_form=form, status=400)
 
 
@@ -334,7 +326,7 @@ def _save_tenant_directory(request: HttpRequest, tenant: TenantInfo, form: Tenan
         "Tenant directory updated: user_id=%s tenant_id=%s changed=%s",
         request.user.pk, tenant.pk, ','.join(changed) or 'none',
     )
-    messages.success(request, f'Updated {form.cleaned_data["display_name"]}.')
+    messages.success(request, 'Tenant Details Saved')
     return True
 
 
@@ -345,9 +337,9 @@ def delete_tenant_view(request, tenant_id):
         return HttpResponseForbidden()
     try:
         TenantInfo.objects.get(id=tenant_id).delete()
-        messages.success(request, "Tenant deleted.")
+        messages.success(request, "Tenant Deleted")
     except TenantInfo.DoesNotExist:
-        messages.error(request, "Tenant not found.")
+        messages.error(request, "Tenant Not Found")
     return redirect('master_dashboard')
 
 # -------------------------------
@@ -412,15 +404,17 @@ def tenant_settings_view(request):
     if whatsapp_post:
         if whatsapp_form.is_valid():
             whatsapp_form.save()
-            messages.success(request, 'WhatsApp number updated.')
+            messages.success(request, 'WhatsApp Number Saved')
             return _redirect_settings('contact')
+        messages.error(request, 'WhatsApp Number Not Saved')
         settings_context['active_tab'] = 'contact'
         return render(request, 'users/tenant_settings.html', settings_context, status=400)
     if contact_post:
         if location_form.is_valid():
             location_form.save()
-            messages.success(request, 'Store address updated.')
+            messages.success(request, 'Store Address Saved')
             return _redirect_settings('contact')
+        messages.error(request, 'Store Address Not Saved')
         settings_context['active_tab'] = 'contact'
         return render(request, 'users/tenant_settings.html', settings_context, status=400)
     if request.method == 'POST' and request.POST.get('section') == 'profile':
@@ -433,8 +427,9 @@ def tenant_settings_view(request):
                     "Tenant name updated: user_id=%s tenant_id=%s",
                     request.user.pk, tenant.pk,
                 )
-            messages.success(request, 'Business name updated.')
+            messages.success(request, 'Business Name Saved')
             return _redirect_settings('contact')
+        messages.error(request, 'Business Name Not Saved')
         settings_context['active_tab'] = 'contact'
         return render(request, 'users/tenant_settings.html', settings_context, status=400)
 
@@ -442,8 +437,9 @@ def tenant_settings_view(request):
         if checkout_form.is_valid():
             from chatbot_core.configuration_imports import import_checkout
             import_checkout(tenant, checkout_form.configuration)
-            messages.success(request, 'Checkout and opening hours updated.')
+            messages.success(request, 'Checkout and Hours Saved')
             return _redirect_settings(_posted_checkout_tab(request))
+        messages.error(request, 'Checkout and Hours Not Saved')
         errors = checkout_form.error_fields
         settings_context['active_tab'] = errors[0]['tab'] if errors else _posted_checkout_tab(request)
         return render(request, 'users/tenant_settings.html', settings_context, status=400)
@@ -471,7 +467,7 @@ def tenant_settings_view(request):
                 return
 
             if not settings.PUBLIC_URL.startswith('https://'):
-                messages.error(request, 'Telegram requires an HTTPS PUBLIC_URL. Configure it before registering the bot.')
+                action_error(request, 'Telegram Webhook Not Registered', 'Configure an HTTPS PUBLIC_URL before registering the bot.')
                 return
 
             endpoint = f"https://api.telegram.org/bot{new_token}/setWebhook"
@@ -485,18 +481,16 @@ def tenant_settings_view(request):
                     data = resp.json()
                 except Exception:
                     pass
+                if not isinstance(data, dict):
+                    data = {}
 
                 if resp.ok and data.get("ok") is True:
-                    messages.success(request, "Telegram webhook set successfully.")
+                    messages.success(request, "Telegram Webhook Registered")
                 else:
-                    # Surface some context to help debug
-                    reason = data.get("description") or resp.text
-                    messages.error(
-                        request,
-                        f"Failed to set Telegram webhook: {reason}"
-                    )
-            except requests.RequestException as e:
-                messages.error(request, f"Error calling Telegram API: {e}")
+                    reason = data.get("description") or "Telegram could not register the webhook."
+                    action_error(request, 'Telegram Webhook Not Registered', reason)
+            except requests.RequestException:
+                messages.error(request, 'Telegram Unavailable: Webhook Not Registered')
 
         with transaction.atomic():
             for field, value in updates.items():
@@ -508,7 +502,7 @@ def tenant_settings_view(request):
             if telegram_bot_token:
                 transaction.on_commit(lambda: _set_telegram_webhook(telegram_bot_token))
 
-        messages.success(request, "Tenant settings updated.")
+        messages.success(request, "Telegram Settings Saved" if section == 'integrations' else "Settings Saved")
         return _redirect_settings('integrations' if section == 'integrations' else 'contact')
 
     return render(request, "users/tenant_settings.html", settings_context)
@@ -553,22 +547,14 @@ def tenant_analytics_view(request):
     total_sessions = sessions.count()
     unique_customers = sessions.values('customer').distinct().count()
 
-    # Fix: compute avg of timestamp by extracting epoch seconds first
-    avg_ts_seconds = sessions.aggregate(avg_ts=Avg(ExtractEpoch('last_interaction_at')))['avg_ts']
-    avg_duration = (
-        datetime.datetime.fromtimestamp(float(avg_ts_seconds), tz=dt_timezone.utc) if avg_ts_seconds else None
+    duration = Case(
+        When(last_interaction_at__lt=F('created_at'), then=Value(timedelta(0))),
+        default=ExpressionWrapper(F('last_interaction_at') - F('created_at'), output_field=DurationField()),
+        output_field=DurationField(),
     )
-
-    # Platform stats from PlatformWebhookLog
-    platform_data = (
-        PlatformWebhookLog.objects.filter(tenant=tenant)
-        .values('source')
-        .annotate(count=Count('id'), last_seen=Max('received_at'))
-    )
-    platform_stats = [
-        {"source": entry["source"], "count": entry["count"], "last_seen": entry["last_seen"]}
-        for entry in platform_data
-    ]
+    avg_duration = sessions.aggregate(duration=Avg(duration))['duration']
+    if avg_duration is not None:
+        avg_duration = timedelta(seconds=round(avg_duration.total_seconds()))
 
     context = {
         "active_page": "analytics",
@@ -578,7 +564,6 @@ def tenant_analytics_view(request):
             "avg_duration": avg_duration,
             "positive_feedback": None  # Placeholder
         },
-        "platform_stats": platform_stats,
         # default empty values for template safety
         "query": "",
         "db_result": None,
@@ -618,7 +603,11 @@ def tenant_analytics_view(request):
 @tenant_required
 def tenant_orders_view(request):
     tenant = get_current_tenant(request)
-    orders = Order.objects.filter(tenant=tenant).prefetch_related('items', 'delivery_partner', 'customer').order_by('-created_at')
+    from orders.models import OrderItem
+    orders = Order.objects.filter(tenant=tenant).select_related('delivery_partner', 'customer', 'commerce_record').prefetch_related(
+        Prefetch('items', queryset=OrderItem.objects.select_related('variant').prefetch_related('addons__addon')),
+    ).order_by('-created_at')
+    orders = prepare_order_history(orders)
 
     return render(request, "users/dashboard_orders.html", {
         "active_page": "orders",
@@ -691,7 +680,11 @@ def tenant_chats_toggle_api(request):
     if channel not in ('telegram',):
         return HttpResponseBadRequest('unsupported channel')
 
-    set_agent_enabled(str(tenant.id), channel, chat_id, enabled)
+    try:
+        set_agent_enabled(str(tenant.id), channel, chat_id, enabled)
+    except RedisError:
+        logger.exception('Could not persist per-chat agent control')
+        return JsonResponse({'ok': False, 'error': 'Agent setting could not be saved.'}, status=503)
     return JsonResponse({'ok': True, 'enabled': enabled})
 
 @login_required
@@ -741,7 +734,12 @@ def tenant_chats_send_api(request):
         return JsonResponse({'ok': False, 'error': f'send failed: {e}'}, status=500)
 
     # Mirror to transcript
-    append_message(str(tenant.id), channel, chat_id, direction='owner', text=text)
+    try:
+        append_message(str(tenant.id), channel, chat_id, direction='owner', text=text)
+    except RedisError:
+        logger.exception('Owner message delivered but transcript could not be saved')
+        return JsonResponse({'ok': False, 'delivered': True,
+            'error': 'Message delivered; transcript could not be saved. Do not resend.'}, status=503)
 
     return JsonResponse({'ok': True})
 
@@ -756,9 +754,13 @@ def tenant_chats_list_api(request):
         return JsonResponse({'chats': [], 'global_agent_enabled': True})
 
     chats = list_active_chats(str(tenant.id), channel, limit=100)
+    try:
+        enabled = is_global_agent_enabled(str(tenant.id), channel)
+    except RedisError:
+        return JsonResponse({'ok': False, 'error': 'Agent status unavailable.'}, status=503)
     return JsonResponse({
         'chats': chats,
-        'global_agent_enabled': is_global_agent_enabled(str(tenant.id), channel),  # NEW
+        'global_agent_enabled': enabled,
     })
 
 @login_required
@@ -767,19 +769,31 @@ def tenant_chats_list_api(request):
 def tenant_chats_global_status_api(request):
     tenant = get_current_tenant(request)
     channel = (request.GET.get('channel') or 'telegram').strip().lower()
-    enabled = is_global_agent_enabled(str(tenant.id), channel)
+    try:
+        enabled = is_global_agent_enabled(str(tenant.id), channel)
+    except RedisError:
+        return JsonResponse({'ok': False, 'error': 'Agent status unavailable.'}, status=503)
     return JsonResponse({'enabled': enabled})
 
 @login_required
 @tenant_required
 @require_POST
 def tenant_chats_toggle_global_api(request):
-    data = json.loads(request.body or '{}')
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest('invalid json')
     tenant = get_current_tenant(request)
     channel = (data.get('channel') or 'telegram').strip().lower()
+    if channel != 'telegram':
+        return HttpResponseBadRequest('unsupported channel')
 
     enabled = bool(data.get('enabled', True))
-    set_global_agent_enabled(str(tenant.id), channel, enabled)
+    try:
+        set_global_agent_enabled(str(tenant.id), channel, enabled)
+    except RedisError:
+        logger.exception('Could not persist global agent control')
+        return JsonResponse({'ok': False, 'error': 'Agent setting could not be saved.'}, status=503)
     return JsonResponse({'ok': True, 'enabled': enabled})
 
 @login_required
@@ -812,7 +826,6 @@ def master_dashboard_view(request):
 
     return render(request, "users/dashboard_master.html", {
         "tenants": tenants,
-        "is_master": True,
         "impersonating": bool(impersonating),
         "tenant": tenant,
         "pending_tenants": pending_tenants,  # NEW
@@ -827,7 +840,7 @@ def approve_tenant_view(request, tenant_id):
     try:
         tenant = TenantInfo.objects.get(id=tenant_id)
     except TenantInfo.DoesNotExist:
-        messages.error(request, "Tenant not found.")
+        messages.error(request, "Tenant Not Found")
         return redirect(return_to)
 
     tenant.approval_status = TenantInfo.ApprovalStatus.APPROVED
@@ -837,7 +850,7 @@ def approve_tenant_view(request, tenant_id):
     if note:
         tenant.review_note = note
     tenant.save(update_fields=['approval_status', 'reviewed_at', 'reviewed_by', 'review_note'])
-    messages.success(request, f"Approved {tenant.display_name}.")
+    messages.success(request, "Tenant Approved")
     return redirect(return_to)
 
 @require_POST
@@ -848,7 +861,7 @@ def reject_tenant_view(request, tenant_id):
     try:
         tenant = TenantInfo.objects.get(id=tenant_id)
     except TenantInfo.DoesNotExist:
-        messages.error(request, "Tenant not found.")
+        messages.error(request, "Tenant Not Found")
         return redirect(return_to)
 
     tenant.approval_status = TenantInfo.ApprovalStatus.REJECTED
@@ -856,20 +869,8 @@ def reject_tenant_view(request, tenant_id):
     tenant.reviewed_by = request.user
     tenant.review_note = (request.POST.get("note") or "").strip()
     tenant.save(update_fields=['approval_status', 'reviewed_at', 'reviewed_by', 'review_note'])
-    messages.success(request, f"Rejected {tenant.display_name}.")
+    messages.success(request, "Tenant Rejected")
     return redirect(return_to)
-
-# --- helper: load existing or create in-memory doc (saved on POST) ---
-def _load_doc(tenant, dtype, default_payload=None, name=None):
-    doc = TenantJSONDoc.objects.filter(tenant=tenant, dtype=dtype).first()
-    if doc:
-        return doc
-    return TenantJSONDoc(
-        tenant=tenant,
-        dtype=dtype,
-        name=name or dtype.title(),
-        payload=default_payload or {},
-    )
 
 @login_required
 @tenant_required
@@ -881,14 +882,13 @@ def tenant_knowledge_view(request):
 
     if not tenant:
         if request.method == "GET":
-            messages.error(request, "No tenant associated with your account.")
+            messages.error(request, "Account Not Linked to a Tenant")
             return render(request, "users/tenant_knowledge.html", {
-                "docs": [],
                 "docs_payload": [],          # <-- provide for template
                 "dtypes": TenantJSONDoc.DocType.choices,
                 "selected_dtype": request.GET.get("dtype", ""),
             })
-        messages.error(request, "No tenant associated with your account.")
+        messages.error(request, "Account Not Linked to a Tenant")
         return redirect("tenant:tenant_knowledge")
 
     publication = TenantRuntimeConfiguration.objects.filter(tenant=tenant).first()
@@ -900,10 +900,10 @@ def tenant_knowledge_view(request):
             try:
                 version = int(request.POST.get("version", ""))
                 publication = publish_configuration(tenant.pk, expected_version=version)
-                messages.success(request, f"Published configuration version {publication.version}. Ongoing conversations will use it on their next message.")
+                messages.success(request, "Configuration Published")
             except (ValueError, ValidationError) as exc:
-                for message in exc.messages if isinstance(exc, ValidationError) else ["Reload the page to obtain a valid configuration version."]:
-                    messages.error(request, message)
+                action_error(request, "Configuration Not Published", exc if isinstance(exc, ValidationError)
+                    else "Reload the page to obtain a valid configuration version.")
             return redirect("tenant:tenant_knowledge")
         if action == "save_topic":
             topic_form = CapabilityTopicForm(request.POST)
@@ -918,17 +918,16 @@ def tenant_knowledge_view(request):
                                        ("knowledge", data["knowledge"] if data["knowledge"] is not None else {})):
                     TenantJSONDoc.objects.update_or_create(tenant=tenant, dtype=dtype, intent=data["intent"],
                         sub_intent=data["sub_intent"], defaults={"payload": payload})
-                messages.success(request, "Topic saved to draft. Publish when your changes are ready.")
+                messages.success(request, "Topic Draft Saved")
                 return redirect("tenant:tenant_knowledge")
+            messages.error(request, "Topic Draft Not Saved")
 
     if request.method == "GET" or request.POST.get("action") == "save_topic":
         selected_dtype = request.GET.get("dtype") or ""
         # Always load ALL docs for the tenant for client-side switching:
         qs_all = TenantJSONDoc.objects.filter(tenant=tenant).order_by("dtype", "intent", "sub_intent")
         docs_payload = list(qs_all.values("dtype", "intent", "sub_intent", "payload"))
-        # (Optional) keep 'docs' if you still render any server-side table (else can pass [])
         return render(request, "users/tenant_knowledge.html", {
-            "docs": qs_all,                             # or []
             "docs_payload": docs_payload,               # <-- unfiltered, full dataset
             "dtypes": TenantJSONDoc.DocType.choices,
             "selected_dtype": selected_dtype,
@@ -958,9 +957,9 @@ def tenant_knowledge_view(request):
                     defaults={"payload": data},
                 )
                 if created:
-                    messages.success(request, "Added successfully.")
+                    messages.success(request, "Knowledge Draft Saved")
                 else:
-                    messages.warning(request, "Row already exists. Use Update instead.")
+                    messages.warning(request, "Entry Exists: Use Edit / Save")
 
         elif action == "update":
             data = parse_payload(payload_raw)
@@ -968,28 +967,27 @@ def tenant_knowledge_view(request):
                 tenant=tenant, dtype=dtype, intent=intent, sub_intent=sub_intent
             ).update(payload=data)
             if updated:
-                messages.success(request, "Updated successfully.")
+                messages.success(request, "Knowledge Draft Saved")
             else:
                 TenantJSONDoc.objects.create(
                     tenant=tenant, dtype=dtype, intent=intent, sub_intent=sub_intent, payload=data
                 )
-                messages.success(request, "Row not found, so it was created.")
+                messages.success(request, "Knowledge Draft Saved")
 
         elif action == "delete":
             deleted, _ = TenantJSONDoc.objects.filter(
                 tenant=tenant, dtype=dtype, intent=intent, sub_intent=sub_intent
             ).delete()
             if deleted:
-                messages.success(request, "Deleted successfully.")
+                messages.success(request, "Knowledge Draft Deleted")
             else:
-                messages.warning(request, "Nothing to delete.")
+                messages.warning(request, "Knowledge Entry Not Found")
         else:
-            messages.error(request, "Unknown action.")
+            messages.error(request, "Unknown Action")
     except ValueError as ve:
-        messages.error(request, str(ve))
+        action_error(request, "Invalid JSON", ve)
     except IntegrityError:
-        messages.error(request, "Constraint error. Check uniqueness of (tenant, dtype, intent, sub_intent).")
-    messages.info(request, "Changes are saved as a draft. Publish to apply them to conversations.")
+        messages.error(request, "Knowledge Entry Already Exists")
     # Preserve selected dtype on redirect (nice for UX)
     redirect_url = reverse("tenant:tenant_knowledge")
     if dtype:
@@ -1019,15 +1017,15 @@ def upload_knowledge_prompt_view(request):
     try:
         import_configuration(tenant, dtype, blob)
     except (ValueError, ValidationError, IntegrityError) as exc:
-        messages.error(request, f"Import failed: {exc}")
+        action_error(request, "Configuration Import Failed", exc)
         return redirect(reverse("tenant:upload_knowledge_prompt") + (f"?dtype={dtype}" if dtype else ""))
     if dtype == 'checkout':
-        messages.success(request, "Checkout settings imported.")
+        messages.success(request, "Checkout Settings Imported")
         return _redirect_settings('checkout')
     if dtype == 'commerce_policy':
-        messages.success(request, "Ordering policy imported.")
+        messages.success(request, "Ordering Policy Imported")
         return redirect(reverse('tenant:upload_knowledge_prompt') + '?dtype=commerce_policy')
-    messages.success(request, "Configuration imported. Publish from the Knowledge page to apply draft documents.")
+    messages.success(request, "Configuration Draft Imported")
     # Redirect to your main page to inspect results, preselecting dtype:
     return redirect(reverse("tenant:tenant_knowledge") + (f"?dtype={dtype}" if dtype else ""))
 
@@ -1041,18 +1039,28 @@ def tenant_menu_variant_add_view(request, item_id):
     return _save_menu_variant(request, MenuItemVariant(menu_item=item))
 
 
+def _variant_editor_form(variant: MenuItemVariant) -> MenuVariantForm:
+    # Several variant forms render on one page, so each needs its own field ids.
+    identifier = variant.pk or "new"
+    return MenuVariantForm(instance=variant, auto_id=f"id_variant_{identifier}_%s")
+
+
 def _save_menu_variant(request, variant):
     data = request.POST.copy()
     if 'variant_availability_present' not in data:
         data['is_available'] = 'on' if variant.is_available else ''
-    data["description"] = data.get("variant_description", "")
+    # Older pages posted variant_description to keep it distinct from the item description.
+    if "variant_description" in data:
+        data["description"] = data["variant_description"]
+    elif "description" not in data:
+        data["description"] = ""
     form = MenuVariantForm(data, instance=variant)
     if form.is_valid():
         form.save()
         _publish_menu(variant.menu_item.tenant)
-        messages.success(request, "Variant saved.")
+        messages.success(request, "Variant Saved")
     else:
-        messages.error(request, form.errors.as_text())
+        action_error(request, "Variant Not Saved", form.errors.as_text())
     return redirect("tenant:tenant_menu_item_detail", item_id=variant.menu_item_id)
 
 
@@ -1076,9 +1084,14 @@ def tenant_menu_variant_delete_view(request, variant_id):
     if v.menu_item.tenant_id != tenant.id:
         return HttpResponseForbidden()
     item_id = v.menu_item.id
-    v.delete()
+    try:
+        with transaction.atomic():
+            v.delete()
+    except ProtectedError:
+        action_error(request, 'Variant Not Deleted', 'This variant has stock records. Disable it instead of deleting it.')
+        return redirect('tenant:tenant_menu_item_detail', item_id=item_id)
     _publish_menu(tenant)
-    messages.success(request, "Variant deleted.")
+    messages.success(request, "Variant Deleted")
     return redirect("tenant:tenant_menu_item_detail", item_id=item_id)
 
 @login_required
@@ -1093,9 +1106,9 @@ def tenant_menu_category_save_view(request, category_id=None):
     if form.is_valid():
         form.save()
         _publish_menu(tenant)
-        messages.success(request, "Category saved.")
+        messages.success(request, "Category Saved")
     else:
-        messages.error(request, form.errors.as_text())
+        action_error(request, "Category Not Saved", form.errors.as_text())
     return redirect("tenant:tenant_menu")
 
 
@@ -1108,11 +1121,10 @@ def tenant_menu_category_delete_view(request, category_id):
     category = get_object_or_404(MenuCategory, pk=category_id, tenant=tenant)
     category.delete()
     _publish_menu(tenant)
-    messages.success(request, "Category deleted. Its products are now uncategorized.")
+    messages.success(request, "Category Deleted")
     return redirect("tenant:tenant_menu")
 
 
-# ---------- UPDATE: list view (drop tenant-wide menu_category key; add sample) ----------
 @login_required
 @tenant_required
 def tenant_menu_view(request):
@@ -1120,34 +1132,17 @@ def tenant_menu_view(request):
     items = (
         MenuItem.objects
         .filter(tenant=tenant)
-        .select_related("category_fk", "catalog_meta")   # pull per-item meta if it exists
-        .prefetch_related("variants")
+        .select_related("category_fk")
         .order_by("category_fk__sort_order", "category_fk__name", "name")
     )
-
-    # Build a per-item meta dict keyed by item id (or slug/name if you prefer)
-    per_item_meta = {}
-    for mi in items:
-        cm = getattr(mi, "catalog_meta", None)
-        per_item_meta[str(mi.id)] = {
-            "dietary_preferences": cm.dietary_preferences if cm else {},
-            "allergens":           cm.allergens if cm else {},
-            "preparation":         cm.preparation if cm else {},
-            "nutrition":           cm.nutrition if cm else {},
-            "explore_options":     cm.explore_options if cm else {},
-        }
 
     return render(request, "users/dashboard_menu.html", {
         "active_page": "menu",
         "menu_items": items,
         **menu_context(tenant),
         "categories": MenuCategory.objects.filter(tenant=tenant),
-        "catalog_json_text": json.dumps(per_item_meta, indent=2, ensure_ascii=False),
         "sample_menu_json": "",
     })
-
-# assuming you already have tenant_required and get_current_tenant imported
-# from .models import MenuItem, MenuItemVariant, MenuCategory, MenuCatalogMeta
 
 @login_required
 @tenant_required
@@ -1157,11 +1152,11 @@ def tenant_menu_ingest_json_view(request):
     from orders.catalog_imports import import_catalog
     tenant = get_current_tenant(request)
     try:
-        created, updated, v_added, v_updated = import_catalog(tenant, request.POST.get('menu_items_json', ''))
+        import_catalog(tenant, request.POST.get('menu_items_json', ''))
     except (ValidationError, ValueError, TypeError, AttributeError, IntegrityError) as exc:
-        messages.error(request, f"Menu import failed: {exc}")
+        action_error(request, "Menu Import Failed", exc)
     else:
-        messages.success(request, f"Imported menu: items created={created}, updated={updated}; variants added={v_added}, updated={v_updated}. Knowledge saved to draft.")
+        messages.success(request, "Menu Items Saved")
     return redirect('tenant:tenant_menu')
 
 
@@ -1189,7 +1184,7 @@ def tenant_menu_item_update_view(request, item_id):
         if not isinstance(meta_obj, dict):
             raise ValueError("meta_json must be a JSON object")
     except Exception as e:
-        messages.error(request, f"Meta JSON invalid: {e}")
+        action_error(request, "Invalid Item Meta JSON", e)
         return redirect("tenant:tenant_menu_item_detail", item_id=item.id)
 
     try:
@@ -1210,7 +1205,7 @@ def tenant_menu_item_update_view(request, item_id):
         item.meta = meta_obj
         item.save()
 
-    messages.success(request, f"Updated: {item.name}")
+    messages.success(request, "Menu Item Saved")
     _publish_menu(tenant)
     return redirect("tenant:tenant_menu_item_detail", item_id=item.id)
 
@@ -1221,35 +1216,14 @@ def tenant_menu_item_update_view(request, item_id):
 def tenant_menu_item_catalog_update_view(request, item_id):
     tenant = get_current_tenant(request)
     item = get_object_or_404(MenuItem, tenant=tenant, id=item_id)
-    catmeta, _ = MenuCatalogMeta.objects.get_or_create(menu_item=item)
 
-    def _parse_json_field(name, default):
-        raw = request.POST.get(name, "")
-        if not raw.strip():
-            return default
-        try:
-            val = json.loads(raw)
-            return val
-        except Exception:
-            # For fields that can be a single text (like preparation), accept as {"text": "..."}
-            if name == "preparation":
-                return {"text": raw}
-            return default
-
-    catmeta.dietary_preferences = _parse_json_field("dietary_preferences", {})
-    catmeta.allergens = _parse_json_field("allergens", {})
-    catmeta.preparation = _parse_json_field("preparation", {})
-    catmeta.nutrition = _parse_json_field("nutrition", {})
-    catmeta.explore_options = _parse_json_field("explore_options", {})
-    catmeta.ingredients = _parse_json_field("ingredients", [])
-    catmeta.recommendations = _parse_json_field("recommendations", [])
-    catmeta.specialty_items = _parse_json_field("specialty_items", [])
-    catmeta.source_quality = _parse_json_field("source_quality", [])
-    catmeta.pairings = _parse_json_field("pairings", [])
-    catmeta.flavor_profile = request.POST.get("flavor_profile", "").strip() or None
-
-    catmeta.save()
-    messages.success(request, "Item catalog meta saved.")
+    try:
+        values = parse_catalog_fields(request.POST)
+    except ValueError as exc:
+        action_error(request, "Catalog Meta Not Saved", exc)
+        return redirect("tenant:tenant_menu_item_detail", item_id=item.id)
+    MenuCatalogMeta.objects.update_or_create(menu_item=item, defaults=values)
+    messages.success(request, "Catalog Meta Saved")
     _publish_menu(tenant)
     return redirect("tenant:tenant_menu_item_detail", item_id=item.id)
 
@@ -1271,10 +1245,13 @@ def tenant_menu_item_detail_view(request, item_id):
 
     # Render
     ctx = {
+        "active_page": "menu",
         "item": item,
         **menu_context(tenant),
         "catmeta": catmeta,                # <- matches your template variable
-        "variants": list(item.variants.all()),
+        "catalog_fields": catalog_editor_fields(catmeta),
+        "variant_forms": [_variant_editor_form(variant) for variant in item.variants.all()],
+        "add_variant_form": _variant_editor_form(MenuItemVariant(menu_item=item)),
         "categories": MenuCategory.objects.filter(tenant=tenant),
     }
 

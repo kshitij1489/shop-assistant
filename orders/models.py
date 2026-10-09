@@ -305,6 +305,8 @@ class OrderItemAddon(models.Model):
     # Quantity is per purchased item; total_price also includes the parent quantity.
     order_item = models.ForeignKey('OrderItem', on_delete=models.CASCADE, related_name='addons')
     addon = models.ForeignKey('AddonItem', on_delete=models.SET_NULL, null=True)
+    # Snapshot of the purchased option; catalog renames/deletion must not rewrite history.
+    addon_name = models.CharField(max_length=255, blank=True, default='', editable=False)
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)

@@ -1,16 +1,12 @@
 """Public-facing chatbot views (embed page, etc.)."""
 from __future__ import annotations
 
-import logging
-
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 
 from chatbot_core.models import TenantInfo
-
-logger = logging.getLogger(__name__)
 
 
 def extract_subdomain(host: str) -> str | None:

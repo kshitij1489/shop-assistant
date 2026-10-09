@@ -5,11 +5,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Dashboard{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'users/css/dashboard.css' %}?v=20260927-settings-tabs-3">
+  <link rel="stylesheet" href="{% static 'users/css/dashboard.css' %}?v=20261009-review">
+  <link rel="stylesheet" href="{% static 'users/css/notifications.css' %}?v=20261009-modal">
+  <script src="{% static 'users/js/notifications.js' %}?v=20261009-modal"></script>
+  <script src="{% static 'users/js/ui_components.js' %}?v=20261009-modal"></script>
+  <script src="{% static 'users/js/json_editor.js' %}?v=20261009"></script>
   {% block extra_css %}{% endblock %}
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
+  {% include 'users/partials/notifications.html' %}
 
   {% if user.is_authenticated %}
   <!-- Dashboard Navbar -->
@@ -37,26 +42,17 @@
   {% endif %}
 
   <main class="dashboard-main" id="main-content">
+    {% include 'users/partials/notification_details.html' %}
 
     {% if user.is_authenticated and not user.tenantprofile.is_master %}
       {% with t=user.tenantprofile.tenant %}
         {% if t and t.approval_status != 'APPROVED' %}
-          <div class="alert warning">
+          <div class="status-notice">
             Your application for <strong>{{ t.display_name }}</strong> is <strong>{{ t.approval_status|title }}</strong>.
             <a href="{% url 'pending_review' %}" style="margin-left:.5rem; text-decoration:underline;">View status</a>
           </div>
         {% endif %}
       {% endwith %}
-    {% endif %}
-
-    {% if messages %}
-      <div class="messages" aria-live="polite">
-        {% for message in messages %}
-          <div class="alert {{ message.tags }}">
-            {{ message }}
-          </div>
-        {% endfor %}
-      </div>
     {% endif %}
 
     {% block content %}

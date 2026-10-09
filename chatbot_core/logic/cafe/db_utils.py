@@ -132,6 +132,7 @@ def create_order(tenant, customer, items_or_basket, chat_id, source="inhouse",pa
         raise ValueError("items_or_basket must be either a Basket or a list of item dicts.")
 
     # The legacy list path must enforce ownership just like catalog proposals.
+    modifier_names = {}
     for entry in normalized_items:
         item, variant = entry.get('item'), entry.get('variant')
         if item is not None and str(item.tenant_id) != str(tenant.pk):
@@ -141,10 +142,15 @@ def create_order(tenant, customer, items_or_basket, chat_id, source="inhouse",pa
             raise ValueError('Variant does not belong to this tenant/item.')
         from orders.models import AddonItem
         for modifier in entry.get('modifiers', []):
-            if not AddonItem.objects.filter(pk=modifier['option_id'], group__tenant=tenant).exists():
+            option = AddonItem.objects.filter(pk=modifier['option_id'], group__tenant=tenant).first()
+            if option is None:
                 raise ValueError('Modifier belongs to another tenant.')
+            modifier_names[str(option.pk)] = option.name
 
-    order_meta = {}
+    from .ordering_limits import load_policy
+    ordering_policy = load_policy(tenant_id=tenant.pk)
+    order_meta = {'currency': ordering_policy.currency if ordering_policy else 'INR',
+                  'exponent': ordering_policy.exponent if ordering_policy else 2}
     if chat_id:
         order_meta["chat_id"] = chat_id
     # Compute total and create Order
@@ -163,6 +169,7 @@ def create_order(tenant, customer, items_or_basket, chat_id, source="inhouse",pa
         for modifier in item.get("modifiers", []):
             OrderItemAddon.objects.create(
                 order_item=saved_item, addon_id=modifier["option_id"], quantity=modifier["quantity"],
+                addon_name=modifier_names[str(modifier['option_id'])],
                 unit_price=modifier["unit_price"],
                 total_price=Decimal(modifier["unit_price"]) * modifier["quantity"] * item["quantity"],
             )

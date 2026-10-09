@@ -1,431 +1,331 @@
-// ---------------- Basket -----------------
+// Basket values are catalog data; render them as text.
 const basketItems = [];
-function formatMinor(amount, exponent) {
+function formatMinor(amount, exponent = 2) {
   const negative = amount < 0;
-  const digits = String(Math.abs(amount)).padStart((exponent || 0) + 1, "0");
-  const text = exponent ? digits.slice(0, -exponent) + "." + digits.slice(-exponent) : digits;
-  return (negative ? "-" : "") + text;
+  const digits = String(Math.abs(amount)).padStart(exponent + 1, "0");
+  return (negative ? "-" : "") + (exponent ? digits.slice(0, -exponent) + "." + digits.slice(-exponent) : digits);
 }
 function moneyPrefix(currency) {
   return currency === "INR" ? "₹" : (currency ? currency + " " : "");
 }
 function computeTotals(items) {
-  const currency = items.length ? items[0].currency : "";
-  const exponent = items.length ? items[0].exponent : 2;
-  const subtotalMinor = items.reduce((sum, item) => sum + item.lineTotalMinor, 0);
-  return { currency, exponent, subtotalMinor };
+  return {
+    currency: items[0]?.currency || "", exponent: items[0]?.exponent ?? 2,
+    subtotalMinor: items.reduce((sum, item) => sum + item.lineTotalMinor, 0),
+  };
 }
-
-// --- parse metadata (robust) ---
 function parseMetaToItems(meta) {
-  if (!meta) return [];
-  // already an array
   if (Array.isArray(meta)) return meta;
-  // object with common keys
-  if (typeof meta === "object") return Array.isArray(meta.items) ? meta.items : (Array.isArray(meta.metadata) ? meta.metadata : []);
-  // string: try to extract a JSON-like array/object (handles Python single-quotes)
+  if (meta && typeof meta === "object") {
+    return Array.isArray(meta.items) ? meta.items : (Array.isArray(meta.metadata) ? meta.metadata : []);
+  }
   if (typeof meta === "string") {
-    // try to find a bracketed array/object substring
-    const m = meta.match(/\[[\s\S]*?\]|\{[\s\S]*?\}/);
-    if (m) {
-      let s = m[0].trim()
-        // normalize single-quotes -> double-quotes for JSON parse
-        .replace(/'/g, '"')
-        // turn bareword keys into quoted keys: foo: -> "foo":
-        .replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":');
-      try { return JSON.parse(s); } catch (e) { /* fallthrough */ }
+    try { return parseMetaToItems(JSON.parse(meta)); } catch (_) {}
+    const match = meta.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+    if (match) {
+      try {
+        return parseMetaToItems(JSON.parse(match[0].replace(/'/g, '"')
+          .replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":')));
+      } catch (_) {}
     }
   }
   return [];
 }
-
-// --- map metadata items -> basket item shape and replace basketItems in-place ---
 function updateBasketFromMeta(meta) {
-  const items = parseMetaToItems(meta);
-  if (!items || !items.length) return; // nothing to do
-
-  const mapped = items.map(it => {
-    const qty = Number(it.quantity ?? it.qty ?? 1);
-    return {
-      name: it.name ?? it.title ?? "Item",
-      qty,
-      size: it.size ?? it.variant ?? "",
-      currency: it.currency,
-      exponent: it.exponent,
-      lineTotalMinor: it.line_total_minor
-    };
-  });
-
-  // replace basketItems contents (basketItems is const but mutable)
+  // Missing metadata means no update; an explicit empty basket clears the table.
+  if (meta == null) return;
+  const mapped = parseMetaToItems(meta).map(item => ({
+    name: item.name ?? item.title ?? "Item", qty: Number(item.quantity ?? item.qty ?? 1),
+    size: item.size ?? item.variant ?? "", currency: item.currency, exponent: item.exponent ?? 2,
+    lineTotalMinor: Number(item.line_total_minor) || 0,
+  }));
   basketItems.splice(0, basketItems.length, ...mapped);
   renderBasket();
 }
-
 function renderBasket() {
   const body = document.getElementById("basketBody");
-  body.innerHTML = "";
-  basketItems.forEach(it => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${it.name}</td>
-      <td>${it.qty}</td>
-      <td>${it.size}</td>
-      <td class="va-right">${moneyPrefix(it.currency)}${formatMinor(it.lineTotalMinor, it.exponent)}</td>
-      <td class="va-right">At checkout</td>
-    `;
-    body.appendChild(tr);
+  body.replaceChildren();
+  basketItems.forEach(item => {
+    const row = document.createElement("tr");
+    const values = [item.name, item.qty, item.size,
+      moneyPrefix(item.currency) + formatMinor(item.lineTotalMinor, item.exponent), "At checkout"];
+    values.forEach((value, index) => {
+      const cell = document.createElement("td");
+      cell.textContent = String(value);
+      if (index >= 3) cell.className = "va-right";
+      row.appendChild(cell);
+    });
+    body.appendChild(row);
   });
   const totals = computeTotals(basketItems);
   document.getElementById("basketTotal").textContent =
-    `${moneyPrefix(totals.currency)}${formatMinor(totals.subtotalMinor, totals.exponent)}`;
-  const taxNoteEl = document.getElementById("taxNote");
-  if (taxNoteEl) taxNoteEl.textContent = "Taxes and fees are calculated at checkout.";
+    moneyPrefix(totals.currency) + formatMinor(totals.subtotalMinor, totals.exponent);
 }
 renderBasket();
-
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const micBtn = document.getElementById("micBtn");
 const statusEl = document.getElementById("status");
-const errorEl = document.getElementById("errorMsg");
 const liveTextEl = document.getElementById("liveText");
 const chatLog = document.getElementById("chatLog");
 const autoLoop = document.getElementById("autoLoop");
-
+const langSelect = document.getElementById("langSelect");
 const CFG = window.VA_CONFIG || {};
 const WEBHOOK_URL = CFG.webhookUrl || "/agent_core/voice/";
 const POLL_URL = CFG.pollUrl || "/tenant/api/voice/messages/";
 const TENANT_ID = CFG.tenantId || "";
 const CHAT_ID = CFG.chatId || "";
+function getUiLang() { return langSelect?.value || navigator.language || "en-US"; }
 
-// Polling state
-let lastRenderedCount = 0;      // how many messages we've already shown
+let previousMessageKeys = null;
 let pollHandle = null;
-
-// put near other DOM lookups
-const langSelect = document.getElementById("langSelect");
-
-// helper to read current UI language (fallback to browser)
-function getUiLang() {
-  return (langSelect?.value || navigator.language || "en-US");
-}
-
-// ---------- DEDUPE/OPTIMISTIC LOGGING ----------
-// Update logMsg to accept an `optimistic` flag and store message text on the DOM node
+let pollInFlight = false;
 function logMsg(who, text, optimistic = false) {
   const div = document.createElement("div");
   div.className = `va-msg ${who === "You" ? "you" : "bot"}`;
-  div.innerHTML = `<span class="who">${who}:</span> ${escapeHtml(text || "")}`;
-  // store text for dedupe checks and mark optimistic writes
+  const label = document.createElement("span");
+  label.className = "who";
+  label.textContent = who + ":";
+  div.appendChild(label);
+  div.appendChild(document.createTextNode(" " + (text || "")));
   div.dataset.text = text || "";
   if (optimistic) div.dataset.optimistic = "true";
   chatLog.appendChild(div);
   chatLog.scrollTop = chatLog.scrollHeight;
+  return div;
 }
-
-function escapeHtml(s) {
-  return (s || "").replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function messageKey(message) {
+  return message.id || JSON.stringify([message.dir, message.ts, message.text, message.meta]);
 }
-
-// Simple helper to pull transcript and render new messages
+function overlapLength(previous, current) {
+  if (!previous) return 0;
+  // Match the retained suffix even as the server trims its 200-message window.
+  for (let size = Math.min(previous.length, current.length); size > 0; size--) {
+    if (previous.slice(-size).every((key, index) => key === current[index])) return size;
+  }
+  return 0;
+}
 async function pollMessages() {
+  if (pollInFlight) return;
+  pollInFlight = true;
   try {
     const url = new URL(POLL_URL, window.location.origin);
     url.searchParams.set("chat_id", CHAT_ID);
     url.searchParams.set("limit", "200");
-
-    const res = await fetch(url.toString(), { method: "GET", credentials: "same-origin" });
-    const data = await res.json();
+    const response = await fetch(url.toString(), { credentials: "same-origin" });
+    if (!response.ok) throw new Error("Messages unavailable");
+    const data = await response.json();
     updateBasketFromMeta(data.metadata);
     const messages = Array.isArray(data.messages) ? data.messages : [];
-
-    // Render only the new tail since last render
-    for (let i = lastRenderedCount; i < messages.length; i++) {
-      const m = messages[i];
-
-      // If this is an "in" (user) message and the last appended node is an optimistic
-      // node with the same text, consider it the same message and skip adding a duplicate.
-      if (m.dir === "in") {
-        const last = chatLog.lastElementChild;
-        if (last && last.dataset && last.dataset.optimistic === "true" && (last.dataset.text || "") === (m.text || "")) {
-          // server confirmed it — clear optimistic marker and skip adding duplicate
-          delete last.dataset.optimistic;
-          continue;
-        }
+    const keys = messages.map(messageKey);
+    const initial = previousMessageKeys === null;
+    const fresh = messages.slice(overlapLength(previousMessageKeys, keys));
+    previousMessageKeys = keys;
+    for (const message of fresh) {
+      if (message.dir === "in") {
+        const optimistic = Array.from(chatLog.children).find(node =>
+          node.dataset.optimistic === "true" && node.dataset.text === (message.text || ""));
+        if (optimistic) { delete optimistic.dataset.optimistic; continue; }
       }
-
-      // directions used by your processor: "in" (user), "out" (bot), "owner" (panel)
-      if (m.dir === "in") logMsg("You", m.text || "");
-      else if (m.dir === "out") logMsg("Assistant", m.text || "");
-      else if (m.dir === "owner") logMsg("Owner", m.text || "");
+      const who = { in: "You", out: "Assistant", owner: "Owner" }[message.dir];
+      if (who) logMsg(who, message.text || "");
     }
-    lastRenderedCount = messages.length;
-  } catch (e) {
-    // quiet failures are fine during idle
+    const replies = fresh.filter(message => message.dir === "out").map(message => message.text || "");
+    if (!initial && sessionActive && replies.length) speakReply(replies.join("\n"));
+  } catch (_) {
+    // The next poll retries transient failures without discarding the cursor.
+  } finally {
+    pollInFlight = false;
   }
 }
-
-// Start polling loop (every 2s)
 function ensurePolling() {
-  if (pollHandle) return;
-  pollHandle = setInterval(pollMessages, 2000);
-}
-ensurePolling();
-pollMessages(); // prime once
-
-if (!SpeechRecognition) {
-  errorEl.textContent = "Your browser doesn't support the Web Speech API (try Chrome/Edge).";
-  errorEl.style.display = "block";
+  if (!pollHandle) pollHandle = setInterval(pollMessages, 2000);
 }
 
 let recognition;
 let recognizing = false;
-
-// Timers/thresholds
-const GAP_MS = 5000;        // 5s gap sends to server
-const IDLE_MS = 30000;      // 30s idle ends session
+let starting = false;
+let listeningRequested = false;
+let sessionActive = false;
+let sessionGeneration = 0;
+let speechGeneration = 0;
+let sendController = null;
+const GAP_MS = 5000;
+const IDLE_MS = 30000;
 let gapTimer = null;
 let idleTimer = null;
-
-let bufferFinal = "";       // Accumulate final transcripts to send
-let lastInterim = "";       // Show interim to user
-
+let bufferFinal = "";
+let lastInterim = "";
+function clearListeningTimers() {
+  clearTimeout(gapTimer);
+  clearTimeout(idleTimer);
+  gapTimer = idleTimer = null;
+}
 function resetGapTimer() {
   clearTimeout(gapTimer);
-  gapTimer = setTimeout(sendIfBuffer, GAP_MS);
+  gapTimer = setTimeout(() => { gapTimer = null; sendIfBuffer(); }, GAP_MS);
 }
 function resetIdleTimer() {
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(stopListeningDueToIdle, IDLE_MS);
+  idleTimer = setTimeout(() => stopListeningDueToIdle(), IDLE_MS);
 }
-
-function stopListeningDueToIdle() {
-  if (recognition && recognizing) {
-    recognition.onend = null; // we'll handle UI ourselves
-    recognition.stop();
-  }
+function stopListeningDueToIdle(message = "Idle timeout — click the mic to interact") {
+  sessionActive = listeningRequested = starting = false;
+  sessionGeneration++;
+  speechGeneration++;
+  clearListeningTimers();
+  bufferFinal = lastInterim = "";
+  if (liveTextEl) liveTextEl.textContent = "";
+  sendController?.abort();
+  if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
+  if (recognition && recognizing) recognition.stop();
   recognizing = false;
   micBtn.classList.remove("listening", "processing");
-  statusEl.textContent = "Idle timeout — click the mic to interact";
+  statusEl.textContent = message;
 }
-
 function ensureRecognizer() {
   if (recognition) return;
   recognition = new SpeechRecognition();
   recognition.continuous = true;
   recognition.interimResults = true;
   recognition.lang = getUiLang();
-
   recognition.onstart = () => {
+    starting = false;
+    if (!listeningRequested) { recognition.stop(); return; }
     recognizing = true;
     statusEl.textContent = "Listening...";
-    errorEl.style.display = "none";
     micBtn.classList.add("listening");
+  };
+  recognition.onerror = event => {
+    if (event.error === "no-speech" || event.error === "aborted") return;
+    stopListeningDueToIdle("Click the mic to start");
+    notify(event.error === "not-allowed" ? "Microphone Access Denied" : "Speech Recognition Failed", "error");
+  };
+  recognition.onresult = event => {
+    if (!listeningRequested || !sessionActive) return;
     resetGapTimer();
     resetIdleTimer();
-  };
-
-  recognition.onerror = (e) => {
-    errorEl.textContent = `Speech error: ${e.error}`;
-    errorEl.style.display = "block";
-  };
-
-  recognition.onresult = (event) => {
-    resetGapTimer();
-    resetIdleTimer();
-
     let interim = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const res = event.results[i];
-      const txt = res[0].transcript;
-      if (res.isFinal) {
-        bufferFinal += (bufferFinal ? " " : "") + txt.trim();
-      } else {
-        interim += txt;
-      }
+    for (let index = event.resultIndex; index < event.results.length; index++) {
+      const result = event.results[index];
+      if (result.isFinal) bufferFinal += (bufferFinal ? " " : "") + result[0].transcript.trim();
+      else interim += result[0].transcript;
     }
     lastInterim = interim;
-    if (liveTextEl) liveTextEl.textContent = interim || "";
+    if (liveTextEl) liveTextEl.textContent = interim;
   };
-
   recognition.onend = () => {
+    starting = recognizing = false;
     micBtn.classList.remove("listening");
-    recognizing = false;
-    if (autoLoop?.checked && statusEl.textContent.startsWith("Listening")) {
-      startListening();
-    }
+    if (listeningRequested && sessionActive && autoLoop?.checked) startListening();
   };
 }
-
 function startListening() {
-  if (!SpeechRecognition) return;
+  if (!SpeechRecognition || recognizing || starting) return;
   ensureRecognizer();
+  sessionActive = listeningRequested = true;
+  recognition.lang = getUiLang();
   try {
-    bufferFinal = "";
-    lastInterim = "";
-    if (liveTextEl) liveTextEl.textContent = "";
+    starting = true;
     recognition.start();
     statusEl.textContent = "Listening...";
     micBtn.classList.add("listening");
-    resetGapTimer();
-    resetIdleTimer();
-  } catch (_) {}
+    if (gapTimer === null) resetGapTimer();
+    if (idleTimer === null) resetIdleTimer();
+  } catch (_) { starting = false; }
 }
-
 function stopListening() {
-  if (recognition && recognizing) {
-    recognition.stop();
-  }
-  recognizing = false;
+  listeningRequested = false;
+  clearListeningTimers();
+  if (recognition && (recognizing || starting)) recognition.stop();
+  starting = recognizing = false;
   micBtn.classList.remove("listening");
   micBtn.classList.add("processing");
   statusEl.textContent = "Processing...";
-  clearTimeout(gapTimer);
-  clearTimeout(idleTimer);
 }
-
-// No speech for 5s → send whatever we have
 async function sendIfBuffer() {
-  if (!bufferFinal && !lastInterim) {
-    resetGapTimer();
-    return;
-  }
-
-  const message = (bufferFinal || lastInterim || "").trim();
-  bufferFinal = "";
-  lastInterim = "";
+  if (!sessionActive || !listeningRequested) return;
+  const message = (bufferFinal || lastInterim).trim();
+  if (!message) { resetGapTimer(); return; }
+  bufferFinal = lastInterim = "";
   if (liveTextEl) liveTextEl.textContent = "";
-
-  // Pause recognition while we talk to server
   stopListening();
-
-  // Optimistically show user's message but mark it so poller can dedupe.
-  logMsg("You", message, true);
-
+  const generation = sessionGeneration;
+  const optimistic = logMsg("You", message, true);
+  const removeUnconfirmedLine = () => {
+    if (optimistic.dataset.optimistic === 'true') optimistic.remove();
+  };
+  const controller = typeof AbortController === "undefined" ? null : new AbortController();
+  sendController = controller;
   try {
-    // POST to your webhook (async queue)
-    const uiLang = getUiLang();
-    const res = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-CSRFToken": window.VA_CONFIG.csrfToken },
-      credentials: "same-origin",
-      body: JSON.stringify({
-        tenant_id: TENANT_ID,
-        chat_id: CHAT_ID,
-        ui_lang:   uiLang,
-        message: { text: message }
-      })
+    const response = await fetch(WEBHOOK_URL, {
+      method: "POST", credentials: "same-origin", signal: controller?.signal,
+      headers: { "Content-Type": "application/json", "X-CSRFToken": CFG.csrfToken },
+      body: JSON.stringify({ tenant_id: TENANT_ID, chat_id: CHAT_ID, ui_lang: getUiLang(), message: { text: message } }),
     });
-
-    // Expect {"status":"queued","chat_id":"..."}
-    await res.json();
-
-    // Start/continue polling; when the bot writes "out" messages they'll appear
+    if (!response.ok) throw new Error("Message request failed");
+    await response.json();
+    if (generation !== sessionGeneration) { removeUnconfirmedLine(); return; }
     ensurePolling();
-
-    // We’ll also speak the last new "out" message when it arrives (see observer below)
-
-  } catch (err) {
-    errorEl.textContent = "Error talking to server";
-    errorEl.style.display = "block";
+  } catch (_) {
+    if (generation !== sessionGeneration) { removeUnconfirmedLine(); return; }
+    delete optimistic.dataset.optimistic;
+    sessionActive = false;
+    notify("Message Not Sent", "error");
     micBtn.classList.remove("processing");
     statusEl.textContent = "Click the mic to start";
-    // if POST failed, clear optimistic mark so poller won't suppress real server messages later
-    const last = chatLog.lastElementChild;
-    if (last && last.dataset && last.dataset.optimistic === "true") {
-      delete last.dataset.optimistic;
-    }
+  } finally {
+    if (sendController === controller) sendController = null;
   }
 }
-
-// Observe new bot messages and TTS the latest one
-let lastSpokenIdx = -1;
-async function speakLatestBotLineIfAny() {
-  try {
-    const url = new URL(POLL_URL, window.location.origin);
-    url.searchParams.set("chat_id", CHAT_ID);
-    url.searchParams.set("limit", "200");
-    const res = await fetch(url.toString(), { method: "GET", credentials: "same-origin" });
-    const data = await res.json();
-    const messages = Array.isArray(data.messages) ? data.messages : [];
-    // Find last "out" message
-    for (let i = messages.length - 1; i >= 0; i--) {
-      if (messages[i].dir === "out") {
-        if (i !== lastSpokenIdx) {
-          lastSpokenIdx = i;
-          speakReply(messages[i].text || "");
-        }
-        break;
-      }
-    }
-  } catch (e) {}
-}
-setInterval(speakLatestBotLineIfAny, 1500);
-
-// UI
 micBtn.addEventListener("click", () => {
   if (!SpeechRecognition) return;
-  if (recognizing) {
-    // Manual stop
-    stopListeningDueToIdle();
-  } else {
-    startListening();
-  }
+  if (sessionActive) stopListeningDueToIdle("Click the mic to start");
+  else startListening();
+});
+if (!SpeechRecognition) notify("Speech Recognition Unavailable", "error");
+langSelect?.addEventListener("change", () => {
+  const resume = listeningRequested;
+  stopListeningDueToIdle("Click the mic to start");
+  if (recognition) recognition.lang = getUiLang();
+  if (resume) startListening();
 });
 
-// ---------- Natural TTS helpers (less robotic) ----------
-const voiceSelect = document.getElementById("voiceSelect"); // optional
-const rateCtl = document.getElementById("rateCtl");         // optional
-const pitchCtl = document.getElementById("pitchCtl");       // optional
-
+const voiceSelect = document.getElementById("voiceSelect");
+const rateCtl = document.getElementById("rateCtl");
+const pitchCtl = document.getElementById("pitchCtl");
 let availableVoices = [];
 let selectedVoice = null;
-
+function voiceKey(voice) { return voice.voiceURI || voice.name; }
 function loadVoices() {
-  availableVoices = speechSynthesis.getVoices();
-
-  // Prefer high-quality voices (adjust list to your locale if needed)
-  const preferredOrder = [
-    "Google US English", "Google UK English Female", "Google UK English Male",
-    "Google en-IN", "Microsoft", "Samantha", "Daniel", "Karen", "Veena"
-  ];
-
-  // Sort with preferred at top
-  const sorted = [...availableVoices].sort((a, b) => {
-    const an = a.name.toLowerCase(), bn = b.name.toLowerCase();
-    const ap = preferredOrder.findIndex(p => an.includes(p.toLowerCase()));
-    const bp = preferredOrder.findIndex(p => bn.includes(p.toLowerCase()));
-    return (ap === -1 ? 999 : ap) - (bp === -1 ? 999 : bp) || an.localeCompare(bn);
-  });
-
-  // Populate select if present
+  const previous = selectedVoice && voiceKey(selectedVoice);
+  const preferredOrder = ["Google US English", "Google UK English Female", "Google UK English Male",
+    "Google en-IN", "Microsoft", "Samantha", "Daniel", "Karen", "Veena"];
+  const priority = voice => {
+    const index = preferredOrder.findIndex(name => voice.name.toLowerCase().includes(name.toLowerCase()));
+    return index < 0 ? 999 : index;
+  };
+  availableVoices = [...speechSynthesis.getVoices()].sort((a, b) =>
+    priority(a) - priority(b) || a.name.localeCompare(b.name));
+  selectedVoice = availableVoices.find(voice => voiceKey(voice) === previous) || availableVoices[0] || null;
   if (voiceSelect) {
-    voiceSelect.innerHTML = "";
-    sorted.forEach(v => {
-      const opt = document.createElement("option");
-      opt.value = v.name;
-      opt.textContent = `${v.name} — ${v.lang}`;
-      voiceSelect.appendChild(opt);
+    voiceSelect.replaceChildren();
+    availableVoices.forEach(voice => {
+      const option = document.createElement("option");
+      option.value = voiceKey(voice);
+      option.textContent = `${voice.name} — ${voice.lang}`;
+      voiceSelect.appendChild(option);
     });
+    if (selectedVoice) voiceSelect.value = voiceKey(selectedVoice);
   }
-
-  selectedVoice = sorted[0] || null;
-  if (voiceSelect && selectedVoice) voiceSelect.value = selectedVoice.name;
 }
-
-// Load voices (some browsers async)
+voiceSelect?.addEventListener("change", () => {
+  selectedVoice = availableVoices.find(voice => voiceKey(voice) === voiceSelect.value) || null;
+});
 if (typeof speechSynthesis !== "undefined") {
   loadVoices();
   speechSynthesis.onvoiceschanged = loadVoices;
 }
-
-langSelect?.addEventListener("change", () => {
-  if (recognition) {
-    try { recognition.stop(); } catch {}
-    recognition.lang = getUiLang();
-    if (recognizing) startListening();
-  }
-});
 
 // Split long text into natural clauses and sentences
 function chunkText(text, maxLen = 180) {
@@ -478,50 +378,45 @@ function prosodyForChunk(chunk, baseRate, basePitch) {
   return { rate, pitch };
 }
 
-// Speak with micro-pauses between chunks
+// A cancelled session invalidates queued speech chunks and automatic restarts.
 function speakReply(text) {
-  if (!text) return;
-
+  if (!text || typeof speechSynthesis === "undefined") { onReplySpeechEnded(); return; }
+  stopListening();
+  const generation = ++speechGeneration;
+  speechSynthesis.cancel();
   const chunks = chunkText(text);
-  const baseRate = parseFloat(rateCtl?.value || "0.95");   // slightly slower than default
-  const basePitch = parseFloat(pitchCtl?.value || "1.05"); // slightly brighter
-
-  let idx = 0;
-
-  const speakNext = () => {
-    if (idx >= chunks.length) {
-      onReplySpeechEnded();
-      return;
-    }
-
-    const utter = new SpeechSynthesisUtterance(chunks[idx]);
-    if (selectedVoice) utter.voice = selectedVoice;
-
-    const { rate, pitch } = prosodyForChunk(chunks[idx], baseRate, basePitch);
-    utter.rate = rate;
-    utter.pitch = pitch;
-    utter.volume = 1;
-
-    utter.onend = () => {
-      // Micro pause between chunks
-      setTimeout(() => { idx++; speakNext(); }, 160);
-    };
-    utter.onerror = () => {
-      setTimeout(() => { idx++; speakNext(); }, 80);
-    };
-
-    // Clear any stuck queue and speak
-    if (speechSynthesis.speaking && idx === 0) speechSynthesis.cancel();
-    speechSynthesis.speak(utter);
-  };
-
-  speakNext();
+  const baseRate = parseFloat(rateCtl?.value || "0.95");
+  const basePitch = parseFloat(pitchCtl?.value || "1.05");
+  let index = 0;
+  function speakNext() {
+    if (generation !== speechGeneration || !sessionActive) return;
+    if (index >= chunks.length) { onReplySpeechEnded(); return; }
+    const utterance = new SpeechSynthesisUtterance(chunks[index]);
+    if (selectedVoice) utterance.voice = selectedVoice;
+    const prosody = prosodyForChunk(chunks[index], baseRate, basePitch);
+    utterance.rate = prosody.rate;
+    utterance.pitch = prosody.pitch;
+    utterance.volume = 1;
+    utterance.onend = () => setTimeout(() => { index++; speakNext(); }, 160);
+    utterance.onerror = () => setTimeout(() => { index++; speakNext(); }, 80);
+    speechSynthesis.resume();
+    speechSynthesis.speak(utterance);
+  }
+  // Give the browser a turn to flush cancel() before starting the new utterance.
+  setTimeout(speakNext, 0);
 }
-
-// Resume listening after TTS (respects autoLoop)
 function onReplySpeechEnded() {
+  if (!sessionActive) return;
   micBtn.classList.remove("processing");
-  statusEl.textContent = autoLoop?.checked ? "Listening..." : "Click the mic to start";
+  statusEl.textContent = "Click the mic to start";
   if (autoLoop?.checked) startListening();
-  else recognizing = false;
+  else sessionActive = false;
 }
+window.addEventListener("pagehide", () => {
+  clearInterval(pollHandle);
+  pollHandle = null;
+  stopListeningDueToIdle("Click the mic to start");
+});
+window.addEventListener("pageshow", () => { ensurePolling(); pollMessages(); });
+ensurePolling();
+pollMessages();

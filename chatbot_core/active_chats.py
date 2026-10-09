@@ -1,6 +1,7 @@
 # chatbot_core/active_chats.py
 import json
 import time
+from uuid import uuid4
 from typing import Any, Dict, List, Optional
 
 import redis
@@ -24,20 +25,15 @@ def _k_global(tenant_id: str, channel: str) -> str:
     return f"acglobal:{tenant_id}:{channel}"
 
 def set_global_agent_enabled(tenant_id: str, channel: str, enabled: bool) -> None:
-    try:
-        _r.set(_k_global(tenant_id, channel), "1" if enabled else "0")
-    except Exception:
-        pass
+    # Operator controls must report persistence failures to the dashboard.
+    _r.set(_k_global(tenant_id, channel), "1" if enabled else "0")
 
 def is_global_agent_enabled(tenant_id: str, channel: str) -> bool:
-    try:
-        v = _r.get(_k_global(tenant_id, channel))
-        if v is None:
-            return True  # default ON
-        s = v.decode() if isinstance(v, (bytes, bytearray)) else str(v)
-        return s != "0"
-    except Exception:
-        return True
+    v = _r.get(_k_global(tenant_id, channel))
+    if v is None:
+        return True  # A missing setting defaults ON; an unavailable store raises.
+    s = v.decode() if isinstance(v, (bytes, bytearray)) else str(v)
+    return s != "0"
 
 # Public API
 def touch_active_chat(tenant_id: str, channel: str, chat_id: str, *, 
@@ -104,6 +100,7 @@ def append_message(tenant_id: str, channel: str, chat_id: str, *, direction: str
     key_l = _k_msgs(tenant_id, channel, str(chat_id))
 
     payload = {
+        "id": uuid4().hex,
         "dir": direction,
         "text": text or "",
         "ts": ts,
@@ -111,12 +108,9 @@ def append_message(tenant_id: str, channel: str, chat_id: str, *, direction: str
     if meta:
         payload["meta"] = meta
 
-    try:
-        _r.rpush(key_l, json.dumps(payload, ensure_ascii=False))
-        if keep_last > 0:
-            _r.ltrim(key_l, -keep_last, -1)
-    except Exception:
-        pass
+    _r.rpush(key_l, json.dumps(payload, ensure_ascii=False))
+    if keep_last > 0:
+        _r.ltrim(key_l, -keep_last, -1)
 
     # Update chat summary
     try:
@@ -148,10 +142,7 @@ def get_messages(tenant_id: str, channel: str, chat_id: str, *, limit: int = 100
 
 def set_agent_enabled(tenant_id: str, channel: str, chat_id: str, enabled: bool) -> None:
     key_h = _k_hash(tenant_id, channel, str(chat_id))
-    try:
-        _r.hset(key_h, mapping={"agent_enabled": "1" if enabled else "0"})
-    except Exception:
-        pass
+    _r.hset(key_h, mapping={"agent_enabled": "1" if enabled else "0"})
 
 
 def is_agent_enabled(tenant_id: str, channel: str, chat_id: str) -> bool:
@@ -164,11 +155,10 @@ def is_agent_enabled(tenant_id: str, channel: str, chat_id: str) -> bool:
     except Exception:
         return True
 
-def set_latest_meta(tenant_id: str, channel: str, chat_id: str, meta: Dict[str, Any]) -> None:
-    """Store the provided meta dictionary on the chat hash as JSON under the field 'latest_meta'.
-
-    This is best-effort and will swallow exceptions like the rest of this module.
-    """
+def set_latest_meta(tenant_id: str, channel: str, chat_id: str, meta: Optional[List[Dict[str, Any]]]) -> None:
+    """Store an explicit basket snapshot, including []; None leaves it unchanged."""
+    if not isinstance(meta, list):
+        return
     key_h = _k_hash(tenant_id, channel, str(chat_id))
     try:
         _r.hset(key_h, mapping={"latest_meta": json.dumps(meta, ensure_ascii=False)})
@@ -176,8 +166,8 @@ def set_latest_meta(tenant_id: str, channel: str, chat_id: str, meta: Dict[str, 
         pass
 
 
-def get_latest_meta(tenant_id: str, channel: str, chat_id: str) -> Optional[Dict[str, Any]]:
-    """Retrieve the last stored meta dictionary for a chat, or None if missing / malformed."""
+def get_latest_meta(tenant_id: str, channel: str, chat_id: str) -> Optional[List[Dict[str, Any]]]:
+    """Retrieve the last stored basket for a chat, or None if missing / malformed."""
     key_h = _k_hash(tenant_id, channel, str(chat_id))
     try:
         v = _r.hget(key_h, "latest_meta")

@@ -6,5 +6,5 @@
 <ul>{% for entry in links %}<li><a href="{% url 'tenant:item_modifier_edit' item.pk entry.pk %}">{{ entry.group.name }}</a> — {{ entry.min_selections }}–{{ entry.max_selections }} distinct selections</li>{% empty %}<li>No modifier groups attached.</li>{% endfor %}</ul>
 <a href="{% url 'tenant:item_modifiers' item.pk %}">Attach another group</a>
 <form method="post"><fieldset {% if external_menu %}disabled{% endif %}>{% csrf_token %}{{ form.as_p }}<button type="submit">Save item rules</button>
-{% if link.pk %}<button type="submit" name="action" value="delete">Detach group</button>{% endif %}</fieldset></form>
+{% if link.pk %}<button class="btn danger" type="submit" name="action" value="delete" formnovalidate data-confirm="Detach this modifier group from this item?">Detach group</button>{% endif %}</fieldset></form>
 {% endblock %}

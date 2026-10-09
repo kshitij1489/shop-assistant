@@ -30,8 +30,8 @@
   }
 }'></textarea>
       <div class="btn-row" style="margin-top:.75rem">
-        <button type="button" class="btn" onclick="formatJSON()">Format</button>
-        <button type="button" class="btn" onclick="validateJSON()">Validate</button>
+        <button type="button" class="btn" data-json-action="format" data-json-target="json_blob">Format</button>
+        <button type="button" class="btn" data-json-action="validate" data-json-target="json_blob">Validate</button>
         <button type="submit" class="btn primary">Save</button>
       </div>
       <p id="helper" style="color:#6b7280;margin-top:.5rem">
@@ -42,19 +42,9 @@
 </div>
 
 <script>
-function formatJSON(){
-  const ta = document.getElementById("json_blob");
-  try{ ta.value = JSON.stringify(JSON.parse(ta.value || "{}"), null, 2); alert("Formatted."); }
-  catch(e){ alert("Invalid JSON: " + e.message); }
-}
-function validateJSON(){
-  const ta = document.getElementById("json_blob");
-  try{ JSON.parse(ta.value || "{}"); alert("Valid JSON."); }
-  catch(e){ alert("Invalid JSON: " + e.message); }
-}
 function confirmAndValidate(){
   const ta = document.getElementById("json_blob");
-  try{ JSON.parse(ta.value || "{}"); } catch(e){ alert("JSON is invalid: " + e.message); return false; }
+  if (!JSONEditor.check(ta, { notifySuccess: false })) return false;
   return confirm("Save all entries? This will upsert rows for the selected dtype.");
 }
 </script>

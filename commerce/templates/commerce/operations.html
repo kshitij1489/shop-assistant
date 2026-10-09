@@ -1,4 +1,5 @@
 {% extends "users/base_tenant.html" %}
+{% load dashboard_query %}
 {% block tenant_content %}
 <h2>Integration operations</h2>
 <p><a href="{% url 'commerce:settings' %}">Commerce settings</a> · <a href="?status=open">Open issues</a> · <a href="?status=resolved">Resolution history</a></p>
@@ -6,16 +7,16 @@
 {% include 'commerce/recovery_guidance.html' %}
 <h3>{% if show_resolved %}Resolved{% else %}Open{% endif %} issues</h3>
 <ul>{% for issue in issues %}<li><a href="{% url 'commerce:issue' issue.pk %}">{{ issue.code }} — order {{ issue.accepted_order.order_id }}</a> — {{ issue.created_at }}</li>{% empty %}<li>No issues.</li>{% endfor %}</ul>
-{% if issues.has_previous %}<a href="?status={% if show_resolved %}resolved{% else %}open{% endif %}&page={{ issues.previous_page_number }}">Previous issues</a>{% endif %}
-{% if issues.has_next %}<a href="?status={% if show_resolved %}resolved{% else %}open{% endif %}&page={{ issues.next_page_number }}">Next issues</a>{% endif %}
+{% if issues.has_previous %}<a href="{% query_update page=issues.previous_page_number %}">Previous issues</a>{% endif %}
+{% if issues.has_next %}<a href="{% query_update page=issues.next_page_number %}">Next issues</a>{% endif %}
 <h3>Parked commands</h3>
 <p>These remain visible after investigation closure. A parked command is historical delivery state, not proof of the provider outcome.</p>
 <ul>{% for command in commands %}<li>{{ command.pk }} — {{ command.kind }} — {{ command.status }} — attempts {{ command.attempts }} — {{ command.error }} — connection {{ command.connection_id }} ({{ command.connection.provider }}, {{ command.connection.account_id }}, {{ command.connection.environment }}) — accepted order {{ command.accepted_order_id }}</li>{% empty %}<li>No parked commands.</li>{% endfor %}</ul>
-{% if commands.has_previous %}<a href="?commands_page={{ commands.previous_page_number }}">Previous commands</a>{% endif %}
-{% if commands.has_next %}<a href="?commands_page={{ commands.next_page_number }}">Next commands</a>{% endif %}
+{% if commands.has_previous %}<a href="{% query_update commands_page=commands.previous_page_number %}">Previous commands</a>{% endif %}
+{% if commands.has_next %}<a href="{% query_update commands_page=commands.next_page_number %}">Next commands</a>{% endif %}
 <h3>Unprocessed inbox events</h3>
 <p>Check these even when no order issue exists. At ten attempts, automatic retry stops; after fixing the cause the adapter can redeliver the exact event.</p>
 <ul>{% for event in inbox %}<li>{{ event.event_id }} — {{ event.event_type }} — {{ event.status }} — attempts {{ event.attempts }} — {{ event.error }} — connection {{ event.connection_id }} ({{ event.connection.provider }}, {{ event.connection.account_id }}, {{ event.connection.environment }}) — received {{ event.received_at }}</li>{% empty %}<li>No unprocessed events.</li>{% endfor %}</ul>
-{% if inbox.has_previous %}<a href="?inbox_page={{ inbox.previous_page_number }}">Previous events</a>{% endif %}
-{% if inbox.has_next %}<a href="?inbox_page={{ inbox.next_page_number }}">Next events</a>{% endif %}
+{% if inbox.has_previous %}<a href="{% query_update inbox_page=inbox.previous_page_number %}">Previous events</a>{% endif %}
+{% if inbox.has_next %}<a href="{% query_update inbox_page=inbox.next_page_number %}">Next events</a>{% endif %}
 {% endblock %}

@@ -150,26 +150,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const checkoutForm = document.getElementById("checkout-settings-form");
         const checkoutTabInput = document.querySelector("#checkout-settings-form [name='settings_tab']");
 
-        function selectSettingsTab(tab, updateHistory) {
-            tabs.forEach(function (item) {
-                const selected = item === tab;
-                item.setAttribute("aria-selected", selected ? "true" : "false");
-                item.tabIndex = selected ? 0 : -1;
-                const panel = document.getElementById(item.getAttribute("aria-controls"));
-                if (panel) panel.hidden = !selected;
-            });
+        const tabController = UIComponents.tabs(tablist, { onSelect: function (tab) {
             if (checkoutTabInput && (tab.dataset.tab === "checkout" || tab.dataset.tab === "hours")) {
                 checkoutTabInput.value = tab.dataset.tab;
             }
-            if (updateHistory) {
-                const url = new URL(window.location.href);
-                url.searchParams.set("tab", tab.dataset.tab);
-                history.replaceState(null, "", url);
-            }
-        }
-
-        // Leave all navigation links reachable if JavaScript is unavailable.
-        selectSettingsTab(tabs.find(tab => tab.getAttribute("aria-selected") === "true") || tabs[0], false);
+            const url = new URL(window.location.href);
+            url.searchParams.set("tab", tab.dataset.tab);
+            history.replaceState(null, "", url);
+        }});
+        function selectSettingsTab(tab) { tabController.select(tab); }
 
         // Native validation cannot focus controls in a hidden panel. Reveal the
         // first invalid control before asking the browser to show its message.
@@ -194,27 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
             control.focus();
         });
 
-        tablist.addEventListener("click", function (event) {
-            const tab = event.target.closest("[role='tab']");
-            if (!tab || !tablist.contains(tab)) return;
-            if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-            event.preventDefault();
-            selectSettingsTab(tab, true);
-        });
 
-        tablist.addEventListener("keydown", function (event) {
-            const current = tabs.indexOf(document.activeElement);
-            if (current < 0) return;
-            const movements = { ArrowRight: 1, ArrowLeft: -1, Home: "first", End: "last" };
-            if (!(event.key in movements)) return;
-            event.preventDefault();
-            let next;
-            if (movements[event.key] === "first") next = tabs[0];
-            else if (movements[event.key] === "last") next = tabs[tabs.length - 1];
-            else next = tabs[(current + movements[event.key] + tabs.length) % tabs.length];
-            selectSettingsTab(next, true);
-            next.focus();
-        });
     }
 
     const generateBtn = document.getElementById("generate-token-button");
@@ -223,8 +192,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const tokenContainer = document.getElementById("token-container");
     const timerText = document.getElementById("expire-timer");
     if (!generateBtn) return;
+    let tokenInterval = null;
+
+    function clearToken() {
+        clearInterval(tokenInterval);
+        tokenInterval = null;
+        tokenDisplay.textContent = "";
+        timerText.textContent = "";
+        tokenContainer.hidden = true;
+        copyBtn.hidden = true;
+        generateBtn.disabled = false;
+    }
 
     generateBtn.addEventListener("click", function () {
+        if (generateBtn.disabled) return;
+        generateBtn.disabled = true;
         fetch("{% url 'tenant:generate_jwt_token' %}", {
             method: "POST",
             headers: {
@@ -241,32 +223,34 @@ document.addEventListener("DOMContentLoaded", function () {
             tokenDisplay.textContent = data.token;
             tokenContainer.hidden = false;
             copyBtn.hidden = false;
+            notify("Token Generated");
 
             let countdown = 15;
             timerText.textContent = countdown;
-            const interval = setInterval(() => {
+            clearInterval(tokenInterval);
+            tokenInterval = setInterval(() => {
                 countdown--;
                 timerText.textContent = countdown;
                 if (countdown <= 0) {
-                    clearInterval(interval);
-                    tokenContainer.hidden = true;
-                    copyBtn.hidden = true;
+                    clearToken();
                 }
             }, 1000);
         })
         .catch(err => {
-            tokenDisplay.textContent = "Error generating token.";
-            tokenContainer.hidden = false;
-            copyBtn.hidden = true;
+            clearToken();
+            notify("Token Not Generated", "error");
             console.error(err);
         });
     });
 
-    copyBtn.addEventListener("click", function () {
+    copyBtn.addEventListener("click", async function () {
         const token = tokenDisplay.textContent;
-        navigator.clipboard.writeText(token)
-            .then(() => alert("Token copied to clipboard!"))
-            .catch(() => alert("Failed to copy token."));
+        try {
+            await navigator.clipboard.writeText(token);
+            notify("Token Copied");
+        } catch (_error) {
+            notify("Token Not Copied", "error");
+        }
     });
 
     document.querySelectorAll("[data-toggle-visibility]").forEach(btn => {

@@ -12,6 +12,6 @@
 {{ options.management_form }}{{ options.non_form_errors }}
 {% for option in options %}<fieldset>{{ option.as_p }}</fieldset>{% endfor %}
 <button type="submit">Save group and options</button>
-{% if group.pk %}<button name="action" value="delete" type="submit">Delete group and detach from items</button>{% endif %}
+{% if group.pk %}<button class="btn danger" name="action" value="delete" type="submit" formnovalidate data-confirm="Delete this group and detach it from all items?">Delete group and detach from items</button>{% endif %}
 </fieldset></form>
 {% endblock %}

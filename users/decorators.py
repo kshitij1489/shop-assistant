@@ -14,7 +14,7 @@ def master_required(view_func):
         profile = getattr(request.user, 'tenantprofile', None)
         is_master = request.user.is_superuser or (profile and profile.is_master)  # ← changed
         if not request.user.is_authenticated or not is_master:
-            messages.error(request, "Access restricted to master users.")
+            messages.error(request, "Master Access Required")
             return redirect("dashboard")
         return view_func(request, *args, **kwargs)
     return _wrapped_view
@@ -24,13 +24,13 @@ def tenant_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         profile = getattr(request.user, 'tenantprofile', None)
         if not request.user.is_authenticated or not profile or profile.is_master or not profile.tenant:
-            messages.error(request, "Access restricted to tenant users.")
+            messages.error(request, "Tenant Access Required")
             return redirect("dashboard")
 
         if not profile.tenant.is_active:
             if _wants_json(request):
                 return JsonResponse({'detail': 'This tenant is inactive.'}, status=403)
-            messages.error(request, "This tenant is inactive. Contact support to restore access.")
+            messages.error(request, "Tenant Inactive: Contact Support")
             return redirect("pending_review")
 
         # Approval gate (masters already excluded above)
@@ -38,7 +38,7 @@ def tenant_required(view_func):
         if status != 'APPROVED':
             if _wants_json(request):
                 return JsonResponse({'detail': 'Your tenant is not approved yet.', 'status': status}, status=403)
-            messages.info(request, "Your application is under review.")
+            messages.info(request, "Application Under Review")
             return redirect("pending_review")
 
         return view_func(request, *args, **kwargs)

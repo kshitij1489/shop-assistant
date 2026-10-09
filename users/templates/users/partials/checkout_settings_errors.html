@@ -1,5 +1,5 @@
 {% if checkout_form.errors %}
-<div class="alert error" role="alert">
+<div class="form-errors" role="alert">
     <p>Please correct the checkout and opening hours settings below.</p>
     {{ checkout_form.non_field_errors }}
     {% if checkout_form.error_fields %}

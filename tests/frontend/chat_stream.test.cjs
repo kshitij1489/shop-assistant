@@ -76,12 +76,12 @@ function chatPage(fetch) {
     focus() {}
   }
   const form = new Element('form'), input = new Element('input'), button = new Element('button');
-  const chat = new Element('div');
+  const chat = new Element('div'), announcement = new Element('div');
   form.querySelector = () => button;
   const page = { TextDecoder, ReadableStream, fetch, console: { error() {} },
     localStorage: { getItem: () => JSON.stringify({ token: 'test-token', expiry: Date.now() + 10000 }) },
     document: {
-      getElementById: id => ({ 'chat-form': form, 'message-input': input, 'chat-window': chat })[id],
+      getElementById: id => ({ 'chat-form': form, 'message-input': input, 'chat-window': chat, 'reply-announcement': announcement })[id],
       createElement: tag => new Element(tag),
       createTextNode: text => ({ textContent: text })
     }
@@ -90,7 +90,7 @@ function chatPage(fetch) {
   vm.runInContext(fs.readFileSync('chatbot_core/static/chatbot_core/js/chat_stream.js', 'utf8'), page);
   const template = fs.readFileSync('chatbot_core/templates/chatbot_core/ai_agent.html', 'utf8');
   vm.runInContext(template.match(/<script>([\s\S]*?)<\/script>/)[1], page);
-  return { form, input, button, chat };
+  return { form, input, button, chat, announcement };
 }
 
 const nextTask = () => new Promise(resolve => setImmediate(resolve));
@@ -112,12 +112,14 @@ test('chat updates one bubble, keeps partial text literal, and enables input aft
   const bubble = page.chat.children[1];
   assert.equal(bubble.textContent, '<img> https://example.com');
   assert.equal(bubble.children.length, 1);
+  assert.equal(page.announcement.textContent, '', 'Partial tokens should not trigger repeated announcements');
   assert.equal(page.button.disabled, true);
   controller.enqueue(new TextEncoder().encode(frame('done', { response: 'Final https://example.com', basket: [] })));
   controller.close();
   await finished;
   assert.equal(page.chat.children.length, 2);
   assert.equal(bubble.textContent, 'Final https://example.com');
+  assert.equal(page.announcement.textContent, 'Final https://example.com');
   assert.equal(bubble.children[1].tagName, 'a');
   assert.equal(bubble.children[1].rel, 'noopener noreferrer');
   assert.equal(page.input.disabled, false);
@@ -137,6 +139,7 @@ test('chat replaces truncated partial text with an error and does not retry the 
   assert.equal(calls, 1);
   assert.equal(page.chat.children.length, 2);
   assert.match(page.chat.children[1].textContent, /could not be completed/);
+  assert.match(page.announcement.textContent, /could not be completed/);
   assert.equal(page.input.disabled, false);
 });
 

@@ -70,12 +70,14 @@ def settings_view(request):
         except ValidationError as exc:
             form.add_error(None, exc)
         else:
-            messages.success(request, 'Menu source saved. External menus require a fresh synchronization before ordering.')
+            messages.success(request, 'Menu Source Saved')
             return redirect('tenant:menu_source')
+    if request.method == 'POST':
+        messages.error(request, 'Menu Source Not Saved')
     freshness_error = ''
     try:
         assert_menu_fresh(tenant.pk)
     except ValueError as exc:
         freshness_error = str(exc)
-    return render(request, 'users/menu_source.html', {'form': form, **menu_context(tenant),
+    return render(request, 'users/menu_source.html', {'active_page': 'menu', 'form': form, **menu_context(tenant),
         'freshness_error': freshness_error}, status=400 if form.errors else 200)

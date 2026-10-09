@@ -387,7 +387,7 @@ class MasterTenantTests(TestCase):
                 self.assertEqual(response.status_code, 400)
                 self.assertContains(response, message, status_code=400)
                 self.assertContains(response, 'id="edit-tenant" open', status_code=400)
-                self.assertContains(response, 'Changes for Existing Café were not saved.', status_code=400)
+                self.assertContains(response, 'Tenant Details Not Saved', status_code=400)
                 self.tenant.refresh_from_db()
                 self.owner.refresh_from_db()
                 self.assertEqual(self.tenant.display_name, 'Existing Café')
