@@ -1,14 +1,21 @@
 # Changelog
 
-## 1.2.0 — 2026-10-09
+## 1.3.0 — 2026-10-09
 
 - Reject TLS certificates for the wrong hostname during production preflight,
   including on systems using OpenSSL 3.0.
 
-- Enforce chatbot rate limits on the deployed endpoint.
-- Restore chat, voice, and dashboard scripts under the production Content Security Policy.
-- Validate Telegram delivery responses and apply request timeouts so failed sends
-  are not reported as successful.
+- Enforce chatbot rate limits on the deployed endpoint, independently of its URL prefix.
+- Serve page scripts as static assets so chat, voice, and dashboard controls work
+  with the production Content Security Policy.
+- Validate Telegram text and voice delivery responses and apply request timeouts;
+  failed sends no longer appear successful in the dashboard.
+
+**Upgrade:** deploy the updated application and collected static assets together,
+then restart web and background workers. No new database migration is required
+when upgrading from 1.2.0.
+
+## 1.2.0 — 2026-10-09
 
 - Improve dashboard notifications, keyboard navigation, dialogs, and form feedback.
 - Keep chat selection, drafts, reading position, and agent controls consistent
