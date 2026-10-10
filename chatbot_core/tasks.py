@@ -3,8 +3,6 @@ import os
 from celery import shared_task
 import json, redis, logging
 from django.conf import settings
-import numpy as np
-from chatbot_core.vector_store.faiss_index import rebuild_faiss_from_db
 
 logger = logging.getLogger(__name__)
 
@@ -82,17 +80,20 @@ def drain_user_queue_task(self, tenant_id, user_id, platform=None):
 @shared_task(base=EvaluationTask, name="chatbot_core.embed_text", expires=15)
 def embed_text(q: str) -> list[float]:
     # The first request also loads the model; use the normal task time limits.
-    from chatbot_core.vector_store.embeddings import get_sbert_model
-    model = get_sbert_model()
-    vec = model.encode([q])[0].astype("float32")
-    n = np.linalg.norm(vec)
-    if n > 0:
-        vec = vec / n
-    return vec.tolist()
+    from chatbot_core.vector_store.embedding_client import get_embedding
+    return get_embedding(q)
 
 @shared_task(base=EvaluationTask, name="chatbot_core.rebuild_faiss")
 def rebuild_faiss_task():
-    rebuild_faiss_from_db()
+    # Version the durable source so ALL processes rebuild on their next lookup.
+    from chatbot_core.vector_store.semantic_cache import prune
+    return prune(invalidate=True)
+
+
+@shared_task(base=EvaluationTask, name="chatbot_core.prune_semantic_cache")
+def prune_semantic_cache_task():
+    from chatbot_core.vector_store.semantic_cache import prune
+    return prune()
 
 def _r_string_queue():
     return redis.Redis.from_url(getattr(settings, "APP_REDIS_URL", settings.CELERY_BROKER_URL), decode_responses=True)

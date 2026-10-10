@@ -464,12 +464,14 @@ class RuntimeConfigurationTests(TestCase):
         self.assertTrue(TenantJSONDoc.objects.filter(tenant=self.other).exists())
 
     def test_dashboard_upload_is_a_draft_and_invalid_topic_cannot_execute(self):
-        import json
         self.publish()
         response = self.client.post(reverse('tenant:upload_knowledge_prompt'), {
-            'dtype': 'knowledge', 'json_blob': json.dumps({'information_about_the_cafe': {'pet_policy': 'Updated by upload.'}}),
+            'dtype': 'knowledge', 'json_blob': json.dumps({'document_type': 'knowledge', 'documents': {
+                'information_about_the_cafe': {'pet_policy': 'Updated by upload.'}}}),
         })
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('tenant:tenant_knowledge') + '?dtype=knowledge')
+        self.assertEqual(TenantJSONDoc.objects.get(tenant=self.tenant, dtype='knowledge',
+            intent='information_about_the_cafe', sub_intent='pet_policy').payload, 'Updated by upload.')
         self.assertEqual(self.document()['payload'], 'Pets are welcome outside.')
         response = self.client.post(reverse('tenant:tenant_knowledge'), {
             'action': 'save_topic', 'intent': 'placing_order', 'sub_intent': 'issue_refund',

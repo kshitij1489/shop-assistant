@@ -99,7 +99,7 @@
     </div>
     <div data-checkout-actions{% if active_tab != 'checkout' and active_tab != 'hours' %} hidden{% endif %}>
         <button type="submit">Save order options and hours</button>
-        <p><a href="?download=checkout">Export JSON</a> · <a href="{% url 'tenant:upload_knowledge_prompt' %}?dtype=checkout">Import JSON</a></p>
+        <p><a href="?download=checkout">Export JSON</a></p>
     </div>
 </form>
 
@@ -125,7 +125,7 @@
         {% endfor %}
         {% include "users/partials/ordering_settings_fields.html" with panels=ordering_form.panels.advanced %}
         <button type="submit">Save pricing &amp; limits</button>
-        <p><a href="?download=ordering">Export JSON</a> · <a href="{% url 'tenant:upload_knowledge_prompt' %}?dtype=commerce_policy">Import JSON</a></p>
+        <p><a href="?download=ordering">Export JSON</a></p>
     </form>
 </div>
 

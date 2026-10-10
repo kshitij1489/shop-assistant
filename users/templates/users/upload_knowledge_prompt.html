@@ -16,7 +16,7 @@
           <option value="{{ val }}" {% if selected_dtype == val %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
-      <p style="color:#6b7280;margin:.5rem 0 0">Choose the configuration type matching your JSON. Knowledge, routing and answer instructions are saved as drafts; publish them on the Knowledge page. Order options and Pricing &amp; limits apply when saved.</p>
+      <p style="color:#6b7280;margin:.5rem 0 0">Choose the configuration type matching your JSON. Knowledge, routing and answer instructions are saved as drafts; publish them on the Knowledge page.</p>
     </div>
 
     <div class="card" style="margin-bottom:.75rem">
@@ -39,7 +39,6 @@
         Classification payloads must be objects such as <code>{ "description": "Questions about opening hours", "examples": ["Are you open?"] }</code>.
         Response instructions are answer guidance strings, imported as Response Intents.
         Use <code>{ "document_type": "knowledge", "documents": { "intent": { "topic": payload } } }</code> (use <code>intent_classification</code> or <code>response_intents</code> for those types). The declared type must match the selection. Demo imports already include it. For older files, put the original object inside <code>documents</code> and declare its actual type.
-        Order options and ordering policy use their settings objects.
       </p>
     </div>
   </form>

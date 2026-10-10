@@ -341,12 +341,34 @@ CELERY_TASK_ROUTES = {
 }
 
 CELERY_BEAT_SCHEDULE = {
+    "prune-semantic-cache": {
+        "task": "chatbot_core.prune_semantic_cache",
+        "schedule": 300.0,
+        "options": {"queue": "default"},
+    },
     "drain-string-queue": {
         "task": "chatbot_core.drain_string_queue",
         "schedule": 30.0,  # seconds (was 2s — caused queue backlog starving other tasks)
         "options": {"queue": "default"},  # stays off your embeddings queue
     },
 }
+
+# FAISS is a disposable, lazy cache over bounded database rows. Roll out semantic
+# reuse after evaluating the chosen encoder against tenant traffic.
+SEMANTIC_CACHE_ENABLED = os.getenv("SEMANTIC_CACHE_ENABLED", "false").lower() == "true"
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+EMBEDDING_REVISION = os.getenv("EMBEDDING_REVISION", "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+                               if EMBEDDING_MODEL == "sentence-transformers/all-MiniLM-L6-v2" else "")
+EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "384"))
+SEMANTIC_CACHE_SIMILARITY = float(os.getenv("SEMANTIC_CACHE_SIMILARITY", "0.98"))
+SEMANTIC_CACHE_MAX_ROWS = int(os.getenv("SEMANTIC_CACHE_MAX_ROWS", "10000"))
+SEMANTIC_CACHE_MAX_PARTITION_ROWS = int(os.getenv("SEMANTIC_CACHE_MAX_PARTITION_ROWS", "512"))
+SEMANTIC_CACHE_MAX_DB_BYTES = int(os.getenv("SEMANTIC_CACHE_MAX_DB_BYTES", "67108864"))
+SEMANTIC_CACHE_MAX_INDEX_BYTES = int(os.getenv("SEMANTIC_CACHE_MAX_INDEX_BYTES", "33554432"))
+SEMANTIC_CACHE_MAX_INDEXES = int(os.getenv("SEMANTIC_CACHE_MAX_INDEXES", "64"))
+SEMANTIC_CACHE_MAX_TTL = int(os.getenv("SEMANTIC_CACHE_MAX_TTL", "1800"))
+SEMANTIC_CACHE_MAX_QUERY_BYTES = int(os.getenv("SEMANTIC_CACHE_MAX_QUERY_BYTES", "4096"))
+SEMANTIC_CACHE_MAX_RESPONSE_BYTES = int(os.getenv("SEMANTIC_CACHE_MAX_RESPONSE_BYTES", "16384"))
 
 # Adapter HMAC secrets are loaded from the deployment environment, never exported.
 import json as _commerce_json

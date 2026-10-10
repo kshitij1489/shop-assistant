@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.7.0 — 2026-10-10
+
+- Add an opt-in, tenant-scoped semantic answer cache with bounded PostgreSQL
+  answer/vector storage, lazy FAISS indexes, pinned CPU embeddings, absolute
+  expiry, and configurable capacity limits.
+- Preserve successful answers during cache outages; isolate published knowledge
+  and conversation contexts, and keep cache publication consistent across
+  transactions, rollbacks, and worker processes.
+- Add scheduled retention cleanup, a `semantic_cache` management command,
+  operational documentation, and cache, embedding, and provider regression tests.
+- Manage checkout and ordering policies through dashboard settings. Knowledge
+  uploads now accept only Knowledge, Intent Classification, and Response Intents;
+  JSON exports remain available from Settings.
+
+**Upgrade from 1.6.0:** apply database migrations, including chatbot migration
+`0025_bounded_semantic_cache`, before restarting web, background workers, and
+Celery Beat. Deploy the updated application and collected static assets together.
+The semantic cache defaults to disabled; review its resource limits and rollout
+steps before enabling `SEMANTIC_CACHE_ENABLED`. See
+[semantic cache operations](docs/chatbot/semantic_cache.md).
+
 ## 1.6.0 — 2026-10-10
 
 - Keep unavailable features from being enabled or used: order scheduling,

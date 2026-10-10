@@ -1,7 +1,6 @@
 """Exercise real LangChain parsing through an offline HTTP transport."""
 import importlib
 import json
-from types import SimpleNamespace
 
 from unittest.mock import patch
 
@@ -173,16 +172,51 @@ class CacheTests(ProviderHarness, SimpleTestCase):
                 self.assertEqual(self.knowledge.generate_response_from_knowledge("tenant", "menu", "What is available?"), self.payload)
         self.assertEqual(len(self.requests), 1)
 
-    def test_knowledge_exact_cache_separates_tenant_user_and_platform(self):
-        def save(ctx, answer, ttl, model):
-            cache.set(ctx["sig"], answer, timeout=ttl)
-            return answer
+    @override_settings(SEMANTIC_CACHE_ENABLED=True)
+    def test_live_cafe_knowledge_uses_scoped_semantic_service(self):
+        from chatbot_core.vector_store import semantic_cache
+        self.payload = "Pets are welcome outside."
+        args = ("tenant", "amenities", "Are pets welcome?")
+        with patch.object(self.knowledge, "retrieve_knowledge", return_value={"payload": {"pets": "outside"}, "identity": "v1"}), \
+                patch.object(self.knowledge, "get_intent_prompt_cache", return_value={}), \
+                patch.object(semantic_cache, "lookup", return_value=(False, None, {"scope": "prepared"})) as lookup, \
+                patch.object(semantic_cache, "store", side_effect=lambda ctx, answer, ttl, model: answer) as store:
+            self.assertEqual(self.knowledge.generate_response_from_knowledge(*args,
+                main_intent="information_about_the_cafe", response_profile="cafe_information"), self.payload)
+            self.assertEqual(store.call_args.args[1], self.payload)
+            self.assertIn("system_prompt", lookup.call_args.args[2])
+            lookup.return_value = (True, "Cached public facts", {})
+            self.assertEqual(self.knowledge.generate_response_from_knowledge(*args,
+                main_intent="information_about_the_cafe", response_profile="cafe_information"), "Cached public facts")
+        self.assertEqual(len(self.requests), 1)
 
+    @override_settings(SEMANTIC_CACHE_ENABLED=True)
+    def test_menu_hours_and_contextual_answers_do_not_use_semantic_reuse(self):
+        from chatbot_core.vector_store import semantic_cache
+        self.payload = "Verified response"
+        with patch.object(self.knowledge, "retrieve_knowledge", return_value={"payload": {"facts": "known"}}), \
+                patch.object(self.knowledge, "get_intent_prompt_cache", return_value={}), \
+                patch.object(semantic_cache, "lookup", side_effect=AssertionError("Unsafe admission")):
+            for main, topic, previous in (("menu_items", "allergens", None),
+                                          ("information_about_the_cafe", "location_and_hours", None),
+                                          ("information_about_the_cafe", "amenities", "Earlier question")):
+                self.assertEqual(self.knowledge.generate_response_from_knowledge("tenant", topic, "Question",
+                    main_intent=main, previous_user_message=previous), self.payload)
+        self.assertEqual(len(self.requests), 3)
+
+    def test_exact_cache_outage_preserves_successful_answer(self):
+        self.payload = "We have lattes."
+        with patch.object(self.knowledge, "get_knowledge_base_cache", return_value={("tenant", "general", "menu"): {"payload": ["latte"]}}), \
+                patch.object(self.knowledge, "get_intent_prompt_cache", return_value={}), \
+                patch.object(self.knowledge.cache, "get", side_effect=ConnectionError), \
+                patch.object(self.knowledge.cache, "set", side_effect=ConnectionError):
+            with self.assertLogs(self.knowledge.logger, "WARNING"):
+                self.assertEqual(self.knowledge.generate_response_from_knowledge("tenant", "menu", "What is available?"), self.payload)
+
+    def test_knowledge_exact_cache_separates_tenant_user_and_platform(self):
         scopes = [("one", "user", "telegram"), ("two", "user", "telegram"),
                   ("one", "user", "whatsapp"), ("one", "other-user", "telegram")]
-        with patch.object(self.answers, "get_embedding", return_value=[1.0]), \
-             patch.object(self.answers, "search", return_value=([], [])), \
-             patch.object(self.answers, "kb_create", side_effect=save) as store:
+        with patch.object(self.answers, "kb_create", wraps=self.answers.kb_create) as store:
             for tenant, user, platform in scopes:
                 self.payload = f"Answer for {tenant}/{user}/{platform}"
                 for _ in range(2):
@@ -193,14 +227,9 @@ class CacheTests(ProviderHarness, SimpleTestCase):
         self.assertEqual(len(self.requests), 4)
         self.assertEqual(len({call.args[0]["scope"] for call in store.call_args_list}), 4)
 
-    def test_knowledge_semantic_cache_rejects_other_tenant(self):
-        entry = SimpleNamespace(scope="other-tenant", kb_fp=self.answers.kb_fingerprint("knowledge"))
+    def test_disabled_semantic_cache_generates_without_encoder_or_database(self):
         self.payload = "Fresh answer"
-        with patch.object(self.answers, "get_embedding", return_value=[1.0]), \
-             patch.object(self.answers, "search", return_value=([1], [0.99])), \
-             patch.object(self.answers.SemanticCacheEntry.objects, "filter") as lookup, \
-             patch.object(self.answers, "kb_create", side_effect=lambda ctx, answer, ttl, model: answer):
-            lookup.return_value.first.return_value = entry
+        with override_settings(SEMANTIC_CACHE_ENABLED=False):
             self.assertEqual(self.answers.answer_from_knowledge(
                 "knowledge", "question", tenant_key="one"), "Fresh answer")
         self.assertEqual(len(self.requests), 1)

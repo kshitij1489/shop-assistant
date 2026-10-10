@@ -108,9 +108,11 @@ The demo files already include this envelope. For older unwrapped files, put the
 original intent/topic object inside `documents` and declare its actual type.
 Individual topic editors and internal catalog projections already know the
 document type and do not need an envelope. Existing saved documents remain readable.
-Document imports update drafts only; review and publish them. Checkout and
-ordering-policy imports update live settings immediately. Policy imports preserve
-activation flags: limits apply immediately, while policy taxes and discounts apply
+The dashboard upload page accepts only these three document types. Document
+imports update drafts only; review and publish them. Edit checkout and ordering
+policies in Settings. Internal imports used by evaluation update live settings
+immediately. Internal policy imports preserve activation flags: limits apply
+immediately, while policy taxes and discounts apply
 only when local policy pricing or external commerce is active. Save Pricing & limits
 or complete ordering setup to adopt local policy pricing. Ordering limits and checkout settings
 must be configured before enabling their dependent ordering routes. A café that

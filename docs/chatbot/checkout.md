@@ -3,10 +3,11 @@
 Open **Settings → Order options** and **Pricing & limits** to edit the saved policies.
 Signup creates both policies before publishing conversational routes. Add a menu
 item with a priced size, then finish the short setup form to confirm hours and
-publish ordering. JSON import/export is optional.
+publish ordering. JSON exports are available from Settings. The knowledge upload
+page accepts only Knowledge, Intent Classification, and Response Intents.
 
 Scheduling, advance booking limits, and required pickup times are disabled with
-**Coming soon** labels. Checkout imports reject scheduling activation. Saving
+**Coming soon** labels. Checkout validation rejects scheduling activation. Saving
 Order options or completing setup clears old scheduling flags and required pickup
 times; new chatbot checkout also ignores those old settings and drops scheduled
 times from unfinished drafts. Confirmed orders retain their original details.
@@ -24,7 +25,7 @@ setup. Enable tracked stock after adding stock records. Defaults are defined in
 `orders/settings_defaults.py`; the form displays saved values, including existing
 tenants' intentionally absent limits. Opening Settings fills missing records
 without replacing existing policies. A tenant with no `CheckoutSettings` row
-keeps its legacy confirmation flow until it opens Settings or imports checkout.
+keeps its legacy confirmation flow until it opens Settings.
 Initialization leaves policy pricing inactive. Setup preserves always-open,
 split and per-day schedules; edit those in Opening hours. Legacy address coverage
 remains active while ordering setup is required, including after a rules save.
@@ -42,8 +43,9 @@ Once setup is complete, adoption also switches address validation to Checkout
 coverage: pickup-only rejects delivery and an empty delivery postal-code list
 allows every valid Indian pincode.
 
-Ordering policy imports immediately update stored limits (and pricing if policy
-pricing is already active). They preserve both activation flags: importing does
+Internal ordering policy imports used by evaluation immediately update stored
+limits (and pricing if policy pricing is already active). They preserve both
+activation flags: importing does
 not adopt local policy taxes or discounts for a legacy tenant. Save Pricing
 & limits or complete setup to adopt them. Integrations created without onboarding
 retain the conservative model policy: absent limits and strict stock.

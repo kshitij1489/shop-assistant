@@ -10,6 +10,7 @@
 | [chatbot/checkout.md](chatbot/checkout.md) | Checkout and order confirmation |
 | [chatbot/conversation_actions.md](chatbot/conversation_actions.md) | Basket focus, catalog matching, and pending work |
 | [chatbot/llm.md](chatbot/llm.md) | Models and the website chat API |
+| [chatbot/semantic_cache.md](chatbot/semantic_cache.md) | Scoped FAISS cache, retention, limits, and rollout |
 | [site_location.md](site_location.md) | Café address lookup |
 | [ui_notifications.md](ui_notifications.md) | Shared notifications and configuration feedback rules |
 | [dashboard_review.md](dashboard_review.md) | Dashboard review fixes and remaining manual validation |

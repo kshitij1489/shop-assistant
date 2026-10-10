@@ -5,16 +5,19 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 from celery import signals
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 from chatbot_core import tasks
 from chatbot_core.vector_store import embedding_client, embeddings
 
 
+@override_settings(EMBEDDING_MODEL="test-embedding-model", EMBEDDING_REVISION="a" * 40,
+                   EMBEDDING_DIMENSION=2)
 class EmbeddingLifecycleTests(SimpleTestCase):
     def setUp(self):
         self.model = Mock()
         self.model.encode.return_value = np.array([[3.0, 4.0]], dtype="float32")
+        self.model.get_sentence_embedding_dimension.return_value = 2
         self.constructor = Mock(return_value=self.model)
         self.enterContext(patch.dict("sys.modules", {
             "sentence_transformers": SimpleNamespace(SentenceTransformer=self.constructor),
@@ -23,6 +26,7 @@ class EmbeddingLifecycleTests(SimpleTestCase):
             "EMBEDDING_MODEL": "test-embedding-model", "HF_HOME": "/tmp/test-model-cache",
         }))
         self.enterContext(patch.object(embeddings, "_MODEL", None))
+        self.enterContext(patch.object(embeddings, "_SPEC", None))
 
     def test_worker_startup_does_not_load_the_model(self):
         signals.worker_process_init.send(sender=None)
@@ -36,6 +40,7 @@ class EmbeddingLifecycleTests(SimpleTestCase):
         np.testing.assert_allclose(queued, inline)
         self.constructor.assert_called_once_with(
             "test-embedding-model", cache_folder="/tmp/test-model-cache", device="cpu",
+            revision="a" * 40, trust_remote_code=False,
         )
         self.assertEqual(self.model.encode.call_count, 2)
 
@@ -45,3 +50,16 @@ class EmbeddingLifecycleTests(SimpleTestCase):
             embedding_client.get_embedding("First attempt")
         np.testing.assert_allclose(embedding_client.get_embedding("Retry"), [0.6, 0.8])
         self.assertEqual(self.constructor.call_count, 2)
+
+    def test_configuration_change_requires_restart(self):
+        embedding_client.get_embedding("Initial")
+        with override_settings(EMBEDDING_REVISION="b" * 40):
+            with self.assertRaisesMessage(RuntimeError, "restart the worker"):
+                embedding_client.get_embedding("Changed encoder")
+        self.constructor.assert_called_once()
+
+    def test_declared_dimension_must_match_encoder(self):
+        self.model.get_sentence_embedding_dimension.return_value = 3
+        with self.assertRaisesMessage(ValueError, "does not match encoder"):
+            embedding_client.get_embedding("Invalid encoder")
+        self.model.encode.assert_not_called()

@@ -1107,7 +1107,7 @@ def upload_knowledge_prompt_view(request):
     if request.method == "GET":
         selected_dtype = request.GET.get("dtype", "")
         return render(request, "users/upload_knowledge_prompt.html", {
-            "dtypes": [*TenantJSONDoc.DocType.choices, ("checkout", "Order options and hours"), ("commerce_policy", "Ordering policy")],
+            "dtypes": TenantJSONDoc.DocType.choices,
             "selected_dtype": selected_dtype,
         })
 
@@ -1116,18 +1116,12 @@ def upload_knowledge_prompt_view(request):
     dtype = (request.POST.get("dtype") or "").strip()
     blob = request.POST.get("json_blob") or "{}"
 
-    from chatbot_core.configuration_imports import import_configuration
+    from chatbot_core.configuration_imports import import_documents
     try:
-        import_configuration(tenant, dtype, blob)
+        import_documents(tenant, dtype, blob, require_type=True)
     except (ValueError, ValidationError, IntegrityError) as exc:
         action_error(request, "Configuration Import Failed", exc)
         return redirect(reverse("tenant:upload_knowledge_prompt") + (f"?dtype={dtype}" if dtype else ""))
-    if dtype == 'checkout':
-        messages.success(request, "Order Options and Hours Imported")
-        return _redirect_settings('checkout')
-    if dtype == 'commerce_policy':
-        messages.success(request, "Ordering Policy Imported")
-        return redirect(reverse('tenant:upload_knowledge_prompt') + '?dtype=commerce_policy')
     messages.success(request, "Configuration Draft Imported")
     # Redirect to your main page to inspect results, preselecting dtype:
     return redirect(reverse("tenant:tenant_knowledge") + (f"?dtype={dtype}" if dtype else ""))

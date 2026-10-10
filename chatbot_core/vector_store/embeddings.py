@@ -1,15 +1,28 @@
-import os, logging
+"""One lazily loaded, pinned encoder per process."""
+import os
+import threading
 
-log = logging.getLogger(__name__)
+from .config import policy
+
 _MODEL = None
+_SPEC = None
+_LOCK = threading.Lock()
+
 
 def get_sbert_model():
-    """Load once on first use, outside Celery's child-startup timeout."""
-    global _MODEL
-    if _MODEL is None:
-        from sentence_transformers import SentenceTransformer
-        name = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
-        cache_dir = os.getenv("HF_HOME", os.getenv("TRANSFORMERS_CACHE", "/model_cache"))
-        _MODEL = SentenceTransformer(name, cache_folder=cache_dir, device="cpu")
-        log.info("SBERT model created in PID=%s, cache=%s", os.getpid(), cache_dir)
-    return _MODEL
+    global _MODEL, _SPEC
+    config = policy()
+    spec = (config.model, config.revision, config.dimension)
+    with _LOCK:
+        if _MODEL is not None and _SPEC != spec:
+            raise RuntimeError("Embedding configuration changed; restart the worker")
+        if _MODEL is None:
+            from sentence_transformers import SentenceTransformer
+            model = SentenceTransformer(
+                config.model, revision=config.revision, device="cpu", trust_remote_code=False,
+                cache_folder=os.getenv("HF_HOME", os.getenv("TRANSFORMERS_CACHE", "/model_cache")),
+            )
+            if model.get_sentence_embedding_dimension() != config.dimension:
+                raise ValueError("Configured embedding dimension does not match encoder")
+            _MODEL, _SPEC = model, spec
+        return _MODEL

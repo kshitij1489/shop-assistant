@@ -32,10 +32,9 @@ class ConfigurationImportTests(TestCase):
         if kind == 'catalog':
             response = self.client.post(reverse('tenant:tenant_menu_ingest_json'), {'menu_items_json': source})
         else:
-            if kind in {'knowledge', 'intent_classification', 'response_intents'}:
-                data = json.loads(source)
-                if 'document_type' not in data:
-                    source = json.dumps({'document_type': kind, 'documents': data})
+            data = json.loads(source)
+            if 'document_type' not in data:
+                source = json.dumps({'document_type': kind, 'documents': data})
             response = self.client.post(reverse('tenant:upload_knowledge_prompt'), {'dtype': kind, 'json_blob': source})
         self.assertEqual(response.status_code, 302)
         return response
@@ -47,12 +46,15 @@ class ConfigurationImportTests(TestCase):
                     'menu_item__catalog_meta__dietary_preferences', 'menu_item__catalog_meta__allergens',
                     'size', 'price', 'volume_ml', 'weight_grams', 'description', 'aliases', 'is_available'))
 
-    def test_ui_import_and_publish_matches_provisioner_configuration(self):
+    def test_document_and_catalog_uploads_match_provisioner_configuration(self):
         from evaluate.fixtures.provision import DjangoProvisioner
         imported = TenantInfo.objects.create(display_name='Provisioned cafe', approval_status='APPROVED')
         DjangoProvisioner.import_configuration(imported, ROOT)
         expected = publish_configuration(imported.pk, expected_version=0)
-        for kind in ('commerce_policy', 'catalog', 'intent_classification', 'response_intents', 'checkout'):
+        # Live settings are provisioned internally; dashboard uploads only import documents and catalog.
+        for kind in ('commerce_policy', 'checkout'):
+            import_configuration(self.tenant, kind, (ROOT / CONFIGURATION_FILES[kind]).read_text())
+        for kind in ('catalog', 'intent_classification', 'response_intents'):
             self.upload(kind, (ROOT / CONFIGURATION_FILES[kind]).read_text())
         for filename in ('01_cafe_knowledge.json', '02_menu_knowledge.json', '03_ordering_knowledge.json'):
             self.upload('knowledge', (ROOT / filename).read_text())
@@ -67,6 +69,32 @@ class ConfigurationImportTests(TestCase):
                          CheckoutSettings.objects.get(tenant=imported).configuration)
         self.assertEqual(Configuration.objects.get(tenant=self.tenant).policy,
                          Configuration.objects.get(tenant=imported).policy)
+
+    def test_knowledge_upload_cannot_create_or_replace_live_settings_or_catalog(self):
+        from orders.onboarding import initialize_ordering_settings
+        url = reverse('tenant:upload_knowledge_prompt')
+        page = self.client.get(url)
+        self.assertEqual(page.context['dtypes'], TenantJSONDoc.DocType.choices)
+        for kind in ('checkout', 'commerce_policy'):
+            self.assertNotContains(page, f'<option value="{kind}"')
+        sources = {kind: (ROOT / CONFIGURATION_FILES[kind]).read_text()
+                   for kind in ('checkout', 'commerce_policy', 'catalog')}
+        for initialized in (False, True):
+            if initialized:
+                initialize_ordering_settings(self.tenant)
+                settings_page = self.client.get(reverse('tenant:tenant_settings'))
+                self.assertNotContains(settings_page, url + '?dtype=checkout')
+                self.assertNotContains(settings_page, url + '?dtype=commerce_policy')
+            checkout = list(CheckoutSettings.objects.filter(tenant=self.tenant).values())
+            ordering = list(Configuration.objects.filter(tenant=self.tenant).values())
+            for kind, source in sources.items():
+                with self.subTest(initialized=initialized, kind=kind):
+                    response = self.client.post(url, {'dtype': kind, 'json_blob': source}, follow=True)
+                    self.assertContains(response, 'Unsupported document type.')
+                    self.assertEqual(checkout, list(CheckoutSettings.objects.filter(tenant=self.tenant).values()))
+                    self.assertEqual(ordering, list(Configuration.objects.filter(tenant=self.tenant).values()))
+                    self.assertFalse(MenuItem.objects.filter(tenant=self.tenant).exists())
+                    self.assertFalse(TenantJSONDoc.objects.filter(tenant=self.tenant).exists())
 
     def test_generated_exports_match_committed_files(self):
         for filename, value in knowledge_exports(ROOT).items():
@@ -211,5 +239,4 @@ class ConfigurationImportTests(TestCase):
         data['modes']['pickup']['payment_methods'] = ['online']
         with self.assertRaises(ValidationError):
             import_configuration(self.tenant, 'checkout', data)
-        self.upload('checkout', json.dumps(data))
         self.assertFalse(CheckoutSettings.objects.filter(tenant=self.tenant).exists())

@@ -26,9 +26,3 @@ class ChatbotCoreConfig(AppConfig):
             logging.info("✅ Channel modules imported and adapters registered.")
         except Exception as e:
             logging.exception("❌ Failed importing channel modules: %s", e)
-
-        from chatbot_core.vector_store.faiss_index import rebuild_faiss_from_db
-        try:
-            rebuild_faiss_from_db()
-        except Exception as e:
-            logging.getLogger(__name__).warning("FAISS rebuild skipped: %s", e)

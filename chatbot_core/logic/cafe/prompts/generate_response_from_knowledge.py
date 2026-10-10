@@ -1,6 +1,7 @@
 import re
 import hashlib
 import json
+from django.conf import settings
 from evaluate.controls.cache import cache
 from chatbot_core.llm.chains import text_chain
 from chatbot_core.llm.streaming import invoke_reply
@@ -78,7 +79,8 @@ def _kb_sig(
     """
     m = hashlib.sha256()
     m.update(json.dumps([main_intent, kb_info.get("identity"), (prompt_info or {}).get("identity")], default=str).encode())
-    m.update(b"cafebot-kb-v14-published-hours-clock")
+    m.update(b"cafebot-kb-v15-bounded-semantic-cache")
+    m.update(str(getattr(settings, "SEMANTIC_CACHE_ENABLED", False)).encode())
     m.update(json.dumps([rephrased_sentence, response_language], ensure_ascii=False).encode())
     m.update(json.dumps([response_profile, previous_user_message]).encode())
     m.update((model or get_model_name()).encode())
@@ -146,7 +148,11 @@ def generate_response_from_knowledge(
     enqueue_string(f"generate_response_from_knowledge, sub_intent: {sub_intent}, user_input: {user_input}")
 
     # --- 1) CACHE LOOKUP ---
-    cached = cache.get(key)
+    try:
+        cached = cache.get(key)
+    except Exception:
+        logger.warning("Knowledge exact-cache read failed", exc_info=True)
+        cached = None
     if isinstance(cached, str) and cached.strip():
         return cached
 
@@ -300,6 +306,25 @@ def generate_response_from_knowledge(
         system_prompt += ('\nReply in this explicitly selected language/script, overriding language '
                           'inferences from query text or history: ' + response_language + '.')
 
+    # Only stateless public café facts are admitted to answer reuse. Operational
+    # menu/stock, hours and conversation-dependent answers stay on their own path.
+    semantic_ctx = None
+    cache_ttl = 60 if time_sensitive else 60 * 60 * 6
+    if (getattr(settings, "SEMANTIC_CACHE_ENABLED", False)
+            and main_intent == "information_about_the_cafe"
+            and sub_intent in {"brand_story", "amenities", "events_and_tours", "team_and_policy", "about_the_brand"}
+            and not previous_user_message and not system_log_message):
+        from chatbot_core.scope import scope_digest
+        from chatbot_core.vector_store.semantic_cache import lookup, store
+        hit, result, semantic_ctx = lookup(
+            model, scope_digest(api_key, main_intent, sub_intent, response_profile, response_language),
+            {"identity": kb_info.get("identity"), "system_prompt": system_prompt,
+             "rewrite": rephrased_sentence, "temperature": temp, "max_tokens": max_tokens},
+            user_input, cache_ttl, system_id="cafebot-live-knowledge-v1",
+        )
+        if hit:
+            return result
+
     # --- 3) CALL LLM ---
     try:
         final = invoke_reply(text_chain(
@@ -308,10 +333,16 @@ def generate_response_from_knowledge(
         if not final:
             raise ValueError("Knowledge response was empty")
 
-        # --- 4) CACHE STORE ---
-        cache.set(key, final, timeout=60 if time_sensitive else 60 * 60 * 6)
-        return final
-
     except Exception:
         logger.exception("Knowledge response generation failed")
         return fallback_response or "Oops! Something went wrong while processing your request."
+
+    # Cache failures must preserve a successful provider response. Semantic
+    # envelopes have absolute deadlines and are promoted only after DB commit.
+    if semantic_ctx is not None:
+        return store(semantic_ctx, final, cache_ttl, model)
+    try:
+        cache.set(key, final, timeout=cache_ttl)
+    except Exception:
+        logger.warning("Knowledge exact-cache write failed", exc_info=True)
+    return final

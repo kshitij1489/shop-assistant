@@ -109,6 +109,7 @@ jobs:
           python manage.py test
           tests.integration.test_menu_sync tests.integration.test_reference_adapter tests.integration.test_commerce_operations
           tests.integration.test_commerce tests.integration.test_checkout tests.integration.test_mock_commerce
+          tests.integration.test_semantic_cache
           --settings=tests.settings.integration_postgres --noinput
           --report-dir=.test-reports/postgres
       - name: Test mock service lifecycle and reporting

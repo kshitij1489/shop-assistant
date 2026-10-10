@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models, transaction
 from django.conf import settings
 from django.utils.text import slugify
+from django.utils import timezone
 
 class TenantInfo(models.Model):
 
@@ -172,9 +173,15 @@ class TenantRuntimeConfiguration(models.Model):
     published_at = models.DateTimeField(null=True, blank=True)
 
 
+class SemanticCacheState(models.Model):
+    """Singleton row: serializes admissions and versions all committed snapshots."""
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    revision = models.PositiveBigIntegerField(default=0)
+
+
 class SemanticCacheEntry(models.Model):
     sig = models.CharField(max_length=64, db_index=True)
-    scope = models.CharField(max_length=128, db_index=True)   # e.g., "user:123" or "tenant:abc:intent"
+    scope = models.CharField(max_length=128, db_index=True)   # opaque tenant/session/intent digest
     kb_fp = models.CharField(max_length=64, db_index=True)    # fingerprint of knowledge payload
     normalized_query = models.TextField()
     response = models.JSONField()  # or TextField if you prefer markdown
@@ -186,11 +193,23 @@ class SemanticCacheEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_hit = models.DateTimeField(auto_now=True)
     hit_count = models.IntegerField(default=0)
+    # Empty partition / expired deadline deliberately exclude unversioned legacy rows.
+    partition = models.CharField(max_length=64, default="")
+    embedding_id = models.CharField(max_length=64, default="")
+    expires_at = models.DateTimeField(default=timezone.now)
+    size_bytes = models.PositiveIntegerField(default=0)
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["partition", "sig"],
+                                    condition=~models.Q(partition=""), name="semantic_partition_sig_uniq"),
+        ]
         indexes = [
             models.Index(fields=["sig"]),
             models.Index(fields=["domain", "created_at"]),
+            models.Index(fields=["partition", "expires_at"], name="semantic_partition_exp_idx"),
+            models.Index(fields=["expires_at"], name="semantic_expiry_idx"),
+            models.Index(fields=["last_hit", "id"], name="semantic_lru_idx"),
         ]
 
 class FaissVector(models.Model):
