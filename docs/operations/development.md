@@ -22,9 +22,13 @@ No superuser is needed to explore the demo owner's dashboard.
 - Chat: `http://localhost:8080/chat-page/?tenant=demo-cafe`.
 - First question: “What is on the menu?”
 
-The first build downloads dependencies and models. The sample café supports menu
-and information answers; it does not enable checkout, payments, or POS. The
-end-to-end evaluation below provisions its own scenarios and synthetic tenants.
+The first build downloads dependencies and models. The sample café supports menu,
+information answers and cash checkout in INR. It opens daily 09:00–18:00
+Asia/Kolkata, with pickup, dine-in and delivery to postal code 560001 (₹30 delivery
+fee). Each item starts with 100 units of local stock. Scheduling and external
+payment/POS integrations are disabled. The end-to-end evaluation below provisions
+its own scenarios and synthetic tenants. Reseeding preserves existing demo edits
+and stock; it does not replace an older demo's configuration.
 
 Setup checks for occupied ports before building and writes progress to
 `setup.log`. If port 8080 is already in use, edit `.env.demo` and change both

@@ -131,7 +131,7 @@ class ProvisionTests(TestCase):
         self.assertTrue(classification['payload']['enabled'])
         fixture = read_json(ROOT.parent / 'test_data/intent_classification.json')
         self.assertEqual(classification['payload']['description'],
-                         fixture['location_based']['confirm_delivery_address'])
+                         fixture['location_based']['confirm_delivery_address']['description'])
         basket, _, _ = self.provision('s01_add_pistachio')
         basket_docs = TenantRuntimeConfiguration.objects.get(
             tenant=self.provisioner.binding(basket)['tenant']).documents

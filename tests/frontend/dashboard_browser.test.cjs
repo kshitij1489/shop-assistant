@@ -520,6 +520,34 @@ async function browserChecks(assets) {
     }
     b.frame.remove();
   });
+  await run('ordering rule rows keep unique fields, currency precision and deletion', () => {
+    const b = page(`<form id="ordering-settings-form"><select name="currency"><option>INR</option><option>JPY</option></select>
+      <fieldset data-rule-set="discounts"><input name="discounts-TOTAL_FORMS" value="0">
+        <div data-rule-rows></div><template data-rule-template><fieldset data-rule-row>
+          <label for="id_discounts-__prefix__-code">Code:</label><input id="id_discounts-__prefix__-code" name="discounts-__prefix__-code">
+          <label for="id_discounts-__prefix__-fixed">Fixed discount (₹ INR):</label><input type="number" step="0.01" id="id_discounts-__prefix__-fixed" name="discounts-__prefix__-fixed">
+          <input type="checkbox" name="discounts-__prefix__-DELETE">
+        </fieldset></template><button type="button" data-add-rule>Add rule</button>
+      </fieldset></form>`);
+    b.load(assets.ordering);
+    const add = b.doc.querySelector('[data-add-rule]');
+    add.click(); add.click();
+    check(b.doc.querySelector('[name="discounts-TOTAL_FORMS"]').value === '2', 'Management count did not increase');
+    check(b.get('id_discounts-0-code') && b.get('id_discounts-1-code'), 'New row fields are missing or reuse IDs');
+    check(b.doc.activeElement === b.get('id_discounts-1-code'), 'New rule was not focused');
+    const currency = b.doc.querySelector('[name="currency"]');
+    currency.value = 'JPY'; currency.dispatchEvent(new b.win.Event('change'));
+    const money = b.get('id_discounts-0-fixed'); money.value = '1.25';
+    check(money.step === '1' && !money.checkValidity(), 'JPY silently allows fractional amounts');
+    check(b.doc.querySelector('label[for="id_discounts-0-fixed"]').textContent.includes('(JPY)'), 'Currency label did not update');
+    const remove = b.doc.querySelector('[name="discounts-0-DELETE"]');
+    remove.checked = true; remove.dispatchEvent(new b.win.Event('change', { bubbles:true }));
+    check(money.disabled && money.checkValidity(), 'Deleted invalid rule still blocks browser submission');
+    check(new b.win.FormData(b.get('ordering-settings-form')).get('discounts-0-DELETE') === 'on', 'Deletion marker was dropped');
+    remove.checked = false; remove.dispatchEvent(new b.win.Event('change', { bubbles:true }));
+    check(!money.disabled && money.value === '1.25', 'Restoring a row lost its edits');
+    b.frame.remove();
+  });
   document.getElementById('results').textContent = JSON.stringify(results);
 }
 
@@ -531,6 +559,7 @@ test('native browser dashboard regressions', { skip: !chrome }, async t => {
     notificationsCss:read('users/static/users/css/notifications.css'),
     knowledge:read('users/static/users/js/knowledge.js'), json:read('users/static/users/js/json_editor.js'),
     chats:read('users/static/users/js/tenant_chats.js'),
+    ordering:read('users/static/users/js/ordering_rules.js'),
     css:read('users/static/users/css/dashboard.css') + read('users/static/users/css/master_tenants.css'),
   };
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-dashboard-browser-'));
@@ -567,7 +596,7 @@ test('native browser dashboard regressions', { skip: !chrome }, async t => {
     const raw = stdout.match(/<pre id="results">([\s\S]*?)<\/pre>/)?.[1];
     assert.ok(raw, 'Browser did not finish its checks: ' + stderr.slice(-1500));
     const results = JSON.parse(raw.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'));
-    assert.equal(results.length, 18);
+    assert.equal(results.length, 19);
     for (const result of results) await t.test(result.name, () => assert.ok(result.ok, result.error));
   } finally {
     fs.rmSync(directory, { recursive:true, force:true });

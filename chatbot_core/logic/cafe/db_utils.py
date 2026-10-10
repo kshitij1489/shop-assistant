@@ -569,16 +569,12 @@ def pick_new_default_if_needed(customer: Customer) -> Optional[CustomerAddress]:
     mirror_default_to_customer(customer)
     return None
 
-# ---------- Delivery coverage based on tenant.meta ----------
+# ---------- Delivery coverage ----------
 
 def verify_delivery_pincode(tenant: TenantInfo, pincode_or_locality: str) -> Optional[bool]:
     from evaluate.controls.context import fault_active
     if fault_active('coverage', tenant.pk):
         return None
-    meta = getattr(tenant, "meta", None)
-    if not isinstance(meta, dict):
-        return None
-
     if isinstance(pincode_or_locality, bool) or not isinstance(pincode_or_locality, (str, int)):
         return None
     val = str(pincode_or_locality).strip()
@@ -588,6 +584,27 @@ def verify_delivery_pincode(tenant: TenantInfo, pincode_or_locality: str) -> Opt
     from chatbot_core.logic.cafe.location_utils import normalize_pincode
 
     is_pincode = normalize_pincode(val) is not None
+    from commerce.models import Configuration
+    meta = getattr(tenant, 'meta', None)
+    setup_required = isinstance(meta, dict) and meta.get('ordering_setup_required')
+    if not setup_required and Configuration.objects.filter(tenant=tenant, local_checkout=True).exists():
+        from orders.models import CheckoutSettings
+        from orders.checkout_config import CheckoutPolicy
+        row = CheckoutSettings.objects.filter(tenant=tenant).first()
+        if not row:
+            return None
+        try:
+            checkout = CheckoutPolicy.model_validate(row.configuration)
+        except ValueError:
+            return None
+        if 'delivery' not in checkout.modes:
+            return False
+        if not is_pincode:
+            return None
+        return not checkout.delivery_postal_codes or val.upper() in checkout.delivery_postal_codes
+    meta = getattr(tenant, "meta", None)
+    if not isinstance(meta, dict):
+        return None
     pins = meta.get("serviceable_pincodes")
     if is_pincode and isinstance(pins, (list, set, tuple)):
         pins = {normalize_pincode(pin) for pin in pins}

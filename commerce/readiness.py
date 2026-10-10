@@ -7,7 +7,7 @@ from .credentials import adapter_secret
 from .models import Configuration, Connection, StockItem
 
 
-def readiness_issues(tenant, *, configuration=None, policy=None):
+def readiness_issues(tenant, *, configuration=None, policy=None, require_integrations=True):
     """Local prerequisites only; a configured adapter is not proof of live validation."""
     issues = []
     from .menu_sync import assert_menu_fresh
@@ -25,7 +25,7 @@ def readiness_issues(tenant, *, configuration=None, policy=None):
     policy = Policy.model_validate(policy or config.policy).model_dump(mode='json')
     connections = Connection.objects.filter(location=config.location, active=True)
     pos = connections.filter(role='pos').first()
-    if not pos or not {'order.submit', 'order.reconcile'} <= set(pos.capabilities) or not adapter_secret(pos):
+    if require_integrations and (not pos or not {'order.submit', 'order.reconcile'} <= set(pos.capabilities) or not adapter_secret(pos)):
         issues.append('Configure and activate a POS adapter with order submission and reconciliation.')
     checkout_policy = CheckoutPolicy.model_validate(checkout.configuration).model_dump(mode='json') if checkout else None
     online = checkout_policy and any('online' in mode['payment_methods'] for mode in checkout_policy['modes'].values())

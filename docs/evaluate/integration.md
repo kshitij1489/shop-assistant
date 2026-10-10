@@ -110,8 +110,10 @@ Other commands: `schemas`, `preflight`, `transcripts`, `report`, `inspect`,
 `test_data/` holds the evaluation café: knowledge, menu, questions, and session
 scripts. `python -m evaluate validate` derives counts from the JSON. Do not
 paste session scripts or QA cases into the Knowledge uploader.
-`knowledge_base.json` is the upload shape if you want those facts in a draft;
-publish only after review.
+For a bulk upload of `test_data/knowledge_base.json`, wrap its object in
+`{ "document_type": "knowledge", "documents": ... }`. The evaluation provisioner
+wraps its known fixture sources automatically. Demo import files already declare
+their types. Publish only after review.
 
 Delivery scenarios use typed street text and tenant coverage. They do not call
 a geocoder. Changed prompts or expected answers need a new run.

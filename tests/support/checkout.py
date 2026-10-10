@@ -5,7 +5,7 @@ from unittest.mock import patch
 from chatbot_core.logic.cafe.basket import Basket
 from chatbot_core.logic.cafe.checkout import advance_checkout
 from chatbot_core.models import TenantInfo
-from orders.checkout_config import default_checkout_config
+from orders.checkout_config import default_checkout_config, ModePolicy
 from orders.models import ChatSession, Customer, MenuItem, MenuItemVariant
 from tests.support.runtime import classification_result, enable_legacy_capabilities
 
@@ -24,6 +24,8 @@ class CheckoutFixture:
         self.basket = Basket(items=[{'item_id': str(self.item.pk), 'item_variant_id': str(self.variant.pk),
             'name': 'Coffee', 'size': 'Regular', 'quantity': 1, 'unit_price': '100', 'item_number': 1}])
         self.config = default_checkout_config()
+        self.config['opening_hours'] = {}
+        self.config['modes'] = {'delivery': ModePolicy(required_fields=['name', 'phone', 'address']).model_dump(mode='json')}
         self.config['modes']['delivery']['fee'] = '30'
         self.config['modes']['delivery']['required_fields'] = ['address']
         self.config['modes']['pickup'] = {**deepcopy(self.config['modes']['delivery']), 'required_fields': [], 'fee': '5'}

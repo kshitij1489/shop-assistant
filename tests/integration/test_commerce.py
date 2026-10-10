@@ -88,6 +88,8 @@ class PricingTests(TestCase):
         stored = Policy.model_validate(default_policy())
         self.assertEqual(stored.schema_version, 2)
         self.assertIsNone(stored.ordering_limits)
+        self.assertEqual(stored.stock_policy, 'strict')
+        self.assertIsNone(Policy().ordering_limits)
         seeded = Policy.model_validate(evaluation_policy())
         self.assertEqual(seeded.currency, 'INR')
         self.assertEqual(seeded.exponent, 2)
@@ -105,14 +107,11 @@ class PricingTests(TestCase):
             OrderingLimits(**{**limits, 'max_line_quantity': MAX_ITEM_QUANTITY + 1})
         with self.assertRaises(SchemaError):
             OrderingLimits(**{**limits, 'max_subtotal_minor': 600001, 'max_payable_minor': 600000})
-        base = dict(currency='INR', packaging_minor=0, minimum_minor=0, stock_policy='strict',
-                    reservation_seconds=900, stock_max_age_seconds=300, taxes='[]', discounts='[]')
-        empty = CommerceSettingsForm(base)
-        self.assertTrue(empty.is_valid(), empty.errors)
-        self.assertIsNone(empty.policy['ordering_limits'])
-        partial = CommerceSettingsForm({**base, 'max_line_quantity': 20})
-        self.assertFalse(partial.is_valid())
-        complete = CommerceSettingsForm({**base, **limits})
+        from tests.support.ordering import ordering_form_data
+        base = ordering_form_data()
+        empty = CommerceSettingsForm({**base, 'max_line_quantity': ''})
+        self.assertFalse(empty.is_valid())
+        complete = CommerceSettingsForm(base)
         self.assertTrue(complete.is_valid(), complete.errors)
         self.assertEqual(complete.policy['ordering_limits']['max_payable_minor'], 600000)
 
@@ -455,6 +454,7 @@ class CommerceTests(Fixtures, TestCase):
     def test_real_checkout_uses_shared_pricing_and_reservations(self):
         session = ChatSession.objects.create(tenant=self.tenant, customer=self.customer, platform='website', session_id='test')
         config = default_checkout_config()
+        config['opening_hours'] = {}
         config['modes'] = {'pickup': {'required_fields': [], 'payment_methods': ['cash'], 'fee': '2'}}
         self.config.policy.update(packaging_minor=100, taxes=[{'code': 'tax', 'name': 'Tax', 'rate': '10', 'tax_fees': True}]); self.config.save()
         args = dict(tenant=self.tenant, customer=self.customer, chat_id='test', platform='website', basket=self.basket, checklist={}, configuration=config)
@@ -519,15 +519,15 @@ class CommerceTests(Fixtures, TestCase):
         other = TenantInfo.objects.create(display_name='Other commerce')
         other_location = Location.objects.create(tenant=other, code='other', name='Other')
         other_config = Configuration.objects.create(tenant=other, location=other_location)
-        values = dict(enabled='on', currency='EUR', packaging_minor=10, minimum_minor=0,
-                      stock_policy='strict', reservation_seconds=900, stock_max_age_seconds=300,
-                      taxes='[]', discounts='[]')
-        self.assertEqual(self.client.post('/commerce/settings/', values).status_code, 302)
+        from tests.support.ordering import ordering_form_data
+        values = {**ordering_form_data(), 'section': 'ordering', 'currency': 'EUR', 'packaging': '0.10'}
+        path = '/accounts/tenant-dashboard/settings/?tab=ordering'
+        self.assertEqual(self.client.post(path, values).status_code, 302)
         self.config.refresh_from_db(); other_config.refresh_from_db()
         self.assertEqual(self.config.policy['currency'], 'EUR')
         self.assertEqual(other_config.policy['currency'], 'INR')
-        values['packaging_minor'] = -1
-        self.assertEqual(self.client.post('/commerce/settings/', values).status_code, 400)
+        values['packaging'] = '-1'
+        self.assertEqual(self.client.post(path, values).status_code, 400)
         self.config.refresh_from_db(); self.assertEqual(self.config.policy['packaging_minor'], 10)
 
     def test_postgres_trigger_rejects_bulk_snapshot_rewrite(self):

@@ -89,7 +89,8 @@ class WhatsAppIntegrationTests(TestCase):
 
     def test_configured_checkout_recovers_customer_after_cache_loss(self):
         config = default_checkout_config()
-        config["modes"]["pickup"] = {**config["modes"]["delivery"], "required_fields": []}
+        config["opening_hours"] = {}
+        config["modes"]["pickup"] = {**config["modes"]["pickup"], "required_fields": []}
         CheckoutSettings.objects.create(tenant=self.tenant, configuration=config)
         self.send()
         chat = ChatSession.objects.get()

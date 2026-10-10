@@ -532,7 +532,8 @@ class TenantAddressSettingsTests(TestCase):
         self.assertIn('Paste your token from BotFather. Saving registers the Telegram webhook.', integrations)
         self.assertNotIn('name="geocoding_provider"', integrations)
         self.assertNotIn('name="geocoding_provider"', contact)
-        self.assertIn('/commerce/settings/', checkout)
+        self.assertIn('Ordering rules tab', checkout)
+        self.assertContains(response, 'id="settings-tab-ordering"')
         self.assertNotIn('/commerce/settings/', integrations)
         self.assertContains(response, '>Opening hours</a>')
         self.assertContains(response, '>Business details</a>')
@@ -570,7 +571,8 @@ class TenantAddressSettingsTests(TestCase):
         self.assertEqual(both.context['active_tab'], 'checkout')
         self.assertContains(both, 'data-settings-error="checkout"', status_code=400)
         self.assertContains(both, 'data-settings-error="hours"', status_code=400)
-        self.assertFalse(CheckoutSettings.objects.filter(tenant=self.tenant).exists())
+        from orders.checkout_config import default_checkout_config
+        self.assertEqual(CheckoutSettings.objects.get(tenant=self.tenant).configuration, default_checkout_config())
 
     @override_settings(PUBLIC_URL='https://example.org')
     def test_contact_and_telegram_saves_preserve_other_sections(self):

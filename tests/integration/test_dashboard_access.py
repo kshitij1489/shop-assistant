@@ -14,7 +14,7 @@ from users.models import TenantProfile
 
 
 @override_settings(
-    ROOT_URLCONF='users.urls', JWT_SECRET='review-secret-with-at-least-32-characters',
+    ROOT_URLCONF='tests.support.urls', JWT_SECRET='review-secret-with-at-least-32-characters',
     MIDDLEWARE=[
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
@@ -32,7 +32,8 @@ class DashboardAccessTests(TestCase):
         self.upload_url = reverse('tenant:upload_knowledge_prompt')
         self.token_url = reverse('tenant:generate_jwt_token')
         self.upload = {'dtype': 'knowledge', 'json_blob': json.dumps({
-            'information_about_the_cafe': {'location_and_hours': 'Open daily'},
+            'document_type': 'knowledge', 'documents': {
+                'information_about_the_cafe': {'location_and_hours': 'Open daily'}},
         })}
 
     def assert_no_writes(self, client, expected_status):

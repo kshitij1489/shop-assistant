@@ -28,7 +28,8 @@ class DashboardSetupTests(TestCase):
         self.group = AddonGroup.objects.create(tenant=self.tenant, name='Milk')
         self.option = AddonItem.objects.create(group=self.group, name='Oat', price=20)
         self.location = Location.objects.create(tenant=self.tenant, code='main', name='Main')
-        self.config = Configuration.objects.create(tenant=self.tenant, location=self.location)
+        from commerce.policy import evaluation_policy
+        self.config = Configuration.objects.create(tenant=self.tenant, location=self.location, policy=evaluation_policy())
         self.other_location = Location.objects.create(tenant=self.other, code='main', name='Other')
 
     def option_data(self, **changes):

@@ -19,6 +19,7 @@ from chatbot_core.logic.cafe.prompts.normalize_and_classify import (
 from chatbot_core.queues import enqueue_string
 from chatbot_core.runtime_configuration import active_configuration
 from chatbot_core.capabilities import CONTROL_ROUTES
+from chatbot_core.intent_definitions import ORDERING_INFORMATION_ROUTES
 from .state import ConversationContext, ConversationState
 from .lifecycle import pending_address_question
 from .cancellation import stop_pending_request
@@ -170,10 +171,13 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
     except TerminalRejection as exc:
         rejection = str(exc)
     configuration = active_configuration()
+    information_only = proposal is None and (main_intent, sub_intent) in ORDERING_INFORMATION_ROUTES
     routes = {(main_intent, sub_intent)} | (required_routes(proposal) if proposal and not clarification_only else set())
     unavailable = {route for route in routes if
                    (configuration is None and route not in CONTROL_ROUTES)
-                   or (configuration is not None and not configuration.allows(*route))}
+                   or (configuration is not None and not (
+                       configuration.allows_information(*route) if information_only
+                       else configuration.allows(*route)))}
     from evaluate.controls.telemetry import emit_capability_check
     emit_capability_check(classification_index=state['intent_index'],
         classified_route=classified_route, effective_route=(main_intent, sub_intent),

@@ -59,16 +59,30 @@ def get_knowledge_base_cache():
 
 
 def get_intent_classification_cache(tenant_id):
+    from chatbot_core.capabilities import CAPABILITIES
     from chatbot_core.runtime_configuration import get_configuration, ClassificationSchema, classification_options
+    from chatbot_core.intent_definitions import standard_schema
     configuration = get_configuration(tenant_id=required_identity(tenant_id, "tenant_id"))
-    schema = ClassificationSchema(version=configuration.version if configuration else 0)
-    if configuration:
+    schema = ClassificationSchema(standard_schema() if configuration else {},
+                                  version=configuration.version if configuration else 0)
+    if configuration and configuration.published:
         for doc in configuration.documents:
-            if doc["dtype"] == "intent_classification" and configuration.allows(doc["intent"], doc["sub_intent"]):
+            if doc["dtype"] == "intent_classification":
                 options = classification_options(doc["payload"])
-                schema.setdefault(doc["intent"], {})[doc["sub_intent"]] = {
-                    "description": options.get("description", ""), "examples": options.get("examples", []),
-                }
+                topics = schema.setdefault(doc["intent"], {})
+                if doc["sub_intent"] in topics:
+                    # Meaning is application-owned, even when the tenant disabled
+                    # execution or an old import put instructions in this field.
+                    if options.get("enabled", True) is True:
+                        topics[doc["sub_intent"]]["examples"] = list(dict.fromkeys([
+                            *topics[doc["sub_intent"]]["examples"], *options.get("examples", []),
+                        ]))
+                elif doc['intent'] in CAPABILITIES and CAPABILITIES[doc['intent']].supports(doc['sub_intent']):
+                    # Custom FAQs and additional backend-registered capabilities
+                    # remain tenant scoped. Recognition does not permit execution.
+                    topics[doc["sub_intent"]] = {
+                        "description": options.get("description", ""), "examples": options.get("examples", []),
+                    }
     return schema
 
 

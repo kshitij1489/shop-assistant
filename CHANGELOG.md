@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.5.0 — 2026-10-10
+
+- Create editable checkout and ordering policies during signup; guide owners to
+  add a priced menu item and confirm opening hours before publishing ordering.
+- Add dashboard editors for ordering limits, taxes, discounts, and fulfillment
+  rules, with currency-aware amounts and validation of local stock readiness.
+- Support local policy pricing and atomic stock consumption for cash checkout
+  while external payment and POS integrations are disabled.
+- Preserve existing policies and activation flags during initialization and
+  imports; adopt local policy pricing when saving Ordering rules or completing
+  setup, and use the saved checkout coverage after setup.
+- Enable cash checkout in the sample café, with local stock, opening hours, and
+  delivery coverage; reseeding preserves existing demo edits.
+- Recognize standard customer requests independently of tenant execution
+  permissions, while keeping custom FAQs and business actions tenant scoped.
+- Show published capabilities, missing configuration, validation errors, and
+  draft changes on the Knowledge page; failed publication keeps the prior
+  configuration active.
+- Require typed envelopes for bulk knowledge, classification, and response
+  instruction imports; classification edits use objects with descriptions.
+- Answer standard café and menu questions from published facts, and keep
+  explicitly disabled topics unavailable.
+- Compute open/closed answers from published schedules and the café's local
+  time, with short-lived caches for time-sensitive answers.
+
+**Upgrade from 1.3.0:** apply database migrations, including commerce migration
+`0007_configuration_local_checkout`, before restarting web and background workers.
+Deploy the updated application and collected static assets together. Opening
+Settings initializes missing policies without replacing saved values. Save
+Ordering rules or complete ordering setup to adopt local policy pricing;
+existing tenants retain legacy pricing until then. See
+[checkout](docs/chatbot/checkout.md) and
+[production operations](docs/operations/production.md).
+
+**Configuration imports:** wrap older untyped files with their actual
+`document_type` and `documents`; existing saved documents remain readable.
+Use the updated demo files as examples. See
+[runtime configuration](docs/chatbot/runtime_configuration.md).
+
 ## 1.3.0 — 2026-10-09
 
 - Reject TLS certificates for the wrong hostname during production preflight,

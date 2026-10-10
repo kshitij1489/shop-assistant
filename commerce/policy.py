@@ -2,7 +2,7 @@
 from decimal import Decimal
 from typing import Literal
 from django.core.exceptions import ValidationError
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError as SchemaError, model_validator
 
 
 class Strict(BaseModel):
@@ -76,7 +76,7 @@ class Policy(Strict):
     stock_policy: Literal['strict', 'availability', 'untracked'] = 'strict'
     reservation_seconds: int = Field(default=900, ge=60, le=86400, strict=True)
     stock_max_age_seconds: int = Field(default=300, ge=1, le=86400, strict=True)
-    # None keeps ordering unavailable. Do not fill this with a business default.
+    # Explicitly absent limits in imported/existing policies keep ordering unavailable.
     ordering_limits: OrderingLimits | None = None
 
     @model_validator(mode='after')
@@ -95,11 +95,11 @@ class Policy(Strict):
 
 
 def default_policy():
-    """Commerce defaults with ordering unavailable until limits are set explicitly."""
+    """Conservative model default; starter limits are adopted only by onboarding."""
     return Policy().model_dump(mode='json')
 
 
-# Deterministic evaluation and unit-test inputs. Not a production café default.
+# Frozen evaluation inputs, intentionally independent of editable product presets.
 EVALUATION_ORDERING_LIMITS = {
     'max_line_quantity': 20,
     'max_item_quantity': 30,
@@ -112,7 +112,7 @@ EVALUATION_ORDERING_LIMITS = {
 
 def evaluation_policy(**overrides):
     """Schema v2 policy using the evaluation caps. Not used as a model default."""
-    data = default_policy()
+    data = Policy().model_dump(mode='json')
     data['ordering_limits'] = dict(EVALUATION_ORDERING_LIMITS)
     data.update(overrides)
     return Policy.model_validate(data).model_dump(mode='json')
@@ -121,5 +121,7 @@ def evaluation_policy(**overrides):
 def validate_policy(value):
     try:
         Policy.model_validate(value)
+    except SchemaError as exc:
+        raise ValidationError([error['msg'].removeprefix('Value error, ') for error in exc.errors(include_url=False)]) from exc
     except ValueError as exc:
         raise ValidationError(str(exc)) from exc

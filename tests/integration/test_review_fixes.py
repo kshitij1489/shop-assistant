@@ -27,11 +27,12 @@ class ReviewFixTests(Fixtures, TestCase):
     def setUp(self):
         self.seed()
         self.policy = default_checkout_config()
+        self.policy['opening_hours'] = {}
         self.policy['modes'] = {'pickup': {'required_fields': [], 'payment_methods': ['cash'], 'fee': '2'}}
         self.draft = {'mode': 'pickup', 'fields': {}}
 
-    def test_delivery_defaults_collect_contact_details(self):
-        self.assertEqual(default_checkout_config()['modes']['delivery']['required_fields'], ['name', 'phone', 'address'])
+    def test_pickup_defaults_collect_contact_details(self):
+        self.assertEqual(default_checkout_config()['modes']['pickup']['required_fields'], ['name', 'phone'])
 
     def test_online_publication_requires_credentials_capabilities_and_enabled_commerce(self):
         self.policy['online_provider'] = 'adapter'
@@ -63,6 +64,7 @@ class ReviewFixTests(Fixtures, TestCase):
         self.config.save()
         for mode, charge in [('pickup', 'packing_charges'), ('dine_in', 'service_charge'), ('delivery', 'delivery_charges')]:
             policy = default_checkout_config()
+            policy['opening_hours'] = {}
             policy['modes'] = {mode: {'required_fields': ['address'] if mode == 'delivery' else [], 'fee': '2'}}
             session = ChatSession.objects.create(tenant=self.tenant, customer=self.customer, session_id=mode, platform='website')
             fields = {'address': '42 Main Street'} if mode == 'delivery' else {}

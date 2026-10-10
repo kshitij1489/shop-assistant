@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 from django.test import SimpleTestCase
 
 from chatbot_core.capabilities import CAPABILITIES
+from chatbot_core.intent_definitions import STANDARD_INTENTS
 from evaluate.datasets.loader import classification_documents, DatasetError
 from tests.support.paths import REPOSITORY_ROOT
 
@@ -17,6 +18,8 @@ class IntentFixtureTests(SimpleTestCase):
                          {(intent, topic) for intent, cap in CAPABILITIES.items()
                           for topic in cap.sub_intents})
         self.assertTrue(all(doc['payload']['enabled'] for doc in documents))
+        self.assertEqual({(intent, topic) for intent, topics in STANDARD_INTENTS.items() for topic in topics},
+                         {(intent, topic) for intent, cap in CAPABILITIES.items() for topic in cap.sub_intents})
 
     def test_selection_preserves_descriptions_examples_and_enabled_flag(self):
         with TemporaryDirectory() as directory:

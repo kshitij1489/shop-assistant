@@ -56,7 +56,7 @@ def inventory_knowledge(tenant_id):
     if config is None:
         return result
     result.update(location_id=str(config.location_id), location_name=config.location.name)
-    if not config.enabled:
+    if not config.enabled and not config.local_checkout:
         return {**result, 'reason': 'commerce_disabled'}
     try:
         policy = Policy.model_validate(config.policy)

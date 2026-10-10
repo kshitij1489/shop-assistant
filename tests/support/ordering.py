@@ -12,8 +12,17 @@ from commerce.models import Configuration, Location
 from commerce.policy import Policy, evaluation_policy
 
 
+def ordering_form_data():
+    return dict(currency='INR', packaging='0', minimum='0', stock_policy='untracked',
+        reservation_seconds=900, stock_max_age_seconds=300, max_line_quantity=20,
+        max_item_quantity=30, max_basket_units=60, max_basket_lines=20,
+        max_subtotal='5000', max_payable='6000', **{
+            'taxes-TOTAL_FORMS': 0, 'taxes-INITIAL_FORMS': 0,
+            'discounts-TOTAL_FORMS': 0, 'discounts-INITIAL_FORMS': 0})
+
+
 def seed_evaluation_policy(tenant, *, commerce_enabled=False):
-    """Attach schema v2 evaluation limits without turning them into a product default."""
+    """Attach the frozen schema v2 evaluation policy independently of product presets."""
     location, _ = Location.objects.get_or_create(
         tenant=tenant, code='ordering',
         defaults={'name': getattr(tenant, 'display_name', None) or 'Ordering'})

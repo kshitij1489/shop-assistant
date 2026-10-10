@@ -21,8 +21,13 @@ uses those values until you change them. For `gpt-6-luna` and `gpt-6-luna-*`
 snapshots, requests set `reasoning_effort` to `none`. Restart workers after
 changing these settings.
 
-Classification is cached by exact input, tenant, catalog version, prompt, and
-model. Empty, refused, or invalid model output fails the turn without saving
+Classification recognizes application-defined requests independently of tenant
+execution permissions; published custom FAQ descriptions and examples remain
+tenant scoped. Missing facts and disabled features retain their request meanings
+instead of being treated as unrelated questions. Workflow authorization still
+controls every business operation, and explicitly disabled factual topics remain
+unavailable. Classification is cached by exact input, tenant, publication version,
+catalog version, prompt, and model. Empty, refused, or invalid model output fails the turn without saving
 basket or checkout changes.
 
 Each live classification also requires a nonblank `rephrased_sentence`: the

@@ -185,6 +185,25 @@ class CheckoutTests(CheckoutFixture, TestCase):
                 self.assertFalse(store.get_checklist().get('checkout'))
         self.assertFalse(Order.objects.exists())
 
+    def test_ordering_information_detour_preserves_active_checkout(self):
+        CheckoutSettings.objects.create(tenant=self.tenant, configuration=self.config)
+        store = self.graph_store()
+        self.graph_turn(store, 'checkout')
+        self.session.refresh_from_db()
+        before = deepcopy(self.session.state)
+        pending = [p.to_dict() for p in store.get_ongoing_queries()[0]]
+        basket = deepcopy(store.get_basket().to_dict())
+        with patch('chatbot_core.logic.cafe.intent_handler.placing_order.generate_response_from_knowledge',
+                   return_value='Telephone orders and pickup are available.'):
+            for text, topic in [('How can I order by phone?', 'how_to_order'),
+                                ('Do you offer pickup?', 'order_channels_and_modes')]:
+                self.graph_turn(store, text, ('placing_order', topic))
+                self.session.refresh_from_db()
+                self.assertEqual(self.session.state, before)
+                self.assertEqual(store.get_basket().to_dict(), basket)
+                self.assertEqual([p.to_dict() for p in store.get_ongoing_queries()[0]], pending)
+        self.assertFalse(Order.objects.exists())
+
     def test_store_referrals_preserve_active_checkout_and_its_pending_question(self):
         CheckoutSettings.objects.create(tenant=self.tenant, configuration=self.config)
         store = self.graph_store()

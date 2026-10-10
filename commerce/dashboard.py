@@ -8,7 +8,7 @@ from django.utils import timezone
 from users.decorators import tenant_required
 from orders.models import CheckoutSettings
 from .models import Configuration, Location, ReconciliationIssue, Connection, StockItem, Command, Inbox, ExternalMapping
-from .forms import CommerceSettingsForm, ConnectionForm, StockForm, IssueResolutionForm
+from .forms import CommerceIntegrationForm, ConnectionForm, StockForm, IssueResolutionForm
 from .credentials import rotate_credentials
 from .readiness import readiness_issues
 
@@ -72,9 +72,10 @@ def issue_view(request, issue_id):
 def settings_view(request):
     tenant = request.user.tenantprofile.tenant
     config = Configuration.objects.filter(tenant=tenant).first()
-    form = CommerceSettingsForm(request.POST if request.method == 'POST' else None, configuration=config)
+    form = CommerceIntegrationForm(request.POST if request.method == 'POST' else None,
+        initial={'enabled': bool(config and config.enabled)})
     if request.method == 'POST' and form.is_valid():
-        issues = readiness_issues(tenant, configuration=config, policy=form.policy) if form.cleaned_data['enabled'] else []
+        issues = readiness_issues(tenant, configuration=config) if form.cleaned_data['enabled'] else []
         if issues:
             for issue in issues:
                 form.add_error(None, issue)
@@ -82,7 +83,7 @@ def settings_view(request):
             with transaction.atomic():
                 location, _ = Location.objects.get_or_create(tenant=tenant, code='default', defaults={'name': tenant.display_name})
                 Configuration.objects.update_or_create(tenant=tenant, defaults={'location': config.location if config else location,
-                    'enabled': form.cleaned_data['enabled'], 'policy': form.policy})
+                    'enabled': form.cleaned_data['enabled']})
             messages.success(request, 'Commerce Settings Saved')
             return redirect('commerce:settings')
     if request.method == 'POST':

@@ -91,8 +91,14 @@ jobs:
           curl --fail http://127.0.0.1:8000/accounts/login/ > /dev/null
       - name: Test onboarding and deployment failure handling
         run: python manage.py test tests.integration.test_installation tests.integration.test_installation_settings tests.integration.test_production_start --noinput
-      - name: Test café runtime contracts without provider calls
-        run: python manage.py test tests.integration.test_runtime_configuration tests.integration.test_checkout tests.integration.test_cafe_conversations --settings=tests.settings.integration --noinput
+      - name: Test café runtime and ordering configuration without provider calls
+        run: >-
+          python manage.py test
+          tests.integration.test_runtime_configuration tests.integration.test_checkout
+          tests.integration.test_cafe_conversations tests.integration.test_configuration_imports
+          tests.integration.test_configuration_readiness tests.integration.test_ordering_settings
+          tests.unit.test_opening_hours tests.unit.test_intent_fixture tests.unit.test_normalize_and_classify
+          --settings=tests.settings.integration --noinput
       - name: Test commerce integrations and concurrency with real PostgreSQL migrations
         env:
           COMMERCE_TEST_PG_HOST: ${{ env.POSTGRES_HOST }}

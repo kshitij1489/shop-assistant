@@ -13,8 +13,8 @@ def validated_checkout(source, tenant):
 
 
 @transaction.atomic
-def import_documents(tenant, dtype, source):
-    records = document_records(dtype, source)
+def import_documents(tenant, dtype, source, *, require_type=False):
+    records = document_records(dtype, source, allow_legacy_classifications=False, require_type=require_type)
     TenantInfo.objects.select_for_update().get(pk=tenant.pk)
     created = updated = 0
     for record in records:
@@ -36,6 +36,7 @@ def import_checkout(tenant, source):
 
 @transaction.atomic
 def import_commerce_policy(tenant, source):
+    """Replace live policy values without changing local or external activation."""
     from commerce.models import Configuration, Location
     from commerce.policy import Policy, validate_policy
     data = parse_json(source)
@@ -61,4 +62,4 @@ def import_configuration(tenant, kind, source):
     if kind == 'catalog':
         from orders.catalog_imports import import_catalog
         return import_catalog(tenant, source)
-    return import_documents(tenant, kind, source)
+    return import_documents(tenant, kind, source, require_type=True)

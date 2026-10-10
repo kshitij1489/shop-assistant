@@ -36,6 +36,12 @@ Additional fixtures can use `evaluate.datasets.loader.classification_documents(r
 to obtain database-ready documents. String descriptions and objects containing
 `description`, optional `examples`, and optional `enabled` are supported.
 
+These are evaluation fixture inputs. For bulk dashboard imports, declare the
+actual type and wrap the original object as
+`{ "document_type": "knowledge", "documents": ... }` (or `intent_classification`
+or `response_intents`). The provisioner wraps its known sources automatically.
+The three corresponding files in `demo/` already carry their import types.
+
 ## Docs
 
 - [Evaluation dataset](../docs/evaluate/integration.md)

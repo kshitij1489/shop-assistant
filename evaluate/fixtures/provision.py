@@ -199,9 +199,12 @@ class DjangoProvisioner:
             contained(root, CONFIGURATION_FILES['commerce_policy']).read_text())
         if catalog:
             import_configuration(tenant, 'catalog', contained(root, CONFIGURATION_FILES['catalog']).read_text())
-        import_configuration(tenant, 'knowledge', exports['knowledge_base.json'])
+        import_configuration(tenant, 'knowledge', {'document_type': 'knowledge', 'documents': exports['knowledge_base.json']})
         for kind in ('intent_classification', 'response_intents', 'checkout'):
-            import_configuration(tenant, kind, contained(root, CONFIGURATION_FILES[kind]).read_text())
+            source = read_json(contained(root, CONFIGURATION_FILES[kind]))
+            if kind != 'checkout' and 'document_type' not in source:
+                source = {'document_type': kind, 'documents': source}
+            import_configuration(tenant, kind, source)
         return commerce
 
     @staticmethod

@@ -28,6 +28,7 @@ class Configuration(models.Model):
     tenant = models.OneToOneField('chatbot_core.TenantInfo', on_delete=models.PROTECT)
     location = models.ForeignKey(Location, on_delete=models.PROTECT)
     enabled = models.BooleanField(default=False)
+    local_checkout = models.BooleanField(default=False)
     policy = models.JSONField(default=default_policy, validators=[validate_policy])
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -8,6 +8,7 @@ import logging
 import re
 from copy import deepcopy
 from urllib.parse import urlsplit
+from chatbot_core.intent_definitions import ORDERING_INFORMATION_ROUTES
 from uuid import UUID
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -292,6 +293,9 @@ class PlacingOrderIntent(BaseIntent):
             return self._reject(self.STORE_CONTACT_REPLIES[self.sub_intent])
         if not isinstance(self.main_query, str) or not self.main_query.strip():
             return self.insufficient_information_order(api_key)
+        if self.resolved_action is None and (self.intent_type, self.sub_intent) in ORDERING_INFORMATION_ROUTES:
+            # An informational detour cannot advance even an already open checkout.
+            return self._information(api_key, history)
         if self.basket_item.get('payment_recovery') or (self.resolved_action and self.resolved_action.proposal.kind == 'RECOVER_PAYMENT'):
             return self.recover_payment(basket, customer, checklist)
         if (self.resolved_action and self.resolved_action.proposal.kind == 'SET_FULFILLMENT'
@@ -371,6 +375,9 @@ class PlacingOrderIntent(BaseIntent):
             return self._finish("There is no pending item to confirm. Please specify the item, size and quantity.")
         if self.sub_intent == "reorder_or_repeat":
             return self._finish("I can’t apply that request automatically. Please specify standard menu items to add, or contact the café for help.")
+        return self._information(api_key, history)
+
+    def _information(self, api_key, history):
         response = generate_response_from_knowledge(
             api_key, self.sub_intent, self.main_query, main_intent=self.intent_type, promp_restriction=self.promp_restriction,
             rephrased_sentence=self.rephrased_sentence, response_language=self.response_language,

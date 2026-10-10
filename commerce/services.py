@@ -3,7 +3,7 @@ from datetime import timedelta
 from copy import deepcopy
 from django.apps import apps
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils import timezone
 from orders.models import Order, MenuItem
 from .models import (Configuration, Connection, AcceptedOrder, StockItem, Reservation,
@@ -19,7 +19,7 @@ def configuration(tenant):
 
 
 def basket_quote(tenant, basket, *, mode, fee='0', discount_code=''):
-    config = configuration(tenant)
+    config = Configuration.objects.filter(tenant=tenant).filter(Q(enabled=True) | Q(local_checkout=True)).first()
     if not config:
         return None
     from chatbot_core.logic.cafe.catalog import load_catalog, validate_selection
@@ -152,7 +152,7 @@ def accept_order(order, pricing):
     previous = AcceptedOrder.objects.filter(order=order).first()
     if previous:
         return previous
-    config = Configuration.objects.select_for_update().get(tenant=order.tenant, enabled=True)
+    config = Configuration.objects.select_for_update().filter(Q(enabled=True) | Q(local_checkout=True)).get(tenant=order.tenant)
     if pricing['policy'] != Policy.model_validate(config.policy).model_dump(mode='json') or pricing['location_id'] != str(config.location_id):
         raise ValueError('Commerce settings changed. Review checkout again.')
     checkout = deepcopy(order.meta.get('checkout', {}))
@@ -172,6 +172,8 @@ def accept_order(order, pricing):
     policy = Policy.model_validate(config.policy)
     reserve(record, policy)
     if order.payment_mode == 'online':
+        if not config.enabled:
+            raise ValueError('Online checkout requires enabled external commerce.')
         if record.total_minor <= 0:
             raise ValueError('Online checkout requires a positive total. Choose cash for a zero-total order.')
         connection = Connection.objects.filter(location=config.location, role='payment', active=True).first()
@@ -187,7 +189,8 @@ def accept_order(order, pricing):
         finish_reservations(record, consume=True)
         record.state = 'confirmed'
         record.save(update_fields=['state'])
-        pos_submit(record)
+        if config.enabled:
+            pos_submit(record)
     return record
 
 

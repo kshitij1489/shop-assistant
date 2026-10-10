@@ -87,6 +87,8 @@ def _register_tenant_account(request, form, *, created_by_master=False):
 
         TenantProfile.objects.create(user=user, tenant=tenant, is_master=False)
         if business_type == 'cafe':
+            from orders.onboarding import initialize_ordering_settings
+            initialize_ordering_settings(tenant)
             from chatbot_core.runtime_configuration import publish_default_configuration
             publish_default_configuration(tenant.pk)
 
@@ -345,7 +347,7 @@ def delete_tenant_view(request, tenant_id):
 # -------------------------------
 # ⚙️ Tenant Settings
 # -------------------------------
-SETTINGS_TABS = ('checkout', 'hours', 'contact', 'integrations')
+SETTINGS_TABS = ('checkout', 'ordering', 'hours', 'contact', 'integrations')
 CHECKOUT_SETTINGS_TABS = ('checkout', 'hours')
 
 
@@ -374,12 +376,27 @@ def _redirect_settings(tab: str) -> HttpResponseRedirect:
 def tenant_settings_view(request):
     tenant = request.user.tenantprofile.tenant
 
-    from orders.models import CheckoutSettings
-    from .checkout_forms import CheckoutSettingsForm
-    checkout_settings = CheckoutSettings.objects.filter(tenant=tenant).first()
+    from .checkout_forms import CheckoutSettingsForm, OrderingSetupForm
+    from commerce.forms import CommerceSettingsForm
+    from orders.onboarding import initialize_ordering_settings, complete_ordering_setup
+    checkout_settings, ordering_settings = initialize_ordering_settings(tenant)
+    if request.method == 'GET' and request.GET.get('download') in ('checkout', 'ordering'):
+        kind = request.GET['download']
+        response = JsonResponse(checkout_settings.configuration if kind == 'checkout' else ordering_settings.policy,
+            json_dumps_params={'indent': 2})
+        response['Content-Disposition'] = f'attachment; filename="{kind}-settings.json"'
+        return response
+    tenant.refresh_from_db(fields=['meta'])
+    ordering_post = request.method == 'POST' and request.POST.get('section') == 'ordering'
+    setup_post = request.method == 'POST' and request.POST.get('section') == 'ordering_setup'
+    ordering_form = CommerceSettingsForm(request.POST if ordering_post else None,
+        configuration=ordering_settings, tenant=tenant)
+    setup_form = OrderingSetupForm(request.POST if setup_post else None,
+        configuration=checkout_settings.configuration, tenant=tenant, prefix='setup')
     checkout_form = CheckoutSettingsForm(
         request.POST if request.method == 'POST' and request.POST.get('section') == 'checkout' else None,
         configuration=checkout_settings.configuration if checkout_settings else None, tenant=tenant,
+        currency=ordering_form.initial['currency'],
     )
     contact_post = request.method == 'POST' and (
         request.POST.get('section') == 'contact'
@@ -396,11 +413,42 @@ def tenant_settings_view(request):
     settings_context = {
         'tenant': tenant,
         'checkout_form': checkout_form,
+        'ordering_form': ordering_form,
+        'ordering_setup_form': setup_form,
+        'ordering_setup_required': (tenant.meta or {}).get('ordering_setup_required'),
+        'local_checkout': ordering_settings.local_checkout,
         'profile_form': profile_form,
         'location_form': location_form,
         'whatsapp_form': whatsapp_form,
         'active_tab': _requested_settings_tab(request),
     }
+    if setup_post:
+        if setup_form.is_valid():
+            try:
+                complete_ordering_setup(tenant, setup_form.configuration)
+            except ValidationError as exc:
+                setup_form.add_error(None, exc)
+            else:
+                messages.success(request, 'Ordering Setup Complete')
+                return _redirect_settings('checkout')
+        settings_context['active_tab'] = 'checkout'
+        return render(request, 'users/tenant_settings.html', settings_context, status=400)
+    if ordering_post:
+        if ordering_form.is_valid():
+            from commerce.readiness import readiness_issues
+            for issue in readiness_issues(tenant, configuration=ordering_settings, policy=ordering_form.policy,
+                                          require_integrations=ordering_settings.enabled):
+                ordering_form.add_error(None, issue)
+        if ordering_form.is_valid():
+            with transaction.atomic():
+                TenantInfo.objects.select_for_update().get(pk=tenant.pk)
+                ordering_settings.policy = ordering_form.policy
+                ordering_settings.local_checkout = True
+                ordering_settings.save(update_fields=['policy', 'local_checkout', 'updated_at'])
+            messages.success(request, 'Ordering Rules Saved')
+            return _redirect_settings('ordering')
+        settings_context['active_tab'] = 'ordering'
+        return render(request, 'users/tenant_settings.html', settings_context, status=400)
     if whatsapp_post:
         if whatsapp_form.is_valid():
             whatsapp_form.save()
@@ -901,6 +949,10 @@ def tenant_knowledge_view(request):
                 version = int(request.POST.get("version", ""))
                 publication = publish_configuration(tenant.pk, expected_version=version)
                 messages.success(request, "Configuration Published")
+                from chatbot_core.configuration_status import configuration_report
+                report = configuration_report(tenant, publication.documents, publication)
+                if report['limitations']:
+                    messages.warning(request, 'Published with limitations: ' + ' '.join(report['limitations']))
             except (ValueError, ValidationError) as exc:
                 action_error(request, "Configuration Not Published", exc if isinstance(exc, ValidationError)
                     else "Reload the page to obtain a valid configuration version.")
@@ -927,11 +979,13 @@ def tenant_knowledge_view(request):
         # Always load ALL docs for the tenant for client-side switching:
         qs_all = TenantJSONDoc.objects.filter(tenant=tenant).order_by("dtype", "intent", "sub_intent")
         docs_payload = list(qs_all.values("dtype", "intent", "sub_intent", "payload"))
+        from chatbot_core.configuration_status import configuration_report
         return render(request, "users/tenant_knowledge.html", {
             "docs_payload": docs_payload,               # <-- unfiltered, full dataset
             "dtypes": TenantJSONDoc.DocType.choices,
             "selected_dtype": selected_dtype,
             "publication": publication, "topic_form": topic_form,
+            "configuration_report": configuration_report(tenant, docs_payload, publication),
             "capabilities": CAPABILITIES.items(),
         })
 
@@ -949,8 +1003,14 @@ def tenant_knowledge_view(request):
             raise ValueError(f"Invalid JSON: {e}")
 
     try:
-        if action == "add":
+        if action in {"add", "update"}:
+            from chatbot_core.configuration_files import document_records
             data = parse_payload(payload_raw)
+            # Raw editing and bulk imports enforce the same document contract.
+            record = document_records(dtype, {intent: {sub_intent: data}},
+                                      allow_legacy_classifications=False)[0]
+            data = record['payload']
+        if action == "add":
             with transaction.atomic():
                 _, created = TenantJSONDoc.objects.get_or_create(
                     tenant=tenant, dtype=dtype, intent=intent, sub_intent=sub_intent,
@@ -962,7 +1022,6 @@ def tenant_knowledge_view(request):
                     messages.warning(request, "Entry Exists: Use Edit / Save")
 
         elif action == "update":
-            data = parse_payload(payload_raw)
             updated = TenantJSONDoc.objects.filter(
                 tenant=tenant, dtype=dtype, intent=intent, sub_intent=sub_intent
             ).update(payload=data)

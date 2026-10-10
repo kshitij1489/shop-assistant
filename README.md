@@ -36,8 +36,11 @@ dashboard. The first build downloads dependencies and models.
 - **Password:** the one you entered, or `DEMO_OWNER_PASSWORD` in `.env.demo`.
 - **Chat:** http://localhost:8080/chat-page/?tenant=demo-cafe — try “What is on the menu?”
 
-The sample café answers menu and restaurant questions; checkout is disabled.
-Next, choose a path:
+The sample café answers menu and restaurant questions and supports cash checkout
+in INR. Pickup, dine-in, and delivery to postal code 560001 are enabled; external
+payment and POS integrations are disabled. See the
+[local setup guide](docs/operations/development.md) for hours, fees, and stock.
+Reseeding preserves existing demo settings and stock. Next, choose a path:
 
 **A. Run the end-to-end demo with mock services**
 

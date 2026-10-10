@@ -141,6 +141,7 @@ def main():
     from evaluate.datasets.loader import classification_documents
     from chatbot_core.logic.cafe.prompts.normalize_and_classify_prompt import SYSTEM_PROMPT
     from chatbot_core.logic.cafe.prompts.normalize_and_classify import SYSTEM_ID
+    from chatbot_core.intent_definitions import standard_schema
 
     config = dotenv_values(args.env_file)
     settings.OPENAI_API_KEY = config.get('OPENAI_API_KEY') or os.environ.get('OPENAI_API_KEY')
@@ -149,11 +150,12 @@ def main():
     settings.LLM_MODEL = args.model or config.get('LLM_MODEL') or 'gpt-6-luna'
     settings.LLM_TIMEOUT = 35
     settings.LLM_MAX_RETRIES = 0
-    schema = {}
+    schema = standard_schema()
     for doc in classification_documents(ROOT / 'test_data'):
         if doc['payload']['enabled']:
-            schema.setdefault(doc['intent'], {})[doc['sub_intent']] = {
-                'description': doc['payload']['description'], 'examples': doc['payload'].get('examples', [])}
+            topic = schema.setdefault(doc['intent'], {}).setdefault(doc['sub_intent'], {
+                'description': doc['payload']['description'], 'examples': []})
+            topic['examples'] = list(dict.fromkeys([*topic['examples'], *doc['payload'].get('examples', [])]))
     system = SYSTEM_PROMPT + json.dumps(schema, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
     cases = json.loads(args.cases.read_text())
     with ThreadPoolExecutor(max_workers=max(1, min(args.workers, 4))) as pool:
@@ -165,7 +167,7 @@ def main():
     report = {
         'model': settings.LLM_MODEL, 'prompt_version': SYSTEM_ID,
         'prompt_sha256': hashlib.sha256(system.encode()).hexdigest(),
-        'catalog_configuration': 'synthetic café and tea; test_data intent descriptions',
+        'catalog_configuration': 'synthetic café and tea; application request meanings and fixture examples',
         'provider_calls': len(results), 'tokens': totals,
         'median_latency_ms': statistics.median(row['latency_ms'] for row in results),
         'monetary_cost': None, 'cost_note': 'Provider billing rates were not supplied.',

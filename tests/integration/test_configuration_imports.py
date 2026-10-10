@@ -32,6 +32,10 @@ class ConfigurationImportTests(TestCase):
         if kind == 'catalog':
             response = self.client.post(reverse('tenant:tenant_menu_ingest_json'), {'menu_items_json': source})
         else:
+            if kind in {'knowledge', 'intent_classification', 'response_intents'}:
+                data = json.loads(source)
+                if 'document_type' not in data:
+                    source = json.dumps({'document_type': kind, 'documents': data})
             response = self.client.post(reverse('tenant:upload_knowledge_prompt'), {'dtype': kind, 'json_blob': source})
         self.assertEqual(response.status_code, 302)
         return response
@@ -67,6 +71,34 @@ class ConfigurationImportTests(TestCase):
     def test_generated_exports_match_committed_files(self):
         for filename, value in knowledge_exports(ROOT).items():
             self.assertEqual(json.loads((ROOT / filename).read_text()), value, filename)
+
+    def test_policy_import_updates_live_limits_and_preserves_pricing_activation(self):
+        from chatbot_core.logic.cafe.basket import Basket
+        from chatbot_core.logic.cafe.ordering_limits import load_policy, limit_reason
+        from commerce.policy import evaluation_policy
+        from commerce.services import basket_quote
+        item = MenuItem.objects.create(tenant=self.tenant, name='Coffee')
+        variant = MenuItemVariant.objects.create(menu_item=item, size='Regular', price='100')
+        basket = Basket(items=[{'item_id': str(item.pk), 'item_variant_id': str(variant.pk),
+                               'quantity': 2, 'unit_price': '100'}])
+        policy = evaluation_policy(taxes=[{'code': 'TAX', 'name': 'Tax', 'rate': '10'}])
+        policy['ordering_limits']['max_line_quantity'] = 1
+        config = import_configuration(self.tenant, 'commerce_policy', policy)
+        self.assertFalse(config.local_checkout)
+        self.assertFalse(config.enabled)
+        self.assertIn('at most 1', limit_reason(basket.items, load_policy(tenant_id=self.tenant.pk)))
+        self.assertIsNone(basket_quote(self.tenant, basket, mode='pickup'))
+        for local, external in ((True, False), (False, True), (False, False)):
+            with self.subTest(local=local, external=external):
+                config.local_checkout, config.enabled = local, external
+                config.save()
+                config = import_configuration(self.tenant, 'commerce_policy', policy)
+                self.assertEqual((config.local_checkout, config.enabled), (local, external))
+                quote = basket_quote(self.tenant, basket, mode='pickup')
+                if local or external:
+                    self.assertEqual(quote['tax_minor'], 2000)
+                else:
+                    self.assertIsNone(quote)
 
     def test_reimports_are_idempotent_and_zero_quantity_is_saved(self):
         data = json.loads((ROOT / CONFIGURATION_FILES['catalog']).read_text())

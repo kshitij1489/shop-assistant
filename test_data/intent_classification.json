@@ -1,78 +1,198 @@
 {
   "placing_order": {
-    "initiate_order": "Start choosing items for a new basket; not checkout. Explicit item additions use add_to_basket.",
-    "add_to_basket": "Request new items for the basket, including additions with missing choices. Answers to a pending choice use customize_confirmation.",
-    "update_order": "Change items, flavor, size, or quantity in an unplaced basket. Pending choice answers use customize_confirmation. Changes to an already placed order use order_enquiry/refund_and_cancellation.",
-    "delete_entry": "Remove an item or reduce its quantity in an unplaced basket, including answers identifying the item to remove.",
-    "check_order_cart": "Ask to view the current basket, its total, summary or changed prices; not consent to checkout.",
-    "reorder_or_repeat": "Ask to repeat a past order; not an explicit addition of named menu items.",
-    "order_scheduling": "Ask to schedule this order for later. Store referral only, including during checkout; no scheduling action or slot collection.",
-    "order_channels_and_modes": "Ask about ordering channels, fulfillment modes, delivery fees or minimums; also select a fulfillment preference before checkout.",
-    "special_requests": "Request a non-catalog customization or special arrangement, including a new item conditional on it. Store referral only; no basket action or detail collection. Standard catalog choices stay add/update requests.",
-    "how_to_order": "Ask how to order; not a command to add items or begin checkout.",
-    "insufficient_information_order": "An ordering request whose intended operation is unclear. A known add, edit, removal or checkout keeps its specific route even when details are missing.",
-    "order_payment": "Ask about payment or retrieve, resend or retry payment for an existing order. Starting checkout or supplying an open checkout field uses order_confirmation.",
-    "customize_confirmation": "Supply a requested item, flavor, size or quantity for a pending basket choice. Continue that request; not a new addition. Removal target answers use delete_entry.",
-    "payment_confirmation": "Report having paid or ask whether payment succeeded. The claim is not proof; payment must be verified by the handler.",
-    "order_confirmation": "Start or resume checkout, finish ordering, answer an open checkout field, or confirm the quoted order. Address confirmation alone is not checkout consent.",
-    "cancel_and_abort": "Legacy label; use general/cancel_and_abort for stopping pending work. Placed-order cancellations use order_enquiry/refund_and_cancellation."
+    "initiate_order": {
+      "description": "Start choosing items for a new basket; not checkout. Explicit item additions use add_to_basket."
+    },
+    "add_to_basket": {
+      "description": "Request new items for the basket, including additions with missing choices. Answers to a pending choice use customize_confirmation."
+    },
+    "update_order": {
+      "description": "Change items, flavor, size, or quantity in an unplaced basket. Pending choice answers use customize_confirmation. Changes to an already placed order use order_enquiry/refund_and_cancellation."
+    },
+    "delete_entry": {
+      "description": "Remove an item or reduce its quantity in an unplaced basket, including answers identifying the item to remove."
+    },
+    "check_order_cart": {
+      "description": "Ask to view the current basket, its total, summary or changed prices; not consent to checkout."
+    },
+    "reorder_or_repeat": {
+      "description": "Ask to repeat a past order; not an explicit addition of named menu items."
+    },
+    "order_scheduling": {
+      "description": "Ask to schedule this order for later. Store referral only, including during checkout; no scheduling action or slot collection."
+    },
+    "order_channels_and_modes": {
+      "description": "Ask about ordering channels, fulfillment modes, delivery fees or minimums; also select a fulfillment preference before checkout."
+    },
+    "special_requests": {
+      "description": "Request a non-catalog customization or special arrangement, including a new item conditional on it. Store referral only; no basket action or detail collection. Standard catalog choices stay add/update requests."
+    },
+    "how_to_order": {
+      "description": "Ask how to order; not a command to add items or begin checkout."
+    },
+    "insufficient_information_order": {
+      "description": "An ordering request whose intended operation is unclear. A known add, edit, removal or checkout keeps its specific route even when details are missing."
+    },
+    "order_payment": {
+      "description": "Ask about payment or retrieve, resend or retry payment for an existing order. Starting checkout or supplying an open checkout field uses order_confirmation."
+    },
+    "customize_confirmation": {
+      "description": "Supply a requested item, flavor, size or quantity for a pending basket choice. Continue that request; not a new addition. Removal target answers use delete_entry."
+    },
+    "payment_confirmation": {
+      "description": "Report having paid or ask whether payment succeeded. The claim is not proof; payment must be verified by the handler."
+    },
+    "order_confirmation": {
+      "description": "Start or resume checkout, finish ordering, answer an open checkout field, or confirm the quoted order. Address confirmation alone is not checkout consent."
+    },
+    "cancel_and_abort": {
+      "description": "Legacy label; use general/cancel_and_abort for stopping pending work. Placed-order cancellations use order_enquiry/refund_and_cancellation."
+    }
   },
   "order_enquiry": {
-    "order_status_tracking": "Ask for the status or tracking of an existing order or delivery; a read-only enquiry.",
-    "missing_or_wrong_items": "Report wrong, missing, damaged or melted items, or request a replacement. Store referral; explicit refunds or placed-order changes use refund_and_cancellation.",
-    "refund_and_cancellation": "Request a refund, cancel a placed order or change its items or quantities, including within a complaint. Store referral; no verified order or receipt is required.",
-    "address_or_contact_update": "Request an address/contact change for a placed order or ask staff to call a supplied contact. Store referral; no contact update or callback is performed.",
-    "delivery_problems": "Report a late, failed or disputed delivery, or trouble contacting its driver. Store referral without collecting investigation details.",
-    "general_order_enquiry": "General order, delivery or logistics support without a more specific enquiry topic.",
-    "get_order_history": "Ask to view or summarize past orders; a read-only enquiry, not a request to reorder."
+    "order_status_tracking": {
+      "description": "Ask for the status or tracking of an existing order or delivery; a read-only enquiry."
+    },
+    "missing_or_wrong_items": {
+      "description": "Report wrong, missing, damaged or melted items, or request a replacement. Store referral; explicit refunds or placed-order changes use refund_and_cancellation."
+    },
+    "refund_and_cancellation": {
+      "description": "Request a refund, cancel a placed order or change its items or quantities, including within a complaint. Store referral; no verified order or receipt is required."
+    },
+    "address_or_contact_update": {
+      "description": "Request an address/contact change for a placed order or ask staff to call a supplied contact. Store referral; no contact update or callback is performed."
+    },
+    "delivery_problems": {
+      "description": "Report a late, failed or disputed delivery, or trouble contacting its driver. Store referral without collecting investigation details."
+    },
+    "general_order_enquiry": {
+      "description": "General order, delivery or logistics support without a more specific enquiry topic."
+    },
+    "get_order_history": {
+      "description": "Ask to view or summarize past orders; a read-only enquiry, not a request to reorder."
+    }
   },
   "menu_items": {
-    "availability": "Ask which menu items or flavors are offered or available; not a request to add them.",
-    "recommendations": "Ask for a recommendation, popular item or help choosing what to try.",
-    "dietary_preferences": "Ask about dietary suitability or options such as vegan, eggless, dairy-free or sugar-free. Explicit allergy questions use allergens.",
-    "allergens": "Ask about allergens, allergy safety or cross-contact; takes precedence over general dietary preferences.",
-    "ingredients": "Ask what an item contains or about its recipe or composition.",
-    "nutrition": "Ask about calories, nutrients or nutritional information; dietary labels use dietary_preferences.",
-    "preparation": "Ask how a menu item is made or prepared.",
-    "pricing": "Ask an item or size price, including a corrected item name after a price question. Mentioning quantity does not request a basket change.",
-    "specialty_items": "Ask about signature, premium or specialty menu items.",
-    "explore_options": "Ask to browse the menu, categories or available choices.",
-    "pairings": "Ask which items or flavors go well together.",
-    "source_quality": "Ask about ingredient sourcing, freshness or quality.",
-    "flavor_profile": "Ask how an item tastes, including texture or sweetness.",
-    "portion_and_size": "Ask about serving sizes, package contents, volume or weight; not choosing a size for a pending addition."
+    "availability": {
+      "description": "Ask which menu items or flavors are offered or available; not a request to add them."
+    },
+    "recommendations": {
+      "description": "Ask for a recommendation, popular item or help choosing what to try."
+    },
+    "dietary_preferences": {
+      "description": "Ask about dietary suitability or options such as vegan, eggless, dairy-free or sugar-free. Explicit allergy questions use allergens."
+    },
+    "allergens": {
+      "description": "Ask about allergens, allergy safety or cross-contact; takes precedence over general dietary preferences."
+    },
+    "ingredients": {
+      "description": "Ask what an item contains or about its recipe or composition."
+    },
+    "nutrition": {
+      "description": "Ask about calories, nutrients or nutritional information; dietary labels use dietary_preferences."
+    },
+    "preparation": {
+      "description": "Ask how a menu item is made or prepared."
+    },
+    "pricing": {
+      "description": "Ask an item or size price, including a corrected item name after a price question. Mentioning quantity does not request a basket change."
+    },
+    "specialty_items": {
+      "description": "Ask about signature, premium or specialty menu items."
+    },
+    "explore_options": {
+      "description": "Ask to browse the menu, categories or available choices."
+    },
+    "pairings": {
+      "description": "Ask which items or flavors go well together."
+    },
+    "source_quality": {
+      "description": "Ask about ingredient sourcing, freshness or quality."
+    },
+    "flavor_profile": {
+      "description": "Ask how an item tastes, including texture or sweetness."
+    },
+    "portion_and_size": {
+      "description": "Ask about serving sizes, package contents, volume or weight; not choosing a size for a pending addition."
+    }
   },
   "location_based": {
-    "choose_delivery_address": "Choose a saved address for delivery. Not confirmation of an already selected address or setting a default for future orders.",
-    "add_delivery_address": "Supply or save a new typed delivery address, including partial address-field replies. Before checkout this is address management; an address requested by open checkout stays order_confirmation.",
-    "update_delivery_address": "Correct or update a saved delivery address; not the address on a placed order.",
-    "existing_addresses": "Ask to list or read saved delivery addresses without selecting or changing one.",
-    "delete_delivery_address": "Ask to delete a saved delivery address. The handler directs the user to the app; this is not delivery selection.",
-    "set_default_delivery_address": "Set a saved address as the default for future orders; not selecting an address for the current delivery.",
-    "verify_address_for_delivery": "Ask whether delivery covers an area, address or pincode. Published delivery fees and minimums use placing_order/order_channels_and_modes.",
-    "confirm_delivery_address": "Confirm the address in an open address-confirmation question, including after an information detour. Not checkout confirmation or a new address.",
-    "deny_delivery_address": "Reject the address in an open address-confirmation question; not cancellation of the order."
+    "choose_delivery_address": {
+      "description": "Choose a saved address for delivery. Not confirmation of an already selected address or setting a default for future orders."
+    },
+    "add_delivery_address": {
+      "description": "Supply or save a new typed delivery address, including partial address-field replies. Before checkout this is address management; an address requested by open checkout stays order_confirmation."
+    },
+    "update_delivery_address": {
+      "description": "Correct or update a saved delivery address; not the address on a placed order."
+    },
+    "existing_addresses": {
+      "description": "Ask to list or read saved delivery addresses without selecting or changing one."
+    },
+    "delete_delivery_address": {
+      "description": "Ask to delete a saved delivery address. The handler directs the user to the app; this is not delivery selection."
+    },
+    "set_default_delivery_address": {
+      "description": "Set a saved address as the default for future orders; not selecting an address for the current delivery."
+    },
+    "verify_address_for_delivery": {
+      "description": "Ask whether delivery covers an area, address or pincode. Published delivery fees and minimums use placing_order/order_channels_and_modes."
+    },
+    "confirm_delivery_address": {
+      "description": "Confirm the address in an open address-confirmation question, including after an information detour. Not checkout confirmation or a new address."
+    },
+    "deny_delivery_address": {
+      "description": "Reject the address in an open address-confirmation question; not cancellation of the order."
+    }
   },
   "information_about_the_cafe": {
-    "location_and_hours": "Ask for the cafe address, directions, map link or opening hours.",
-    "brand_story": "Ask about the origin, history or story of the cafe or brand.",
-    "amenities": "Ask about facilities or amenities such as seating, parking or Wi-Fi.",
-    "events_and_tours": "Ask about cafe events, factory visits or tours.",
-    "team_and_policy": "Ask about the team, founders, ownership, legal entity or company policies.",
-    "about_the_brand": "Ask general questions about the company, brand, reviews or reputation, including Google ratings."
+    "location_and_hours": {
+      "description": "Ask for the cafe address, directions, map link or opening hours."
+    },
+    "brand_story": {
+      "description": "Ask about the origin, history or story of the cafe or brand."
+    },
+    "amenities": {
+      "description": "Ask about facilities or amenities such as seating, parking or Wi-Fi."
+    },
+    "events_and_tours": {
+      "description": "Ask about cafe events, factory visits or tours."
+    },
+    "team_and_policy": {
+      "description": "Ask about the team, founders, ownership, legal entity or company policies."
+    },
+    "about_the_brand": {
+      "description": "Ask general questions about the company, brand, reviews or reputation, including Google ratings."
+    }
   },
   "out_of_context": {
-    "out_of_scope": "A meaningful request unrelated to the cafe or its services; not a cafe question with missing facts."
+    "out_of_scope": {
+      "description": "A meaningful request unrelated to the cafe or its services; not a cafe question with missing facts."
+    }
   },
   "insufficient_information": {
-    "insufficient_information": "The intended request is unclear and needs clarification. Missing execution details or unavailable facts alone do not make a known intent unclear."
+    "insufficient_information": {
+      "description": "The intended request is unclear and needs clarification. Missing execution details or unavailable facts alone do not make a known intent unclear."
+    }
   },
   "general": {
-    "greeting": "A standalone greeting or opening salutation.",
-    "goodbye": "A farewell or conversation ending; not cancellation of pending work.",
-    "thanks": "An expression of gratitude; not consent to repeat an action.",
-    "small_talk": "Casual social conversation without a substantive cafe request.",
-    "cancel_and_abort": "Stop the current conversation task, not a placed order. An explicit placed-order cancellation uses order_enquiry/refund_and_cancellation. If a bare cancel could mean either the pending task or a placed order, this control lets the workflow clarify the target.",
-    "wait": "Ask to pause existing work while keeping it pending. Not cancellation, scheduling for later or a new addition with a deferred choice."
+    "greeting": {
+      "description": "A standalone greeting or opening salutation."
+    },
+    "goodbye": {
+      "description": "A farewell or conversation ending; not cancellation of pending work."
+    },
+    "thanks": {
+      "description": "An expression of gratitude; not consent to repeat an action."
+    },
+    "small_talk": {
+      "description": "Casual social conversation without a substantive cafe request."
+    },
+    "cancel_and_abort": {
+      "description": "Stop the current conversation task, not a placed order. An explicit placed-order cancellation uses order_enquiry/refund_and_cancellation. If a bare cancel could mean either the pending task or a placed order, this control lets the workflow clarify the target."
+    },
+    "wait": {
+      "description": "Ask to pause existing work while keeping it pending. Not cancellation, scheduling for later or a new addition with a deferred choice."
+    }
   }
 }

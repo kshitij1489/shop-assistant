@@ -14,6 +14,19 @@
   <section class="card" style="padding:1rem; margin-bottom:1rem;">
     <h2>Published configuration: version {{ publication.version|default:0 }}</h2>
     <p>Edits below are drafts. Publishing checks capabilities, required knowledge and settings, and catalog references. The next message in every conversation uses the published changes.</p>
+    {% if publication.published_at %}<p>Published at {{ publication.published_at|date:"Y-m-d H:i T" }}.</p>{% endif %}
+    <p><strong>{{ configuration_report.changed_count }} saved document{{ configuration_report.changed_count|pluralize }} with unpublished changes.</strong></p>
+    <ul aria-label="Live conversation capabilities">
+      {% for summary in configuration_report.summaries %}
+      <li><strong>{{ summary.label }}:</strong> {{ summary.state }}</li>
+      {% endfor %}
+    </ul>
+    {% if configuration_report.errors %}
+    <div role="status">
+      <p><strong>Fix these draft problems before publishing:</strong></p>
+      <ul>{% for error in configuration_report.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
     <form method="post">
       {% csrf_token %}
       <input type="hidden" name="action" value="publish">
@@ -21,6 +34,27 @@
       <button class="btn success" type="submit">Validate and publish configuration</button>
     </form>
   </section>
+
+  <details class="card" style="padding:1rem; margin-bottom:1rem;" {% if configuration_report.changed_count %}open{% endif %}>
+    <summary>Compare published topics with saved drafts</summary>
+    <p>Customers use the Published column. Draft changes apply only after successful publication. Supporting knowledge can supply evidence to another topic.</p>
+    <div style="overflow-x:auto">
+      <table>
+        <caption>Topic availability and unpublished changes</caption>
+        <thead><tr><th scope="col">Topic</th><th scope="col">Published</th><th scope="col">Saved draft</th><th scope="col">Unpublished changes</th></tr></thead>
+        <tbody>
+          {% for row in configuration_report.rows %}
+          <tr>
+            <th scope="row">{{ row.intent }} / {{ row.topic }}</th>
+            <td>{{ row.live }}<details><summary>View published values</summary><pre>{{ row.published_values }}</pre></details></td>
+            <td>{{ row.draft }}</td>
+            <td>{{ row.changes|default:"None" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </details>
 
   <details class="card" style="padding:1rem; margin-bottom:1rem;" {% if topic_form.errors %}open{% endif %}>
     <summary>Add or replace a capability topic</summary>
@@ -38,7 +72,7 @@
     <ul>{% for name, capability in capabilities %}
       <li><strong>{{ name }}</strong>: {% if capability.dynamic_topics %}Any configured FAQ topic{% else %}{{ capability.sub_intents|join:", " }}{% endif %}</li>
     {% endfor %}</ul>
-    <p>In the classification editor, a topic can be a description string or an object with <code>description</code>, <code>enabled</code>, <code>examples</code>, <code>required_knowledge</code> (paths such as <code>information_about_the_cafe/pet_policy</code>), <code>required_settings</code> (paths in tenant metadata), and <code>catalog_references</code> (objects with <code>type</code> and <code>id</code>).</p>
+    <p>Classification entries use an object with <code>description</code>, <code>enabled</code>, <code>examples</code>, <code>required_knowledge</code> (paths such as <code>information_about_the_cafe/pet_policy</code>), <code>required_settings</code> (paths in tenant metadata), and <code>catalog_references</code> (objects with <code>type</code> and <code>id</code>). Standard request meanings come from the application; published examples supply additional vocabulary. Set <code>enabled: false</code> to disable a topic.</p>
   </details>
 
   <!-- 1) DType dropdown -->

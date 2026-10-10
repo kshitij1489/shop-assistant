@@ -1,9 +1,38 @@
 # Checkout
 
-Open **Tenant Settings → Checkout settings** and save the form to enable the
-configurable flow below. A tenant with no `CheckoutSettings` row keeps the
-legacy confirmation flow; it can still require a confirmed delivery address
-before placing the current basket's order.
+Open **Settings → Checkout** and **Ordering rules** to edit the saved policies.
+Signup creates both policies before publishing conversational routes. Add a menu
+item with a priced size, then finish the short setup form to confirm hours and
+publish ordering. JSON import/export is optional.
+
+Both business and demo presets deliberately adopt these editable starter limits:
+20 units per line, 30 per item, 60 per basket, 20 lines, ₹5,000 item subtotal and
+₹6,000 payable. New businesses start with pickup, cash, scheduling off, zero
+minimums/fees, no tax/discount rules and untracked stock. Daily 09:00–18:00
+Asia/Kolkata is prefilled for confirmation; delivery requires coverage during
+setup. Enable tracked stock after adding stock records. Defaults are defined in
+`orders/settings_defaults.py`; the form displays saved values, including existing
+tenants' intentionally absent limits. Opening Settings fills missing records
+without replacing existing policies. A tenant with no `CheckoutSettings` row
+keeps its legacy confirmation flow until it opens Settings or imports checkout.
+Initialization leaves policy pricing inactive. Setup preserves always-open,
+split and per-day schedules; edit those in Opening hours. Legacy address coverage
+remains active while ordering setup is required, including after a rules save.
+
+Taxes and discounts use Add rule rows, including item and fulfillment restrictions.
+Prices use the selected currency (whole yen for JPY); forms convert them to integer
+minor units. Existing tenants explicitly adopt policy pricing when saving Ordering
+rules. External POS and payment activation remains on the integration page.
+Saving rules validates local stock readiness even with integrations disabled.
+Once setup is complete, adoption also switches address validation to Checkout
+coverage: pickup-only rejects delivery and an empty delivery postal-code list
+allows every valid Indian pincode.
+
+Ordering policy imports immediately update stored limits (and pricing if policy
+pricing is already active). They preserve both activation flags: importing does
+not adopt local policy taxes or discounts for a legacy tenant. Save Ordering
+rules or complete setup to adopt them. Integrations created without onboarding
+retain the conservative model policy: absent limits and strict stock.
 
 The form covers delivery, pickup, and dine-in; required contact and fulfillment
 fields per mode; cash or online payment; preparation minutes; optional scheduling
@@ -68,14 +97,17 @@ to the session happen in one transaction. A repeated confirmation reuses that
 order. Fulfillment details are frozen on the order. External POS adapters
 receive the accepted commerce snapshot.
 
-Without commerce, catalog variant taxes are tax-exclusive: percentage taxes
+For existing tenants that have not adopted policy pricing, catalog variant taxes are tax-exclusive: percentage taxes
 apply to the variant plus modifiers, and fixed taxes apply per item, rounded
-per line. Fees are untaxed on that path. Use commerce pricing for inclusive
-taxes, fee taxes, and discounts.
+per line. Fees are untaxed on that path. New local checkout and tenants that save
+Ordering rules use policy pricing for inclusive taxes, fee taxes, and discounts,
+even with external integrations disabled. Local cash orders consume local stock
+atomically and create no provider commands or missing-POS issues.
 
 An explicit UTC offset resolves an otherwise ambiguous local time. Cache expiry
 does not drop an unfinished checkout draft, because the database holds that
 draft. An empty checkout postal-code list allows delivery that passes format
-checks. `serviceable_pincodes` is separate: a missing or malformed value does
+checks. Local checkout uses the saved checkout coverage for address verification
+as well. Legacy tenants still use `serviceable_pincodes`: a missing or malformed value does
 not save or confirm an address, and an empty list means the café does not
 deliver to that code. Published fee bands are not delivery coverage.

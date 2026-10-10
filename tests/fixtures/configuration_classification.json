@@ -1,0 +1,183 @@
+[
+  {
+    "id": "missing-hours-route",
+    "text": "Are you open right now",
+    "context": {
+      "configuration_version": 2,
+      "enabled_capabilities": [
+        [
+          "general",
+          "greeting"
+        ],
+        [
+          "general",
+          "thanks"
+        ],
+        [
+          "out_of_context",
+          "out_of_scope"
+        ]
+      ],
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "response_language": "en"
+    },
+    "route": "information_about_the_cafe/location_and_hours",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "information_about_the_cafe",
+        "sub_intent": "location_and_hours",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "knowledge-only-menu",
+    "text": "What's in menu",
+    "context": {
+      "configuration_version": 2,
+      "enabled_capabilities": [
+        [
+          "general",
+          "greeting"
+        ],
+        [
+          "general",
+          "thanks"
+        ],
+        [
+          "out_of_context",
+          "out_of_scope"
+        ]
+      ],
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "response_language": "en"
+    },
+    "route": "menu_items/explore_options",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "menu_items",
+        "sub_intent": "explore_options",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "greeting",
+    "text": "Hello",
+    "context": {
+      "configuration_version": 2,
+      "enabled_capabilities": [
+        [
+          "general",
+          "greeting"
+        ],
+        [
+          "general",
+          "thanks"
+        ],
+        [
+          "out_of_context",
+          "out_of_scope"
+        ]
+      ],
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "response_language": "en"
+    },
+    "route": "general/greeting",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "general",
+        "sub_intent": "greeting",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "unrelated-question",
+    "text": "What is the capital of France?",
+    "context": {
+      "configuration_version": 2,
+      "enabled_capabilities": [
+        [
+          "general",
+          "greeting"
+        ],
+        [
+          "general",
+          "thanks"
+        ],
+        [
+          "out_of_context",
+          "out_of_scope"
+        ]
+      ],
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "response_language": "en"
+    },
+    "route": "out_of_context/out_of_scope",
+    "reply_to": null,
+    "clarify": false,
+    "expected_unit_count": 1,
+    "expected_units": [
+      {
+        "intent": "out_of_context",
+        "sub_intent": "out_of_scope",
+        "action": null
+      }
+    ]
+  },
+  {
+    "id": "disabled-ordering",
+    "text": "Can I order",
+    "context": {
+      "configuration_version": 2,
+      "enabled_capabilities": [
+        [
+          "general",
+          "greeting"
+        ],
+        [
+          "general",
+          "thanks"
+        ],
+        [
+          "out_of_context",
+          "out_of_scope"
+        ]
+      ],
+      "open_requests": [],
+      "basket": [],
+      "recent_exchange": [],
+      "declared_constraints": [],
+      "response_language": "en"
+    },
+    "routes": [
+      "placing_order/initiate_order",
+      "placing_order/how_to_order"
+    ],
+    "reply_to": null,
+    "clarify": null,
+    "expected_unit_count": 1
+  }
+]

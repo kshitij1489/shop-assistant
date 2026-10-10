@@ -78,7 +78,7 @@ def _kb_sig(
     """
     m = hashlib.sha256()
     m.update(json.dumps([main_intent, kb_info.get("identity"), (prompt_info or {}).get("identity")], default=str).encode())
-    m.update(b"cafebot-kb-v13-item-dietary-evidence")
+    m.update(b"cafebot-kb-v14-published-hours-clock")
     m.update(json.dumps([rephrased_sentence, response_language], ensure_ascii=False).encode())
     m.update(json.dumps([response_profile, previous_user_message]).encode())
     m.update((model or get_model_name()).encode())
@@ -122,6 +122,8 @@ def generate_response_from_knowledge(
         )
     else:
         kb_info = get_knowledge_base_cache().get((api_key, main_intent, sub_intent))
+
+    time_sensitive = (main_intent, sub_intent) == ('information_about_the_cafe', 'location_and_hours')
 
     knowledge_data = kb_info.get("payload") if isinstance(kb_info, dict) else None
     if knowledge_data is None or knowledge_data == {} or knowledge_data == [] or (
@@ -221,6 +223,10 @@ def generate_response_from_knowledge(
             "hours, amenities, policies, or event details without an arbitrary item limit.\n"
             "Use previous conversation only to resolve references, never as a source of facts.\n"
             "Do not infer live opening status, today's events, or availability from undated information.\n"
+            "For opening now, use opening_hours_context as the trusted clock and computed schedule status. "
+            "Say 'according to the published hours' when it is open or closed; this is not live verification. "
+            "Retain holiday/exception qualifications. If scheduled_status is unknown, give any documented "
+            "hours but say current opening cannot be verified. Never use as_of as the current date.\n"
             "Do not offer a menu, ask another question, or start a new task."
         )
         max_tokens = 400
@@ -303,7 +309,7 @@ def generate_response_from_knowledge(
             raise ValueError("Knowledge response was empty")
 
         # --- 4) CACHE STORE ---
-        cache.set(key, final, timeout=60 * 60 * 6)  # 6 hours is safe for menu KB
+        cache.set(key, final, timeout=60 if time_sensitive else 60 * 60 * 6)
         return final
 
     except Exception:

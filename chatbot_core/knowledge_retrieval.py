@@ -198,7 +198,7 @@ def _live_menu(configuration):
 def retrieve_knowledge(api_key, main_intent, sub_intent, query, *, previous_user_message=None,
                        rephrased_sentence=None):
     configuration = get_configuration(api_key=api_key)
-    if configuration is None or not configuration.published or not configuration.allows(main_intent, sub_intent):
+    if configuration is None or not configuration.published or not configuration.allows_information(main_intent, sub_intent):
         return None
     live = _live_menu(configuration)
     live_identity = hashlib.sha256(encoded(live).encode()).hexdigest()
@@ -241,6 +241,11 @@ def retrieve_knowledge(api_key, main_intent, sub_intent, query, *, previous_user
     envelope = {'coverage': 'complete', 'search_degraded': False, 'fragments': [],
                 'inventory': {k: v for k, v in inventory.items() if k != 'records'}}
     envelope['inventory'].update(coverage='complete', fragments=[])
+    if (main_intent, sub_intent) == ('information_about_the_cafe', 'location_and_hours'):
+        from chatbot_core.opening_hours import opening_hours_context
+        # Dynamic evidence is computed outside the static index cache. Its clock
+        # enters the answer signature before that separate cache is consulted.
+        envelope['opening_hours_context'] = opening_hours_context(configuration)
     size = (len(encoded(envelope).encode()) + sum(index.fragment_sizes)
             + max(len(index.fragments) - 1, 0) + sum(inventory_index.fragment_sizes)
             + max(len(inventory_index.fragments) - 1, 0))

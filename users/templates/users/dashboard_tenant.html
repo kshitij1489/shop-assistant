@@ -4,6 +4,9 @@
   <section class="dashboard-intro">
     <h1>Welcome, {{ request.user.username }}</h1>
     <p>This is your dashboard — manage your chatbot operations and customer engagement.</p>
+    {% if request.user.tenantprofile.tenant.meta.ordering_setup_required %}
+    <p><a href="{% url 'tenant:tenant_settings' %}">Finish ordering setup</a>: add your menu, confirm your hours and start taking cash orders.</p>
+    {% endif %}
   </section>
 
 <section class="dashboard-section">
@@ -46,7 +49,7 @@
     </a>
     <a href="{% url 'tenant:tenant_settings' %}" class="card">
       <h3>Settings</h3>
-      <p>Manage WhatsApp, Telegram, and email settings.</p>
+      <p>Manage checkout, ordering rules, business details and integrations.</p>
     </a>
   </div>
 </section>

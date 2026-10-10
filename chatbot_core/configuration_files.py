@@ -48,10 +48,18 @@ def parse_json(source):
     return json.loads(json.dumps(source, allow_nan=False, default=native), object_pairs_hook=pairs)
 
 
-def document_records(dtype, source):
+def document_records(dtype, source, *, allow_legacy_classifications=True, require_type=False):
     data = parse_json(source)
     if dtype not in DOCUMENT_TYPES:
         raise ValueError('Unsupported document type.')
+    if isinstance(data, dict) and ('document_type' in data or 'documents' in data):
+        if set(data) != {'document_type', 'documents'} or data['document_type'] != dtype:
+            raise ValueError('The JSON document_type must match the selected configuration type.')
+        data = data['documents']
+        allow_legacy_classifications = False
+    elif require_type:
+        raise ValueError('Document imports require document_type and documents. '
+                         'Use a typed export so the selected type can be checked before saving.')
     if not isinstance(data, dict) or not data:
         raise ValueError('Root must map intents to topic objects.')
     records = []
@@ -65,6 +73,9 @@ def document_records(dtype, source):
             if dtype == 'intent_classification':
                 if not capability.supports(topic):
                     raise ValueError(f'Unsupported route: {intent}/{topic}.')
+                if isinstance(payload, str) and not allow_legacy_classifications:
+                    raise ValueError(f'Classification {intent}/{topic} must be an object with a description '
+                                     'of the customer request. Import response instructions as Response Intents.')
                 payload = {'description': payload} if isinstance(payload, str) else payload
                 allowed = {'description', 'examples', 'enabled', 'required_knowledge', 'required_settings', 'catalog_references'}
                 if (not isinstance(payload, dict) or payload.keys() - allowed

@@ -8,6 +8,8 @@ from django.utils import timezone
 from chatbot_core.models import TenantInfo, TenantJSONDoc
 from chatbot_core.runtime_configuration import publish_default_configuration, publish_configuration
 from orders.models import MenuCategory, MenuItem, MenuItemVariant
+from orders.onboarding import initialize_ordering_settings, complete_ordering_setup
+from commerce.models import StockItem
 from users.models import TenantProfile
 
 
@@ -39,28 +41,36 @@ class Command(BaseCommand):
         category = MenuCategory.objects.create(tenant=tenant, name='Café menu')
         menu = {}
         for name, price, description in (
-            ('Espresso', '2.50', 'A small black coffee.'),
-            ('Cappuccino', '3.50', 'Espresso with steamed milk; contains dairy.'),
-            ('Butter croissant', '3.00', 'Contains wheat and dairy.'),
+            ('Espresso', '120.00', 'A small black coffee.'),
+            ('Cappuccino', '180.00', 'Espresso with steamed milk; contains dairy.'),
+            ('Butter croissant', '150.00', 'Contains wheat and dairy.'),
         ):
             item = MenuItem.objects.create(tenant=tenant, category_fk=category, name=name, description=description)
             MenuItemVariant.objects.create(menu_item=item, size='Regular', price=price)
-            menu[name] = {'price': price, 'description': description, 'currency': 'EUR'}
+            menu[name] = {'price': price, 'description': description, 'currency': 'INR'}
+        checkout, config = initialize_ordering_settings(tenant, demo=True)
+        for item in MenuItem.objects.filter(tenant=tenant):
+            stock = StockItem.objects.create(location=config.location, item=item, on_hand=100)
+            item.quantity = stock.on_hand
+            item.save(update_fields=['quantity'])
         publication = publish_default_configuration(tenant.pk)
         for intent, topic, description, knowledge in (
             ('information_about_the_cafe', 'location_and_hours', 'Opening hours and location',
-             {'hours': 'Daily 09:00–18:00', 'address': '1 Example Street (fictional demo location)'}),
-            ('menu_items', 'pricing', 'Menu and prices in EUR', menu),
+             {'hours': 'Daily 09:00–18:00 Asia/Kolkata', 'address': '1 Example Street (fictional demo location)',
+              'delivery_postal_codes': ['560001'], 'delivery_fee': 'INR 30', 'payment': 'Cash at fulfillment'}),
+            ('menu_items', 'pricing', 'Menu and prices in INR', menu),
             ('menu_items', 'explore_options', 'Show the café menu', menu),
         ):
             for dtype, payload in (
                 ('intent_classification', {'description': description, 'enabled': True}),
-                ('response_intents', 'Answer using the supplied demo café knowledge. Prices are EUR. Do not invent facts.'),
+                ('response_intents', 'Answer using the supplied demo café knowledge. Prices are INR. Do not invent facts.'),
                 ('knowledge', knowledge),
             ):
                 TenantJSONDoc.objects.create(tenant=tenant, dtype=dtype, intent=intent, sub_intent=topic, payload=payload)
         publish_configuration(tenant.pk, expected_version=publication.version)
+        complete_ordering_setup(tenant, checkout.configuration)
         self.stdout.write(self.style.SUCCESS(
             f'Demo ready. Owner: demo-owner; login: {settings.PUBLIC_URL}/accounts/login/; '
-            f'chat: {settings.PUBLIC_URL}/chat-page/?tenant=demo-cafe. Checkout and commerce are disabled.'
+            f'chat: {settings.PUBLIC_URL}/chat-page/?tenant=demo-cafe. Cash checkout is ready; '
+            'open daily 09:00–18:00 Asia/Kolkata. Delivery: 560001. External integrations are disabled.'
         ))

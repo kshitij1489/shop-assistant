@@ -11,6 +11,7 @@ from django.test import SimpleTestCase, override_settings
 from langchain_openai import ChatOpenAI
 
 from chatbot_core.capabilities import CONTROL_ROUTES
+from chatbot_core.intent_definitions import STANDARD_INTENTS
 from chatbot_core.knowledge_cache import get_intent_classification_cache
 from chatbot_core.runtime_configuration import ClassificationSchema, RuntimeConfiguration
 from evaluate.controls.context import activate
@@ -265,7 +266,7 @@ class CombinedClassificationTests(ProviderHarness, SimpleTestCase):
                 self.assertEqual(self.schema_lookup.return_value, {})
                 self.assertEqual(self.schema_lookup.return_value.version, 7)
 
-    def test_existing_control_descriptions_survive_even_when_marked_disabled(self):
+    def test_standard_control_meanings_survive_tenant_overrides_and_disables(self):
         docs = [{"dtype": "intent_classification", "intent": intent, "sub_intent": topic,
                  "payload": {"description": "Tenant control wording", "enabled": False}}
                 for intent, topic in CONTROL_ROUTES]
@@ -277,7 +278,7 @@ class CombinedClassificationTests(ProviderHarness, SimpleTestCase):
             self.assertEqual(self.call(message=topic), [("reply", intent, topic, None, None)])
             system = self.requests[-1]["messages"][0]["content"]
             schema = json.loads(system[len(combined.SYSTEM_PROMPT):])
-            self.assertEqual(schema[intent][topic]["description"], "Tenant control wording")
+            self.assertEqual(schema[intent][topic]['description'], STANDARD_INTENTS[intent][topic]['description'])
 
     def test_invalid_cache_entry_is_replaced_after_fresh_validation(self):
         with patch.object(combined.cache, "get", return_value={"declared_constraints": [], "classifications": []}), \

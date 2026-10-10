@@ -105,7 +105,8 @@ class CheckoutPolicy(StrictModel):
 
 
 def default_checkout_config():
-    return CheckoutPolicy(modes={'delivery': ModePolicy(required_fields=['name', 'phone', 'address'])}).model_dump(mode='json')
+    from .settings_defaults import ordering_defaults
+    return ordering_defaults()['checkout']
 
 
 def validate_checkout_config(value):

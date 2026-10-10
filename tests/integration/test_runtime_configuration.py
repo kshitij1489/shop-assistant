@@ -14,6 +14,7 @@ from django.urls import reverse
 
 from chatbot_core import knowledge_cache, runtime_configuration as runtime
 from chatbot_core.models import TenantInfo, TenantJSONDoc, TenantRuntimeConfiguration
+from chatbot_core.intent_definitions import STANDARD_INTENTS
 from orders.models import MenuItem, MenuItemVariant, CheckoutSettings, Customer, ChatSession
 from users.models import TenantProfile
 
@@ -60,7 +61,7 @@ class RuntimeConfigurationTests(TestCase):
 
     def test_drafts_stay_inactive_until_validated_publication(self):
         self.assertIsNone(self.document())
-        self.assertEqual(knowledge_cache.get_intent_classification_cache(self.tenant.pk), {})
+        self.assertNotIn('pet_policy', knowledge_cache.get_intent_classification_cache(self.tenant.pk)['information_about_the_cafe'])
         publication = self.publish()
         self.assertEqual(publication.version, 1)
         self.assertEqual(self.document()['identity'], (str(self.tenant.pk), 'knowledge', 'information_about_the_cafe', 'pet_policy', 1))
@@ -76,7 +77,7 @@ class RuntimeConfigurationTests(TestCase):
         self.assertFalse(configuration.published)
         self.assertFalse(configuration.allows('information_about_the_cafe', 'pet_policy'))
         self.assertIsNone(self.document())
-        self.assertEqual(knowledge_cache.get_intent_classification_cache(self.tenant.pk), {})
+        self.assertNotIn('pet_policy', knowledge_cache.get_intent_classification_cache(self.tenant.pk)['information_about_the_cafe'])
 
     def test_signup_publishes_validated_starter_capabilities(self):
         response = self.client.post(reverse('signup'), {'username': 'new-owner', 'email': 'new@example.com',
@@ -205,7 +206,7 @@ class RuntimeConfigurationTests(TestCase):
         self.assertNotEqual(schema_before.version, schema_after.version)
         self.assertEqual(schema_after['information_about_the_cafe']['pet_policy']['examples'], ['Can I bring my dog?'])
 
-    def test_classifier_embeds_only_published_tenant_descriptions_and_refreshes(self):
+    def test_classifier_keeps_standard_meanings_and_only_published_tenant_examples(self):
         from chatbot_core.llm.schemas import NormalizedClassifiedMessages
         from evaluate.datasets.loader import classification_documents
         from tests.support.paths import REPOSITORY_ROOT
@@ -231,12 +232,16 @@ class RuntimeConfigurationTests(TestCase):
             schema = prompt_schema()
             self.assertEqual(schema['general']['greeting']['description'], doc['payload']['description'])
             self.assertEqual(schema['general']['greeting']['examples'], ['Hello cafe!'])
-            self.assertNotIn('thanks', schema['general'])
+            self.assertIn('thanks', schema['general'])
+            self.assertEqual(schema['general']['thanks'], STANDARD_INTENTS['general']['thanks'])
             self.assertNotIn('Other tenant wording', json.dumps(schema))
-            self.topic(intent='general', sub='greeting', description='New published greeting')
+            self.topic(intent='general', sub='greeting', description='New published greeting', examples=['Good morning cafe!'])
             self.assertEqual(prompt_schema(), schema)  # Draft edit remains invisible.
             self.publish()
-            self.assertEqual(prompt_schema()['general']['greeting']['description'], 'New published greeting')
+            updated = prompt_schema()['general']['greeting']
+            self.assertEqual(updated['description'], STANDARD_INTENTS['general']['greeting']['description'])
+            self.assertIn('Good morning cafe!', updated['examples'])
+            self.assertNotIn('Hello cafe!', updated['examples'])
             self.assertEqual(chain.call_count, 2)  # Publication also invalidates the exact cache.
 
     def test_turn_uses_consistent_configuration_and_next_turn_refreshes(self):
@@ -289,7 +294,8 @@ class RuntimeConfigurationTests(TestCase):
         session.set_ongoing_queries([pending], 0)
         self.topic(intent='placing_order', sub='add_to_basket', enabled=False)
         self.publish()
-        self.assertNotIn('placing_order', knowledge_cache.get_intent_classification_cache(self.tenant.pk))
+        self.assertIn('add_to_basket', knowledge_cache.get_intent_classification_cache(self.tenant.pk)['placing_order'])
+        self.assertFalse(runtime.get_configuration(tenant_id=self.tenant.pk).allows('placing_order', 'add_to_basket'))
         with patch.object(self.graph, 'normalize_and_classify', return_value=classification_result([('Coffee', 'placing_order', 'add_to_basket', None, None)])), \
              patch.object(PlacingOrderIntent, 'process_query') as execute, \
              patch.object(PlacingOrderIntent, 'process_followup') as followup:

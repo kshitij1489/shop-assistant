@@ -17,6 +17,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from chatbot_core.capabilities import CAPABILITIES, CHECKOUT_TOPICS, CONTROL_ROUTES
+from chatbot_core.intent_definitions import is_standard_knowledge_route, ORDERING_INFORMATION_ROUTES, PURE_INFORMATION_ROUTES
 from chatbot_core.models import TenantInfo, TenantJSONDoc, TenantRuntimeConfiguration
 
 _active = ContextVar("runtime_configuration", default=None)
@@ -85,6 +86,10 @@ def validate_documents(tenant, documents, *, registry=apps, using='default'):
         instructions = indexed.get(("response_intents", intent, topic))
         if not isinstance(instructions, str) or not instructions.strip():
             errors.append(f"{label}: response instructions are required.")
+        elif isinstance(options.get("description"), str) and (
+                ' '.join(options['description'].split()) == ' '.join(instructions.split())):
+            errors.append(f"{label}: the classification description duplicates the response instructions. "
+                          "Describe the customer's question in Classification and put answer guidance in Response Intents.")
         required_knowledge = options.get("required_knowledge", [])
         if not isinstance(required_knowledge, list):
             required_knowledge = []
@@ -103,7 +108,10 @@ def validate_documents(tenant, documents, *, registry=apps, using='default'):
                 value = value.get(part) if isinstance(value, dict) else None
             if not present(value):
                 errors.append(f"{label}: required tenant setting {reference!r} is missing.")
-        if intent == "placing_order" and classification_options(payload).get("enabled", True) is True:
+        if (intent == "placing_order" and (intent, topic) not in PURE_INFORMATION_ROUTES
+                and classification_options(payload).get("enabled", True) is True):
+            if (tenant.meta or {}).get('ordering_setup_required'):
+                errors.append(f"{label}: finish ordering setup in Settings first.")
             if limits_ready is None:
                 limits_ready = ordering_limits_ready(tenant.pk, using=using)
             if not limits_ready:
@@ -217,10 +225,24 @@ class RuntimeConfiguration:
         capability = CAPABILITIES.get(intent)
         if capability is None or not capability.supports(topic):
             return False
-        return any(doc["dtype"] == "intent_classification" and doc["intent"] == intent
-                   and doc["sub_intent"] == topic
-                   and classification_options(doc["payload"]).get("enabled", True) is True
-                   for doc in self.documents)
+        classification = next((doc for doc in self.documents if
+            (doc['dtype'], doc['intent'], doc['sub_intent']) == ('intent_classification', intent, topic)), None)
+        if classification is not None:
+            return classification_options(classification['payload']).get('enabled', True) is True
+        # Standard factual questions can use this tenant's published evidence
+        # and safe application instructions. Explicit disables still win above.
+        # Supporting knowledge and custom FAQs never create executable routes.
+        return is_standard_knowledge_route(intent, topic) or (intent, topic) in PURE_INFORMATION_ROUTES
+
+    def allows_information(self, intent, topic):
+        """Permission to read public facts, never to perform the route's actions."""
+        if (intent, topic) not in ORDERING_INFORMATION_ROUTES:
+            return self.allows(intent, topic)
+        if not self.published:
+            return False
+        classification = next((doc for doc in self.documents if
+            (doc['dtype'], doc['intent'], doc['sub_intent']) == ('intent_classification', intent, topic)), None)
+        return classification is None or classification_options(classification['payload']).get('enabled', True) is True
 
     def document(self, dtype, intent, topic):
         if not self.published:
