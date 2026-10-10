@@ -2,6 +2,7 @@
 
 | Doc | Use it for |
 | --- | --- |
+| [architecture.md](architecture.md) | System architecture, AI conversation flow, and design decisions |
 | [operations/development.md](operations/development.md) | Run locally |
 | [operations/production.md](operations/production.md) | HTTPS, upgrades, tenants, and channels |
 | [operations/testing.md](operations/testing.md) | Test commands |

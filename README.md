@@ -18,6 +18,22 @@ Built for **developers and agencies creating restaurant chatbots**.
 - **Commerce connections:** integrate external menus, payments, and POS systems through adapters.
 - **A local playground:** get started with Docker, sample café data, and payment/POS simulators.
 
+## Architecture
+
+A tenant-aware Django application uses LangGraph to interpret requests and manage
+conversation state. Application services authorize actions and enforce catalog,
+pricing, inventory, and checkout rules. External commerce adapters connect through
+a signed protocol.
+
+[![Shop Assistant system architecture: channels, tenant configuration, LangGraph orchestration, model services, commerce adapters, and shared runtime infrastructure](docs/assets/shop-assistant-architecture.svg)](docs/assets/shop-assistant-architecture.svg)
+
+[View system diagram](docs/assets/shop-assistant-architecture.svg) ·
+[View AI conversation flow](docs/assets/conversation-flow.svg) ·
+[Download architecture PNG](docs/assets/shop-assistant-architecture.png)
+
+Explore the [architecture and conversation flow](docs/architecture.md) for runtime
+boundaries, design decisions, and links to the implementation.
+
 ## Local quick setup
 
 Install **Docker with Compose v2** and **Python 3.10+**, then run:
@@ -74,6 +90,7 @@ covers certificate renewal, the operator account and troubleshooting.
 
 | Goal | Doc |
 | --- | --- |
+| Architecture, diagrams, and design decisions | [docs/architecture.md](docs/architecture.md) |
 | Install and run locally | [docs/operations/development.md](docs/operations/development.md) |
 | Production and HTTPS | [docs/operations/production.md](docs/operations/production.md) |
 | Tests | [docs/operations/testing.md](docs/operations/testing.md) |

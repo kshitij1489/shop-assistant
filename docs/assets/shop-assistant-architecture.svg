@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1376" viewBox="0 0 1680 1376" role="img" aria-labelledby="title desc">
+<title id="title">Shop Assistant — system architecture</title><desc id="desc">Current implementation of a self-hosted multi-tenant café ordering assistant. Website, Telegram and voice enter a Django application. Published tenant configuration governs a LangGraph conversation workflow, with OpenAI model calls, lexical knowledge retrieval, an optional FAISS answer cache, deterministic ordering and signed external commerce adapters. PostgreSQL, Redis and Celery provide persistence and background operations.</desc>
+<defs><radialGradient id="glow" cx="75%" cy="0%" r="80%"><stop offset="0" stop-color="#E1EDE6" stop-opacity=".65"/><stop offset="1" stop-color="#F7F5EF" stop-opacity="0"/></radialGradient><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".75" fill="#8DA49D" opacity=".12"/></pattern>
+<marker id="cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#126C74" stroke-width="1.5"/></marker>
+<marker id="cyan-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9" fill="none" stroke="#126C74" stroke-width="1.5"/></marker>
+<marker id="violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#71539A" stroke-width="1.5"/></marker>
+<marker id="violet-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9" fill="none" stroke="#71539A" stroke-width="1.5"/></marker>
+<marker id="green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#276749" stroke-width="1.5"/></marker>
+<marker id="green-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9" fill="none" stroke="#276749" stroke-width="1.5"/></marker>
+<marker id="amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#965512" stroke-width="1.5"/></marker>
+<marker id="amber-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9" fill="none" stroke="#965512" stroke-width="1.5"/></marker>
+<marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#606D6C" stroke-width="1.5"/></marker>
+<marker id="dim-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9" fill="none" stroke="#606D6C" stroke-width="1.5"/></marker>
+</defs><g font-family="Arial, Helvetica, sans-serif">
+<rect x="0" y="0" width="1680" height="1376" rx="0" fill="#F7F5EF" />
+<rect x="0" y="0" width="1680" height="1376" rx="0" fill="url(#glow)" />
+<rect x="0" y="0" width="1680" height="1376" rx="0" fill="url(#grid)" />
+<text x="48" y="52" font-size="15" fill="#126C74" font-weight="700" letter-spacing="2">SYSTEM ARCHITECTURE</text>
+<text x="1632" y="52" font-size="14" fill="#606D6C" font-weight="700" letter-spacing="2" text-anchor="end">AI ENGINEERING / APPLICATION DESIGN</text>
+<text x="48" y="111" font-size="50" fill="#293D42" font-weight="700" >Shop Assistant</text>
+<text x="48" y="152" font-size="27" fill="#526365" font-weight="400" >Multi-tenant conversational commerce</text>
+<text x="48" y="193" font-size="22" fill="#293D42" font-weight="400" >AI interprets intent. Application rules govern every business action.</text>
+<path d="M 1040 187 H 1084" fill="none" stroke="#126C74" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 1075 183 L 1084 187 L 1075 191" fill="none" stroke="#126C74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1095" y="193" font-size="16" fill="#526365" font-weight="400" >Runtime calls</text>
+<path d="M 1260 187 H 1304" fill="none" stroke="#606D6C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 7"/>
+<path d="M 1295 183 L 1304 187 L 1295 191" fill="none" stroke="#606D6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1315" y="193" font-size="16" fill="#526365" font-weight="400" >Configuration / dependencies</text>
+<text x="48" y="260" font-size="15" fill="#606D6C" font-weight="700" letter-spacing="2">01 / EXPERIENCE</text>
+<text x="1260" y="260" font-size="15" fill="#606D6C" font-weight="700" letter-spacing="2">03 / EXTERNAL SYSTEMS</text>
+<rect x="346" y="232" width="864" height="728" rx="22" fill="#EDF1EF" stroke="#CCD8D4" />
+<text x="372" y="270" font-size="15" fill="#126C74" font-weight="700" letter-spacing="2">02 / DJANGO APPLICATION</text>
+<text x="1184" y="270" font-size="15" fill="#606D6C" font-weight="400" text-anchor="end">One codebase · explicit module boundaries</text>
+<rect x="48" y="304" width="254" height="105" rx="16" fill="#F6F1FB" stroke="#CCD8D4" />
+<rect x="68" y="326" width="4" height="25" rx="2" fill="#71539A" />
+<text x="86" y="347" font-size="23" fill="#293D42" font-weight="700" >Tenant owner</text>
+<text x="72" y="385" font-size="20" fill="#526365" font-weight="400" >Dashboard &amp; setup</text>
+<rect x="48" y="464" width="254" height="192" rx="16" fill="#F1F8F7" stroke="#CCD8D4" />
+<rect x="68" y="486" width="4" height="25" rx="2" fill="#126C74" />
+<text x="86" y="507" font-size="23" fill="#293D42" font-weight="700" >Customers</text>
+<text x="72" y="545" font-size="20" fill="#526365" font-weight="400" >Website chat · SSE</text>
+<text x="72" y="574" font-size="20" fill="#526365" font-weight="400" >Telegram messaging</text>
+<text x="72" y="603" font-size="20" fill="#526365" font-weight="400" >Voice interface</text>
+<text x="48" y="706" font-size="20" fill="#526365" font-weight="600" >One conversation engine</text>
+<text x="48" y="735" font-size="18" fill="#606D6C" font-weight="400" >across supported channels.</text>
+<path d="M 48 770 H 302" fill="none" stroke="#CCD8D4" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="48" y="806" font-size="13" fill="#606D6C" font-weight="700" letter-spacing="2">EXECUTION PATHS</text>
+<text x="48" y="840" font-size="18" fill="#526365" font-weight="400" >Web → request thread</text>
+<text x="48" y="870" font-size="18" fill="#526365" font-weight="400" >Telegram / voice → queue</text>
+<rect x="374" y="304" width="810" height="105" rx="16" fill="#F6F1FB" stroke="#CCD8D4" />
+<rect x="394" y="326" width="4" height="25" rx="2" fill="#71539A" />
+<text x="412" y="347" font-size="23" fill="#293D42" font-weight="700" >Tenant control plane</text>
+<text x="398" y="385" font-size="20" fill="#526365" font-weight="400" >Draft knowledge &amp; routes  →  validate  →  publish a versioned runtime bundle</text>
+<rect x="971" y="322" width="189" height="31" rx="15" fill="#EAE0F5" />
+<text x="1065" y="343" font-size="12" fill="#71539A" font-weight="700" text-anchor="middle" letter-spacing="1">CAPABILITY GATES</text>
+<path d="M 302 356 H 374" fill="none" stroke="#71539A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 365 352 L 374 356 L 365 360" fill="none" stroke="#71539A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 916 409 V 458" fill="none" stroke="#606D6C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 7"/>
+<path d="M 920 449 L 916 458 L 912 449" fill="none" stroke="#606D6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="938" y="440" font-size="15" fill="#606D6C" font-weight="400" >active version per turn</text>
+<rect x="374" y="458" width="218" height="198" rx="16" fill="#F1F8F7" stroke="#CCD8D4" />
+<rect x="394" y="480" width="4" height="25" rx="2" fill="#126C74" />
+<text x="412" y="501" font-size="19" fill="#293D42" font-weight="700" >Channel gateway</text>
+<text x="395" y="539" font-size="18" fill="#526365" font-weight="400" >JWT / webhook auth</text>
+<text x="395" y="568" font-size="18" fill="#526365" font-weight="400" >Tenant + guest scope</text>
+<text x="395" y="597" font-size="18" fill="#526365" font-weight="400" >Request rate limits</text>
+<text x="395" y="626" font-size="18" fill="#526365" font-weight="400" >Session turn locks</text>
+<path d="M 302 557 H 374" fill="none" stroke="#126C74" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 365 553 L 374 557 L 365 561" fill="none" stroke="#126C74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 311 561 L 302 557 L 311 553" fill="none" stroke="#126C74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 592 557 H 646" fill="none" stroke="#126C74" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 637 553 L 646 557 L 637 561" fill="none" stroke="#126C74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 601 561 L 592 557 L 601 553" fill="none" stroke="#126C74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="646" y="458" width="538" height="198" rx="16" fill="#F1F8F7" stroke="#CCD8D4" />
+<rect x="666" y="480" width="4" height="25" rx="2" fill="#126C74" />
+<text x="684" y="501" font-size="24" fill="#293D42" font-weight="700" >Conversation orchestration</text>
+<text x="670" y="533" font-size="19" fill="#526365" font-weight="400" >LangGraph · typed state · ordered execution</text>
+<rect x="670" y="552" width="146" height="41" rx="8" fill="#F5F8F6" stroke="#CCD8D4" />
+<text x="743" y="579" font-size="19" fill="#71539A" font-weight="600" text-anchor="middle">Interpret</text>
+<path d="M 819 573 H 833" fill="none" stroke="#606D6C" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 824 569 L 833 573 L 824 577" fill="none" stroke="#606D6C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="836" y="552" width="146" height="41" rx="8" fill="#F5F8F6" stroke="#CCD8D4" />
+<text x="909" y="579" font-size="19" fill="#126C74" font-weight="600" text-anchor="middle">Authorize</text>
+<path d="M 985 573 H 999" fill="none" stroke="#606D6C" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 990 569 L 999 573 L 990 577" fill="none" stroke="#606D6C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1002" y="552" width="146" height="41" rx="8" fill="#F5F8F6" stroke="#CCD8D4" />
+<text x="1075" y="579" font-size="19" fill="#276749" font-weight="600" text-anchor="middle">Execute</text>
+<text x="670" y="630" font-size="18" fill="#526365" font-weight="400" >Pending work · verified outcomes · localized replies</text>
+<path d="M 796 656 V 679 H 568 V 716" fill="none" stroke="#126C74" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 572 707 L 568 716 L 564 707" fill="none" stroke="#126C74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 994 656 V 716" fill="none" stroke="#276749" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 998 707 L 994 716 L 990 707" fill="none" stroke="#276749" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="592" y="699" font-size="15" fill="#126C74" font-weight="400" >read evidence</text>
+<rect x="1007" y="682" width="137" height="23" rx="0" fill="#EDF1EF" />
+<text x="1014" y="699" font-size="15" fill="#276749" font-weight="400" >execute rules</text>
+<rect x="374" y="716" width="388" height="208" rx="16" fill="#F6F1FB" stroke="#CCD8D4" />
+<rect x="394" y="738" width="4" height="25" rx="2" fill="#71539A" />
+<text x="412" y="759" font-size="23" fill="#293D42" font-weight="700" >Evidence &amp; answer reuse</text>
+<text x="398" y="797" font-size="20" fill="#526365" font-weight="400" >Published tenant knowledge</text>
+<text x="398" y="826" font-size="20" fill="#526365" font-weight="400" >Whole-set / bounded lexical search</text>
+<text x="398" y="855" font-size="20" fill="#526365" font-weight="400" >Exact cache + optional scoped FAISS</text>
+<text x="398" y="903" font-size="16" fill="#71539A" font-weight="600" >FAISS is a disposable answer cache</text>
+<rect x="796" y="716" width="388" height="208" rx="16" fill="#F0F7F1" stroke="#CCD8D4" />
+<rect x="816" y="738" width="4" height="25" rx="2" fill="#276749" />
+<text x="834" y="759" font-size="23" fill="#293D42" font-weight="700" >Ordering &amp; commerce</text>
+<text x="820" y="797" font-size="20" fill="#526365" font-weight="400" >Catalog · basket · pricing · checkout</text>
+<text x="820" y="826" font-size="20" fill="#526365" font-weight="400" >Stock holds · accepted snapshots</text>
+<text x="820" y="855" font-size="20" fill="#526365" font-weight="400" >Command ledger · payment / POS</text>
+<text x="820" y="903" font-size="16" fill="#276749" font-weight="600" >Deterministic domain services</text>
+<rect x="1260" y="304" width="372" height="105" rx="16" fill="#FFFFFF" stroke="#CCD8D4" />
+<rect x="1280" y="326" width="4" height="25" rx="2" fill="#606D6C" />
+<text x="1298" y="347" font-size="22" fill="#293D42" font-weight="700" >Deployment envelope</text>
+<text x="1284" y="377" font-size="18" fill="#526365" font-weight="400" >NGINX → Gunicorn · Docker Compose</text>
+<text x="1284" y="431" font-size="16" fill="#606D6C" font-weight="400" >TLS via production overlay</text>
+<rect x="1260" y="458" width="372" height="198" rx="16" fill="#F6F1FB" stroke="#CCD8D4" />
+<rect x="1280" y="480" width="4" height="25" rx="2" fill="#71539A" />
+<text x="1298" y="501" font-size="23" fill="#293D42" font-weight="700" >Model services</text>
+<text x="1284" y="539" font-size="20" fill="#526365" font-weight="400" >OpenAI via LangChain</text>
+<text x="1284" y="568" font-size="20" fill="#526365" font-weight="400" >Structured classification &amp; replies</text>
+<text x="1284" y="597" font-size="20" fill="#526365" font-weight="400" >Audio transcription &amp; synthesis</text>
+<text x="1284" y="635" font-size="16" fill="#71539A" font-weight="600" >Provider-call retries are bounded</text>
+<path d="M 1184 557 H 1260" fill="none" stroke="#71539A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 1251 553 L 1260 557 L 1251 561" fill="none" stroke="#71539A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1193 561 L 1184 557 L 1193 553" fill="none" stroke="#71539A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1260" y="716" width="372" height="208" rx="16" fill="#FFF5E7" stroke="#CCD8D4" />
+<rect x="1280" y="738" width="4" height="25" rx="2" fill="#965512" />
+<text x="1298" y="759" font-size="23" fill="#293D42" font-weight="700" >Commerce adapters</text>
+<text x="1284" y="797" font-size="20" fill="#526365" font-weight="400" >External menu · payment · POS</text>
+<text x="1284" y="826" font-size="20" fill="#526365" font-weight="400" >Signed claim / ack / event protocol</text>
+<text x="1284" y="855" font-size="20" fill="#526365" font-weight="400" >Provider SDKs outside the core</text>
+<text x="1284" y="903" font-size="16" fill="#965512" font-weight="600" >HMAC + TLS · stable command IDs</text>
+<path d="M 1184 814 H 1260" fill="none" stroke="#965512" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 1251 810 L 1260 814 L 1251 818" fill="none" stroke="#965512" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1193 818 L 1184 814 L 1193 810" fill="none" stroke="#965512" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="48" y="1001" font-size="15" fill="#606D6C" font-weight="700" letter-spacing="2">04 / STATE &amp; BACKGROUND OPERATIONS</text>
+<path d="M 780 960 V 1018" fill="none" stroke="#606D6C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 7"/>
+<path d="M 302 1048 V 1018 H 1382 V 1048" fill="none" stroke="#606D6C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 7"/>
+<path d="M 1386 1039 L 1382 1048 L 1378 1039" fill="none" stroke="#606D6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 306 1039 L 302 1048 L 298 1039" fill="none" stroke="#606D6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 838 1018 V 1048" fill="none" stroke="#606D6C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 7"/>
+<path d="M 842 1039 L 838 1048 L 834 1039" fill="none" stroke="#606D6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="48" y="1048" width="508" height="156" rx="16" fill="#F1F8F7" stroke="#CCD8D4" />
+<rect x="68" y="1070" width="4" height="25" rx="2" fill="#126C74" />
+<text x="86" y="1091" font-size="25" fill="#293D42" font-weight="700" >PostgreSQL</text>
+<text x="72" y="1129" font-size="20" fill="#526365" font-weight="400" >Tenants · published config · catalog · orders</text>
+<text x="72" y="1158" font-size="20" fill="#526365" font-weight="400" >Browser sessions · ledger · answer / vector rows</text>
+<rect x="586" y="1048" width="504" height="156" rx="16" fill="#F1F8F7" stroke="#CCD8D4" />
+<rect x="606" y="1070" width="4" height="25" rx="2" fill="#126C74" />
+<text x="624" y="1091" font-size="25" fill="#293D42" font-weight="700" >Redis</text>
+<text x="610" y="1129" font-size="20" fill="#526365" font-weight="400" >Telegram / voice state · locks · exact cache</text>
+<text x="610" y="1158" font-size="20" fill="#526365" font-weight="400" >Message queues · Celery broker</text>
+<rect x="1120" y="1048" width="512" height="156" rx="16" fill="#F1F8F7" stroke="#CCD8D4" />
+<rect x="1140" y="1070" width="4" height="25" rx="2" fill="#126C74" />
+<text x="1158" y="1091" font-size="25" fill="#293D42" font-weight="700" >Celery worker + Beat</text>
+<text x="1144" y="1129" font-size="20" fill="#526365" font-weight="400" >Queued channel turns · embedding tasks</text>
+<text x="1144" y="1158" font-size="20" fill="#526365" font-weight="400" >Commerce reconciliation · cache retention</text>
+<rect x="48" y="1240" width="1584" height="86" rx="14" fill="#FFFFFF" stroke="#CCD8D4" />
+<text x="72" y="1274" font-size="17" fill="#126C74" font-weight="700" >01</text>
+<text x="112" y="1274" font-size="20" fill="#293D42" font-weight="700" >Tenant isolation</text>
+<text x="112" y="1305" font-size="17" fill="#526365" font-weight="400" >Scoped identity, state, evidence &amp; cache</text>
+<text x="602" y="1274" font-size="17" fill="#276749" font-weight="700" >02</text>
+<text x="642" y="1274" font-size="20" fill="#293D42" font-weight="700" >Controlled execution</text>
+<text x="642" y="1305" font-size="17" fill="#526365" font-weight="400" >Typed actions &amp; explicit checkout consent</text>
+<text x="1134" y="1274" font-size="17" fill="#965512" font-weight="700" >03</text>
+<text x="1174" y="1274" font-size="20" fill="#293D42" font-weight="700" >Operational assurance</text>
+<text x="1174" y="1305" font-size="17" fill="#526365" font-weight="400" >Health checks, recovery &amp; scenario evaluations</text>
+<text x="48" y="1355" font-size="13" fill="#606D6C" font-weight="700" letter-spacing="1.5">SHOP-ASSISTANT / ARCHITECTURE AS IMPLEMENTED</text>
+<text x="1632" y="1355" font-size="14" fill="#606D6C" font-weight="400" text-anchor="end">Application modules, external services and shared runtime dependencies</text>
+</g></svg>
