@@ -25,6 +25,8 @@ from .forms import (
 )
 from .models import TenantProfile
 from .location_forms import SiteLocationForm, WhatsAppContactForm
+from .integration_forms import TelegramSettingsForm
+from .checkout_forms import ORDER_OPTION_TABS
 from chatbot_core.models import TenantInfo
 from .decorators import master_required, tenant_required
 from chatbot_core.models import TenantJSONDoc, TenantRuntimeConfiguration
@@ -334,14 +336,32 @@ def _save_tenant_directory(request: HttpRequest, tenant: TenantInfo, form: Tenan
 
 @require_http_methods(["POST"])
 @login_required
+@csrf_protect
 def delete_tenant_view(request, tenant_id):
     if not (request.user.is_superuser or (getattr(request.user, 'tenantprofile', None) and request.user.tenantprofile.is_master)):
         return HttpResponseForbidden()
+    from .tenant_deletion import delete_unused_tenant
     try:
-        TenantInfo.objects.get(id=tenant_id).delete()
-        messages.success(request, "Tenant Deleted")
+        deleted_users, deleted_chat_keys = delete_unused_tenant(tenant_id, actor_id=request.user.pk)
     except TenantInfo.DoesNotExist:
+        logger.warning('Tenant deletion failed: user_id=%s tenant_id=%s reason=not_found', request.user.pk, tenant_id)
         messages.error(request, "Tenant Not Found")
+    except ValidationError as exc:
+        logger.warning('Tenant deletion blocked: user_id=%s tenant_id=%s reason=business_or_operations_records',
+                       request.user.pk, tenant_id)
+        action_error(request, 'Tenant Not Deleted', exc)
+    except ProtectedError:
+        logger.warning('Tenant deletion blocked: user_id=%s tenant_id=%s reason=protected_records',
+                       request.user.pk, tenant_id)
+        action_error(request, 'Tenant Not Deleted', 'This tenant has protected provider or commerce records. Deactivate it instead.')
+    except RedisError:
+        logger.warning('Tenant deletion failed: user_id=%s tenant_id=%s reason=chat_storage_unavailable',
+                       request.user.pk, tenant_id)
+        action_error(request, 'Tenant Not Deleted', 'Chat storage is unavailable. Please try again.')
+    else:
+        logger.info('Tenant deleted: user_id=%s tenant_id=%s owner_accounts=%s chat_keys=%s',
+                    request.user.pk, tenant_id, deleted_users, deleted_chat_keys)
+        messages.success(request, "Tenant Deleted")
     return redirect('master_dashboard')
 
 # -------------------------------
@@ -365,10 +385,13 @@ def _posted_checkout_tab(request: HttpRequest) -> str:
     return 'checkout'
 
 
-def _redirect_settings(tab: str) -> HttpResponseRedirect:
+def _redirect_settings(tab: str, subtab: str = '') -> HttpResponseRedirect:
     if tab not in SETTINGS_TABS:
         tab = 'checkout'
-    return redirect(f"{reverse('tenant:tenant_settings')}?tab={tab}")
+    query = f'tab={tab}'
+    if tab == 'checkout' and subtab in ORDER_OPTION_TABS:
+        query += f'&subtab={subtab}'
+    return redirect(f"{reverse('tenant:tenant_settings')}?{query}")
 
 
 @login_required
@@ -398,6 +421,8 @@ def tenant_settings_view(request):
         configuration=checkout_settings.configuration if checkout_settings else None, tenant=tenant,
         currency=ordering_form.initial['currency'],
     )
+    requested_subtab = (request.POST.get('order_options_tab', '') if checkout_form.is_bound
+                        else request.GET.get('subtab', ''))
     contact_post = request.method == 'POST' and (
         request.POST.get('section') == 'contact'
         or not request.POST.get('section') and 'address' in request.POST
@@ -420,7 +445,9 @@ def tenant_settings_view(request):
         'profile_form': profile_form,
         'location_form': location_form,
         'whatsapp_form': whatsapp_form,
+        'telegram_form': TelegramSettingsForm(tenant=tenant),
         'active_tab': _requested_settings_tab(request),
+        'active_order_options_tab': requested_subtab if requested_subtab in ORDER_OPTION_TABS else 'general',
     }
     if setup_post:
         if setup_form.is_valid():
@@ -445,7 +472,7 @@ def tenant_settings_view(request):
                 ordering_settings.policy = ordering_form.policy
                 ordering_settings.local_checkout = True
                 ordering_settings.save(update_fields=['policy', 'local_checkout', 'updated_at'])
-            messages.success(request, 'Ordering Rules Saved')
+            messages.success(request, 'Pricing & limits saved')
             return _redirect_settings('ordering')
         settings_context['active_tab'] = 'ordering'
         return render(request, 'users/tenant_settings.html', settings_context, status=400)
@@ -485,11 +512,13 @@ def tenant_settings_view(request):
         if checkout_form.is_valid():
             from chatbot_core.configuration_imports import import_checkout
             import_checkout(tenant, checkout_form.configuration)
-            messages.success(request, 'Checkout and Hours Saved')
-            return _redirect_settings(_posted_checkout_tab(request))
-        messages.error(request, 'Checkout and Hours Not Saved')
+            messages.success(request, 'Order Options and Hours Saved')
+            return _redirect_settings(_posted_checkout_tab(request), requested_subtab)
+        messages.error(request, 'Order Options and Hours Not Saved')
         errors = checkout_form.error_fields
         settings_context['active_tab'] = errors[0]['tab'] if errors else _posted_checkout_tab(request)
+        if errors and errors[0]['subtab']:
+            settings_context['active_order_options_tab'] = errors[0]['subtab']
         return render(request, 'users/tenant_settings.html', settings_context, status=400)
 
     if request.method == 'POST':
@@ -540,15 +569,30 @@ def tenant_settings_view(request):
             except requests.RequestException:
                 messages.error(request, 'Telegram Unavailable: Webhook Not Registered')
 
-        with transaction.atomic():
-            for field, value in updates.items():
-                setattr(tenant, field, value)
-            tenant.save(update_fields=list(updates))
+        try:
+            with transaction.atomic():
+                tenant = TenantInfo.objects.select_for_update().get(pk=tenant.pk)
+                telegram_form = TelegramSettingsForm(request.POST, tenant=tenant)
+                settings_context['telegram_form'] = telegram_form
+                if not telegram_form.is_valid():
+                    messages.error(request, 'Telegram Settings Not Saved')
+                    settings_context['active_tab'] = 'integrations'
+                    return render(request, 'users/tenant_settings.html', settings_context, status=400)
+                updates['telegram_bot_token'] = telegram_form.cleaned_data['telegram_bot_token']
+                for field, value in updates.items():
+                    setattr(tenant, field, value)
+                tenant.save(update_fields=list(updates))
 
-            # Saving again also re-registers after a PUBLIC_URL change.
-            telegram_bot_token = updates.get('telegram_bot_token')
-            if telegram_bot_token:
-                transaction.on_commit(lambda: _set_telegram_webhook(telegram_bot_token))
+                # Saving again also re-registers after a PUBLIC_URL change.
+                telegram_bot_token = updates.get('telegram_bot_token')
+                if telegram_bot_token:
+                    transaction.on_commit(lambda: _set_telegram_webhook(telegram_bot_token))
+        except IntegrityError:
+            # A different tenant may connect the same bot after form validation.
+            telegram_form.add_error('telegram_bot_token', 'This Telegram bot is already connected to another business.')
+            messages.error(request, 'Telegram Settings Not Saved')
+            settings_context['active_tab'] = 'integrations'
+            return render(request, 'users/tenant_settings.html', settings_context, status=400)
 
         messages.success(request, "Telegram Settings Saved" if section == 'integrations' else "Settings Saved")
         return _redirect_settings('integrations' if section == 'integrations' else 'contact')
@@ -1063,7 +1107,7 @@ def upload_knowledge_prompt_view(request):
     if request.method == "GET":
         selected_dtype = request.GET.get("dtype", "")
         return render(request, "users/upload_knowledge_prompt.html", {
-            "dtypes": [*TenantJSONDoc.DocType.choices, ("checkout", "Checkout settings"), ("commerce_policy", "Ordering policy")],
+            "dtypes": [*TenantJSONDoc.DocType.choices, ("checkout", "Order options and hours"), ("commerce_policy", "Ordering policy")],
             "selected_dtype": selected_dtype,
         })
 
@@ -1079,7 +1123,7 @@ def upload_knowledge_prompt_view(request):
         action_error(request, "Configuration Import Failed", exc)
         return redirect(reverse("tenant:upload_knowledge_prompt") + (f"?dtype={dtype}" if dtype else ""))
     if dtype == 'checkout':
-        messages.success(request, "Checkout Settings Imported")
+        messages.success(request, "Order Options and Hours Imported")
         return _redirect_settings('checkout')
     if dtype == 'commerce_policy':
         messages.success(request, "Ordering Policy Imported")

@@ -57,6 +57,7 @@ button, input, select, textarea { font: inherit; }
 .btn.success { background: #047857; border-color: #047857; color: #fff; }
 .btn.danger { background: #b91c1c; border-color: #b91c1c; color: #fff; }
 button:disabled, input:disabled, select:disabled, textarea:disabled { opacity: .6; cursor: not-allowed; }
+.availability-badge { display: inline-block; padding: .125rem .5rem; border: 1px solid var(--ui-border); border-radius: 1rem; background: var(--ui-surface); color: var(--ui-muted); font-size: .75rem; font-weight: 600; vertical-align: middle; }
 .actions, .btn-row, .form-row { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
 .form-row { align-items: end; margin-bottom: 1rem; }
 .form-row > label { flex: 1 1 150px; margin: 0; }
@@ -123,10 +124,18 @@ pre { max-width: 100%; overflow-x: auto; padding: 1rem; border: 1px solid var(--
 .tenant-actions li { padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); }
 .settings-tabs { display: flex; width: min(100%, 40rem); margin: 0 0 1.5rem; padding: .25rem; gap: .25rem; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: .75rem; }
 .settings-tabs [role="tab"] { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .5rem .375rem; border-radius: .5rem; color: var(--ui-muted); font-weight: 600; line-height: 1.2; text-align: center; text-decoration: none; overflow-wrap: normal; }
+.settings-tabs[data-settings-tabs] { width: 100%; }
+.settings-tabs[data-settings-tabs] [role="tab"] { min-height: 32px; padding: .375rem .5rem; }
 .settings-tabs [role="tab"]:hover { color: var(--ui-text); background: transparent; }
 .settings-tabs [role="tab"][aria-selected="true"], .settings-tabs [role="tab"][aria-selected="true"]:hover { background: #fff; color: var(--ui-primary); box-shadow: 0 1px 2px rgb(15 23 42 / .08); }
 .settings-panel[hidden], [hidden] { display: none !important; }
 .settings-panel > :last-child { margin-bottom: 0; }
+.order-options-tabs { width: min(100%, 32rem); }
+.order-options-tabs [role="tab"] { border: 1px solid transparent; gap: .375rem; flex-wrap: wrap; }
+.order-options-tabs [role="tab"]:has(.order-options-error) { border-color: #fca5a5; }
+.order-options-error { color: #b91c1c; font-size: .75rem; }
+[data-checkout-actions] { display: grid; justify-items: start; gap: .75rem; margin-top: 1rem; }
+[data-checkout-actions] > :last-child { margin-bottom: 0; }
 
 @media (max-width: 768px) {
   .dashboard-header, .dashboard-main { padding: 1rem; }
@@ -141,4 +150,5 @@ pre { max-width: 100%; overflow-x: auto; padding: 1rem; border: 1px solid var(--
 
 @media (max-width: 480px) {
   .settings-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .order-options-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }

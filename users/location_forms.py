@@ -63,6 +63,7 @@ class SiteLocationForm(forms.Form):
 
 class WhatsAppContactForm(forms.Form):
     whatsapp_number = forms.CharField(max_length=20, required=False, label='WhatsApp number',
+                                     help_text='Saves your business contact number. WhatsApp chatbot connection is coming soon.',
                                      widget=forms.TextInput(attrs={'type': 'tel', 'placeholder': 'with country code'}))
 
     def __init__(self, *args, tenant, **kwargs):

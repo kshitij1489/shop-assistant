@@ -29,6 +29,8 @@ class WhatsAppIntegrationTests(TestCase):
         cls.runner = importlib.import_module("chatbot_core.logic.cafe.workflow.runner")
 
     def setUp(self):
+        # Exercise the inbound foundation separately from its public availability.
+        self.enterContext(patch.object(whatsapp, 'WHATSAPP_CHATBOT_AVAILABLE', True))
         from tests.support.replies import install_reply_renderer
         install_reply_renderer(self)
         self.tenant = TenantInfo.objects.create(
@@ -70,6 +72,17 @@ class WhatsAppIntegrationTests(TestCase):
         self.assertEqual(chat.platform, "whatsapp")
         self.assertEqual(chat.session_id, customer.whatsapp_number)
         self.assertEqual(Customer.objects.count(), 1)
+
+    def test_unavailable_channel_does_not_process_signed_messages(self):
+        with patch.object(whatsapp, 'WHATSAPP_CHATBOT_AVAILABLE', False), \
+                patch.object(whatsapp, 'route_message_for_tenant') as route:
+            response = whatsapp.whatsapp_webhook(self.request('checkout'))
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(json.loads(response.content), {'error': 'WhatsApp chatbot is coming soon.'})
+        route.assert_not_called()
+        self.assertFalse(Customer.objects.exists())
+        self.assertFalse(ChatSession.objects.exists())
+        self.assertFalse(Order.objects.exists())
 
     def test_customers_are_isolated_by_tenant_and_sender(self):
         other = TenantInfo.objects.create(

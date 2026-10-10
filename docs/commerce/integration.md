@@ -164,7 +164,7 @@ charge a different amount.
 ## Rollout
 
 1. `python manage.py migrate`. Existing tenants are not enabled automatically.
-2. Save checkout settings and a commerce policy at `/commerce/settings/`. Fees stay in Checkout settings.
+2. Save order options in the tenant dashboard and a commerce policy at `/commerce/settings/`. Fulfillment fees stay in Order options.
 3. Save commerce settings while commerce is disabled to create the location. Add provider connections and stock. External stock starts at zero until an adapter event arrives. Connection identity is immutable after creation.
 4. Deploy adapters. Use provider sandbox accounts. Start command pollers and webhook receivers.
 5. Activate tested connections and enable commerce. The dashboard rejects incomplete activation. Run Celery worker and beat. Beat runs `commerce.tasks.reconcile_commerce` about every 60 seconds, with provider reads grouped in five-minute buckets. Or run `python manage.py reconcile_commerce` every minute.

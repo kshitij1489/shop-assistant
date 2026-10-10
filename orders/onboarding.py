@@ -44,7 +44,7 @@ def complete_ordering_setup(tenant, configuration):
             Q(category_fk__isnull=True) | Q(category_fk__is_active=True)).exists():
         raise ValidationError('Add at least one available menu item with a priced size before finishing setup.')
     if not ordering_limits_ready(tenant.pk):
-        raise ValidationError('Save all six limits in Ordering rules before finishing setup.')
+        raise ValidationError('Save all six limits in Pricing & limits before finishing setup.')
     import_checkout(tenant, configuration)
     from commerce.models import Configuration
     from commerce.readiness import readiness_issues

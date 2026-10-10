@@ -34,8 +34,20 @@ python manage.py test \
 ```sh
 python manage.py test tests.integration --settings=tests.settings.integration -v 2
 python manage.py test tests.unit --settings=tests.settings.integration -v 2
-node --test tests/frontend/chat_stream.test.cjs
+node --test tests/frontend/*.test.cjs
 ```
+
+Frontend tests include native DOM checks when Chromium or Google Chrome is
+installed at a standard location. Set `DASHBOARD_BROWSER` to another Chromium
+executable. These checks use a disposable browser profile, simulated speech and
+HTTP responses, and disabled external networking. They cover chat response races,
+reading position, focus, voice history beyond 200 messages, cancelled send/poll
+races, deferred speech startup, failed status polls, owner delivery/storage
+failures, customer draft isolation, duplicate sends, toggle reselection and stale
+status races, knowledge drafts, keyboard tabs, native dialogs, modal notification
+focus, and switch dimensions.
+They do not exercise physical microphones, installed speech engines, or live
+providers.
 
 `--parallel` greater than 1 is rejected.
 

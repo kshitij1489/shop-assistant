@@ -1,0 +1,10 @@
+{% for title, fields in panels %}
+<fieldset>
+    <legend>{{ title }}</legend>
+    {% for field in fields %}
+    <div class="form-group">
+        {{ field.as_field_group }}
+    </div>
+    {% endfor %}
+</fieldset>
+{% endfor %}

@@ -6,7 +6,7 @@
 <section class="card" aria-labelledby="ordering-setup-title">
     <h2 id="ordering-setup-title">Finish ordering setup</h2>
     {% if ordering_setup_form.preserve_opening_hours %}<p>Your saved opening hours will be preserved. Review or edit this schedule in <a href="?tab=hours">Opening hours</a> before confirming setup.</p>{% endif %}
-    <p>Add your <a href="{% url 'tenant:tenant_menu' %}">menu and prices</a>, then confirm your business hours below to enable ordering. Checkout and Ordering rules contain your saved modes, fees, limits and taxes.</p>
+    <p>Add your <a href="{% url 'tenant:tenant_menu' %}">menu and prices</a>, then confirm your business hours below to enable ordering. Order options and Pricing &amp; limits contain your saved modes, fees, limits and taxes.</p>
     <form method="post" id="ordering-setup-form">
         {% csrf_token %}<input type="hidden" name="section" value="ordering_setup">
         {{ ordering_setup_form.as_p }}
@@ -15,8 +15,8 @@
 </section>
 {% endif %}
 <div class="settings-tabs" role="tablist" aria-label="Settings" data-settings-tabs>
-    <a role="tab" id="settings-tab-checkout" href="?tab=checkout" data-tab="checkout" aria-controls="settings-panel-checkout" aria-selected="{% if active_tab == 'checkout' %}true{% else %}false{% endif %}">Checkout</a>
-    <a role="tab" id="settings-tab-ordering" href="?tab=ordering" data-tab="ordering" aria-controls="settings-panel-ordering" aria-selected="{% if active_tab == 'ordering' %}true{% else %}false{% endif %}">Ordering rules</a>
+    <a role="tab" id="settings-tab-checkout" href="?tab=checkout" data-tab="checkout" aria-controls="settings-panel-checkout" aria-selected="{% if active_tab == 'checkout' %}true{% else %}false{% endif %}">Order options</a>
+    <a role="tab" id="settings-tab-ordering" href="?tab=ordering" data-tab="ordering" aria-controls="settings-panel-ordering" aria-selected="{% if active_tab == 'ordering' %}true{% else %}false{% endif %}">Pricing &amp; limits</a>
     <a role="tab" id="settings-tab-hours" href="?tab=hours" data-tab="hours" aria-controls="settings-panel-hours" aria-selected="{% if active_tab == 'hours' %}true{% else %}false{% endif %}">Opening hours</a>
     <a role="tab" id="settings-tab-contact" href="?tab=contact" data-tab="contact" aria-controls="settings-panel-contact" aria-selected="{% if active_tab == 'contact' %}true{% else %}false{% endif %}">Business details</a>
     <a role="tab" id="settings-tab-integrations" href="?tab=integrations" data-tab="integrations" aria-controls="settings-panel-integrations" aria-selected="{% if active_tab == 'integrations' %}true{% else %}false{% endif %}">Integrations</a>
@@ -26,29 +26,63 @@
     {% csrf_token %}
     <input type="hidden" name="section" value="checkout">
     <input type="hidden" name="settings_tab" value="{% if active_tab == 'hours' %}hours{% else %}checkout{% endif %}">
+    <input type="hidden" name="order_options_tab" value="{{ active_order_options_tab }}">
 
     <div id="settings-panel-checkout" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-checkout"{% if active_tab != 'checkout' %} hidden{% endif %}>
-        <p>Choose fulfillment modes, required details, payment methods and fees. Saving applies changes in both Checkout and Opening hours and enables configurable checkout for new orders. Existing confirmed orders keep their original details.</p>
-        <p>Basket limits, taxes and discounts are in the adjacent Ordering rules tab.</p>
+        <p>Choose your order types, required customer details, payment methods and fees. Switch between General, Delivery, Pickup and Dine-in to configure each. Your edits stay in the form when you switch tabs.</p>
+        <p>Saving applies changes in both Order options and Opening hours for new orders. Existing confirmed orders keep their original details.</p>
+        <p>Basket limits, taxes and discounts are in the adjacent Pricing &amp; limits tab.</p>
         {% include "users/partials/checkout_settings_errors.html" %}
-        {% for title, fields in checkout_form.panels.checkout %}
+        {% with option_panels=checkout_form.order_option_panels %}
+        <div class="settings-tabs order-options-tabs" role="tablist" aria-label="Order options" data-order-options-tabs>
+            {% for panel in option_panels %}
+            <a role="tab" id="order-options-tab-{{ panel.id }}" href="?tab=checkout&amp;subtab={{ panel.id }}" data-order-options-tab="{{ panel.id }}" aria-controls="order-options-panel-{{ panel.id }}" aria-selected="{% if active_order_options_tab == panel.id %}true{% else %}false{% endif %}">
+                {{ panel.title }}{% if panel.has_errors %}<span class="order-options-error">Errors</span>{% endif %}
+            </a>
+            {% endfor %}
+        </div>
+        {% for panel in option_panels %}
+        <div id="order-options-panel-{{ panel.id }}" class="settings-panel" role="tabpanel" aria-labelledby="order-options-tab-{{ panel.id }}" data-order-options-panel="{{ panel.id }}"{% if active_order_options_tab != panel.id %} hidden{% endif %}>
+        {% if panel.id != 'general' %}
+        <div class="status-notice" data-order-mode-notice="{{ panel.id }}"{% if panel.enabled %} hidden{% endif %}>
+            <p>{{ panel.title }} is disabled. Enable it to accept this order type. You can review its settings below.</p>
+            <button type="button" data-enable-order-mode="{{ panel.id }}">Enable {{ panel.title }}</button>
+        </div>
+        <p class="helptext">Configure the online payment provider in <a href="?tab=checkout&amp;subtab=general" data-order-options-select="general">General</a>.</p>
+        {% endif %}
         <fieldset>
-            <legend>{{ title }}</legend>
-            {% for field in fields %}
+            <legend>{{ panel.title }}</legend>
+            {% for field in panel.fields %}
             <div class="form-group" id="{{ field.auto_id }}_group" tabindex="-1">
                 {{ field.errors }}
                 {{ field.label_tag }} {{ field }}
                 {% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+                {% if field.name == 'delivery_postal_codes' %}
+                <button type="button" disabled aria-describedby="international-delivery-help">International delivery (Coming soon)</button>
+                <p id="international-delivery-help" class="helptext">Delivery currently supports Indian pincodes.</p>
+                {% endif %}
+                {% if field.name == 'online_provider' %}
+                <div class="helptext">
+                    {% if checkout_form.online_payment_issues %}
+                    <p><strong>Online payments are not set up.</strong> To enable them:</p>
+                    <ul>{% for issue in checkout_form.online_payment_issues %}<li>{{ issue }}</li>{% endfor %}</ul>
+                    <p>To save with cash payments, uncheck Online and select Cash at fulfillment for each enabled mode.</p>
+                    {% else %}
+                    <p>Payment setup is ready. Select External payment adapter and Online for each mode that accepts online payments.</p>
+                    {% endif %}
+                    <p><a href="{% url 'commerce:settings' %}" target="_blank" rel="noopener">External commerce integrations (opens in a new tab)</a> · <a href="{% url 'commerce:connections' %}" target="_blank" rel="noopener">Provider connections (opens in a new tab)</a>. After completing setup, save this form again.</p>
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </fieldset>
+        </div>
         {% endfor %}
-        <button type="submit">Save checkout and hours</button>
-        <p><a href="?download=checkout">Export JSON</a> · <a href="{% url 'tenant:upload_knowledge_prompt' %}?dtype=checkout">Import JSON</a></p>
+        {% endwith %}
     </div>
 
     <div id="settings-panel-hours" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-hours"{% if active_tab != 'hours' %} hidden{% endif %}>
-        <p>Saving applies changes in both Checkout and Opening hours and enables configurable checkout for new orders. Turn off 24-hour opening to enter a weekly schedule, and leave a day empty when closed.</p>
+        <p>Saving applies changes in both Order options and Opening hours for new orders. Turn off 24-hour opening to enter a weekly schedule, and leave a day empty when closed.</p>
         {% include "users/partials/checkout_settings_errors.html" %}
         {% for title, fields in checkout_form.panels.hours %}
         <fieldset>
@@ -62,29 +96,35 @@
             {% endfor %}
         </fieldset>
         {% endfor %}
-        <button type="submit">Save checkout and hours</button>
+    </div>
+    <div data-checkout-actions{% if active_tab != 'checkout' and active_tab != 'hours' %} hidden{% endif %}>
+        <button type="submit">Save order options and hours</button>
+        <p><a href="?download=checkout">Export JSON</a> · <a href="{% url 'tenant:upload_knowledge_prompt' %}?dtype=checkout">Import JSON</a></p>
     </div>
 </form>
 
 <div id="settings-panel-ordering" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-ordering"{% if active_tab != 'ordering' %} hidden{% endif %}>
-    <p>Set basket limits, packaging, minimums, taxes and discounts. Amounts use the selected currency. Fulfillment fees are in Checkout.</p>
-    {% if not local_checkout %}<p>Saving adopts these pricing rules for cash checkout, replacing catalog tax mappings for new orders. It also adopts Checkout delivery coverage once ordering setup is complete: no delivery mode rejects delivery addresses, and an empty postal-code list allows all valid Indian pincodes. Review taxes and Checkout coverage before saving.</p>{% endif %}
+    <p>Set basket limits, packaging, minimums, taxes and discounts. Amounts use the selected currency. Fulfillment fees are in Order options.</p>
+    {% if not local_checkout %}<p>Saving adopts these pricing rules for cash checkout, replacing catalog tax mappings for new orders. It also adopts delivery coverage from Order options once ordering setup is complete: no delivery mode rejects delivery addresses, and an empty postal-code list allows all valid Indian pincodes. Review taxes and delivery coverage before saving.</p>{% endif %}
     <p><a href="{% url 'commerce:stock' %}">Manage stock</a> · <a href="{% url 'commerce:settings' %}">External POS and payment integrations</a></p>
     <form method="post" id="ordering-settings-form">
         {% csrf_token %}<input type="hidden" name="section" value="ordering">
-        {{ ordering_form.as_p }}
-        {% for title, formset in ordering_form.rule_sets %}
+        {{ ordering_form.non_field_errors }}
+        {% for field in ordering_form.hidden_fields %}{{ field }}{% endfor %}
+        {% include "users/partials/ordering_settings_fields.html" with panels=ordering_form.panels.pricing %}
+        {% for title, rule_name, formset in ordering_form.rule_sets %}
         <fieldset data-rule-set="{{ formset.prefix }}">
             <legend>{{ title }}</legend>
             {{ formset.management_form }}{{ formset.non_form_errors }}
             <div data-rule-rows>
-                {% for rule in formset %}<fieldset data-rule-row><legend>{{ title }} rule {{ forloop.counter }}</legend>{{ rule.as_p }}</fieldset>{% endfor %}
+                {% for rule in formset %}<fieldset data-rule-row><legend>{{ rule_name }} {{ forloop.counter }}</legend>{{ rule.as_p }}</fieldset>{% endfor %}
             </div>
-            <template data-rule-template><fieldset data-rule-row><legend>{{ title }} rule</legend>{{ formset.empty_form.as_p }}</fieldset></template>
-            <button type="button" data-add-rule>Add rule</button>
+            <template data-rule-template><fieldset data-rule-row><legend>{{ rule_name }}</legend>{{ formset.empty_form.as_p }}</fieldset></template>
+            <button type="button" data-add-rule>Add {{ rule_name|lower }}</button>
         </fieldset>
         {% endfor %}
-        <button type="submit">Save ordering rules</button>
+        {% include "users/partials/ordering_settings_fields.html" with panels=ordering_form.panels.advanced %}
+        <button type="submit">Save pricing &amp; limits</button>
         <p><a href="?download=ordering">Export JSON</a> · <a href="{% url 'tenant:upload_knowledge_prompt' %}?dtype=commerce_policy">Import JSON</a></p>
     </form>
 </div>
@@ -140,7 +180,7 @@
             <legend>WhatsApp</legend>
             {{ whatsapp_form.whatsapp_number.errors }}
             {{ whatsapp_form.whatsapp_number.label_tag }} {{ whatsapp_form.whatsapp_number }}
-
+            <p class="helptext">{{ whatsapp_form.whatsapp_number.help_text }}</p>
         </fieldset>
         <button type="submit">Save WhatsApp number</button>
     </form>
@@ -152,15 +192,19 @@
         <input type="hidden" name="section" value="integrations">
         <fieldset>
             <legend>Telegram</legend>
-            <label for="telegram_bot_token">Telegram Bot Token:</label>
-            <input type="text" id="telegram_bot_token" name="telegram_bot_token"
-                   value="{{ tenant.telegram_bot_token|default_if_none:'' }}" placeholder="e.g. 123456:ABC-DEF..."
-                   aria-describedby="telegram_bot_token_help"
-                   class="form-group">
-            <p id="telegram_bot_token_help">Paste your token from BotFather. Saving registers the Telegram webhook.</p>
+            {{ telegram_form.telegram_bot_token.errors }}
+            {{ telegram_form.telegram_bot_token.label_tag }} {{ telegram_form.telegram_bot_token }}
+            <p id="telegram_bot_token_help" class="helptext">{{ telegram_form.telegram_bot_token.help_text }}</p>
+            <button type="button" disabled>Change or disconnect Telegram (Coming soon)</button>
         </fieldset>
-        <button type="submit">Save Telegram settings</button>
+        <button type="submit">{% if tenant.telegram_bot_token %}Register Telegram webhook again{% else %}Save Telegram settings{% endif %}</button>
     </form>
+
+    <section class="card" aria-labelledby="whatsapp-chatbot-title">
+        <h3 id="whatsapp-chatbot-title">WhatsApp chatbot <span class="availability-badge">Coming soon</span></h3>
+        <p>WhatsApp chatbot connection and replies are not available yet. You can save your contact number in Business details.</p>
+        <button type="button" disabled>Connect WhatsApp (Coming soon)</button>
+    </section>
 
     <section class="card" aria-labelledby="jwt-settings-title">
         <h3 id="jwt-settings-title">JWT Token for Website Integration</h3>
@@ -181,6 +225,6 @@
 </style>
 <div id="settings-config" hidden data-token-url="{% url 'tenant:generate_jwt_token' %}"
      data-csrf-token="{{ csrf_token }}"></div>
-<script src="{% static 'users/js/tenant_settings.js' %}"></script>
+<script src="{% static 'users/js/tenant_settings.js' %}?v=20261010-order-options"></script>
 <script src="{% static 'users/js/ordering_rules.js' %}" defer></script>
 {% endblock %}

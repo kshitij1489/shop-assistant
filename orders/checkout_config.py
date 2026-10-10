@@ -1,5 +1,7 @@
 """Validated checkout policy shared by the dashboard and conversation engine."""
+from copy import deepcopy
 from decimal import Decimal
+import re
 from typing import Literal
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -14,20 +16,57 @@ FIELDS = {
 }
 
 
-def online_provider_ready(provider, tenant=None):
-    if provider != 'adapter' or tenant is None:
-        return False
+def validate_delivery_pincodes(codes):
+    if any(not re.fullmatch(r'[1-9][0-9]{5}', code.strip()) for code in codes):
+        raise ValidationError('Delivery currently supports six-digit Indian pincodes. International delivery is coming soon.')
+
+
+def validate_checkout_availability(value):
+    """Guard configuration writes while retaining support for reading old policies."""
+    policy = CheckoutPolicy.model_validate(value)
+    if any(mode.scheduling_enabled or 'scheduled_at' in mode.required_fields
+           for mode in policy.modes.values()):
+        raise ValidationError('Order scheduling is coming soon and cannot be enabled.')
+    validate_delivery_pincodes(policy.delivery_postal_codes)
+
+
+def without_scheduling(configuration):
+    """Retire unavailable scheduling from editable and live, unconfirmed checkout."""
+    config = deepcopy(configuration)
+    for mode in config['modes'].values():
+        mode['scheduling_enabled'] = False
+        mode['required_fields'] = [field for field in mode.get('required_fields', []) if field != 'scheduled_at']
+    return config
+
+
+def online_payment_setup_issues(tenant=None):
+    """Explain the same prerequisites enforced when saving online checkout."""
+    if tenant is None:
+        return ['Choose a business before configuring online payments.']
     from django.apps import apps
     if not apps.is_installed('commerce'):
-        return False
+        return ['Install commerce support before configuring online payments.']
     from commerce.models import Configuration, Connection
     from commerce.credentials import adapter_secret
-    config = Configuration.objects.filter(tenant=tenant, enabled=True).first()
+    config = Configuration.objects.filter(tenant=tenant).first()
     if not config:
-        return False
+        return ['Configure and enable external commerce in External commerce integrations.']
+    issues = []
+    if not config.enabled:
+        issues.append('Enable external commerce in External commerce integrations.')
     gateway = Connection.objects.filter(location=config.location, role='payment', active=True).first()
-    return bool(gateway and {'payment.create', 'payment.reconcile'} <= set(gateway.capabilities)
-                and adapter_secret(gateway))
+    if not gateway:
+        issues.append('Add and activate a payment adapter in Provider connections.')
+    else:
+        if not {'payment.create', 'payment.reconcile'} <= set(gateway.capabilities):
+            issues.append('Enable payment creation and reconciliation capabilities on the payment adapter.')
+        if not adapter_secret(gateway):
+            issues.append('Configure or refresh the payment adapter credentials in Provider connections.')
+    return issues
+
+
+def online_provider_ready(provider, tenant=None):
+    return provider == 'adapter' and not online_payment_setup_issues(tenant)
 
 
 def validate_online_readiness(value, tenant):

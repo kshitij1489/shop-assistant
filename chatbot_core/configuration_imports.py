@@ -2,12 +2,15 @@
 from django.db import transaction
 from chatbot_core.configuration_files import document_records, parse_json
 from chatbot_core.models import TenantInfo, TenantJSONDoc
-from orders.checkout_config import CheckoutPolicy, validate_checkout_config, validate_online_readiness
+from orders.checkout_config import (
+    CheckoutPolicy, validate_checkout_config, validate_checkout_availability, validate_online_readiness,
+)
 
 
 def validated_checkout(source, tenant):
     data = parse_json(source)
     validate_checkout_config(data)
+    validate_checkout_availability(data)
     validate_online_readiness(data, tenant)
     return CheckoutPolicy.model_validate(data).model_dump(mode='json')
 

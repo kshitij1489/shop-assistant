@@ -43,6 +43,124 @@ class OrderingSettingsTests(TestCase):
                 'setup-days': ['0', '1', '2', '3', '4', '5', '6'], 'setup-opens': '09:00',
                 'setup-closes': '18:00', 'setup-confirmed': 'on'}
 
+    def test_order_options_subtabs_place_coverage_in_delivery_and_keep_disabled_modes_available(self):
+        response = self.client.get(self.url + '?tab=checkout&subtab=delivery')
+        self.assertEqual(response.context['active_order_options_tab'], 'delivery')
+        self.assertContains(response, '>Order options</a>')
+        self.assertContains(response, 'Save order options and hours', count=1)
+        self.assertContains(response, 'Delivery is disabled.')
+        self.assertContains(response, 'Enable Delivery')
+        self.assertContains(response, 'id="id_delivery_postal_codes"', count=1)
+        html = response.content.decode()
+        general = html.split('id="order-options-panel-general"', 1)[1].split('id="order-options-panel-delivery"', 1)[0]
+        delivery = html.split('id="order-options-panel-delivery"', 1)[1].split('id="order-options-panel-pickup"', 1)[0]
+        self.assertIn('id="id_online_provider"', general)
+        self.assertNotIn('id="id_delivery_postal_codes"', general)
+        self.assertIn('id="id_delivery_postal_codes"', delivery)
+        for subtab in ('general', 'delivery', 'pickup', 'dine_in'):
+            with self.subTest(subtab=subtab):
+                page = self.client.get(self.url + '?tab=checkout&subtab=' + subtab)
+                self.assertEqual(page.context['active_order_options_tab'], subtab)
+                self.assertContains(page, f'aria-labelledby="order-options-tab-{subtab}" data-order-options-panel="{subtab}">')
+        self.assertEqual(self.client.get(self.url + '?subtab=unknown').context['active_order_options_tab'], 'general')
+
+    def test_order_options_errors_reveal_the_mode_and_preserve_unsaved_edits(self):
+        checkout, _ = initialize_ordering_settings(self.tenant)
+        original = deepcopy(checkout.configuration)
+        data = {'section': 'checkout', 'settings_tab': 'hours', 'order_options_tab': 'general',
+                'modes': ['pickup'], 'timezone': 'Asia/Kolkata', 'hours_0': '10:00-18:00',
+                'pickup_payment_methods': ['cash'], 'pickup_fee': '-1', 'dine_in_fee': '-2',
+                'delivery_fee': '25.00'}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.context['active_tab'], 'checkout')
+        self.assertEqual(response.context['active_order_options_tab'], 'pickup')
+        self.assertContains(response, 'class="order-options-error">Errors</span>', count=2, status_code=400)
+        self.assertContains(response, 'data-order-options-error="pickup"', status_code=400)
+        self.assertEqual(response.context['checkout_form']['delivery_fee'].value(), '25.00')
+        self.assertEqual(response.context['checkout_form']['hours_0'].value(), '10:00-18:00')
+        checkout.refresh_from_db()
+        self.assertEqual(checkout.configuration, original)
+
+    def test_order_options_save_returns_to_selected_subtab_and_saves_hours(self):
+        data = {'section': 'checkout', 'settings_tab': 'checkout', 'order_options_tab': 'pickup',
+                'modes': ['pickup'], 'timezone': 'Asia/Kolkata', 'hours_0': '10:00-18:00',
+                'pickup_payment_methods': ['cash'], 'pickup_fee': '12.50'}
+        self.assertRedirects(self.client.post(self.url, data), self.url + '?tab=checkout&subtab=pickup')
+        saved = CheckoutSettings.objects.get(tenant=self.tenant).configuration
+        self.assertEqual(saved['modes']['pickup']['fee'], '12.50')
+        self.assertEqual(saved['opening_hours']['0'], [['10:00', '18:00']])
+        data.update(settings_tab='hours', order_options_tab='dine_in')
+        self.assertRedirects(self.client.post(self.url, data), self.url + '?tab=hours')
+        data.update(settings_tab='checkout', order_options_tab='unknown')
+        self.assertRedirects(self.client.post(self.url, data), self.url + '?tab=checkout')
+
+    def test_checkout_explains_payment_setup_before_save_and_points_hours_errors_to_checkout(self):
+        checkout, _ = initialize_ordering_settings(self.tenant)
+        original = deepcopy(checkout.configuration)
+        page = self.client.get(self.url + '?tab=checkout')
+        self.assertContains(page, 'Online payments are not set up.')
+        self.assertContains(page, reverse('commerce:connections'))
+        data = {'section': 'checkout', 'settings_tab': 'hours', 'modes': ['pickup'],
+                'timezone': 'Asia/Kolkata', 'hours_0': '10:00-18:00', 'online_provider': 'adapter',
+                'pickup_payment_methods': ['cash', 'online'], 'pickup_fee': '12.50'}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.context['active_tab'], 'checkout')
+        self.assertIn('pickup_payment_methods', response.context['checkout_form'].errors)
+        self.assertContains(response, 'uncheck Online', status_code=400)
+        self.assertEqual(response.context['checkout_form']['hours_0'].value(), '10:00-18:00')
+        checkout.refresh_from_db()
+        self.assertEqual(checkout.configuration, original)
+
+        # Correcting payment selection saves both tabs, even if a disabled mode
+        # still has Online selected in its controls.
+        data.update(pickup_payment_methods=['cash'], delivery_payment_methods=['online'])
+        self.assertRedirects(self.client.post(self.url, data), self.url + '?tab=hours')
+        checkout.refresh_from_db()
+        self.assertEqual(checkout.configuration['modes']['pickup']['payment_methods'], ['cash'])
+        self.assertEqual(checkout.configuration['modes']['pickup']['fee'], '12.50')
+        self.assertEqual(checkout.configuration['opening_hours']['0'], [['10:00', '18:00']])
+
+    def test_checkout_reports_missing_adapter_prerequisites_and_accepts_ready_provider(self):
+        checkout, config = initialize_ordering_settings(self.tenant)
+        config.enabled = True
+        config.save()
+        gateway = Connection.objects.create(location=config.location, role='payment', provider='test',
+            account_id='checkout-test', active=True, secret_ref='test-key',
+            capabilities=['payment.create', 'payment.reconcile'])
+        data = {'section': 'checkout', 'modes': ['pickup'], 'timezone': 'Asia/Kolkata',
+                'always_open': 'on', 'online_provider': 'adapter', 'pickup_payment_methods': ['online']}
+        cases = [
+            ('commerce', False, 'Enable external commerce'),
+            ('active', False, 'Add and activate a payment adapter'),
+            ('capabilities', ['payment.create'], 'Enable payment creation and reconciliation'),
+            ('secret_ref', 'missing-key', 'Configure or refresh the payment adapter credentials'),
+            ('secret_fingerprint', 'stale-fingerprint', 'Configure or refresh the payment adapter credentials'),
+        ]
+        for field, value, message in cases:
+            with self.subTest(field=field):
+                if field == 'commerce':
+                    Configuration.objects.filter(pk=config.pk).update(enabled=value)
+                else:
+                    Connection.objects.filter(pk=gateway.pk).update(**{field: value})
+                self.assertContains(self.client.get(self.url), message)
+                response = self.client.post(self.url, data)
+                self.assertEqual(response.status_code, 400)
+                self.assertIn('pickup_payment_methods', response.context['checkout_form'].errors)
+                checkout.refresh_from_db()
+                self.assertEqual(checkout.configuration, default_checkout_config())
+                config.save()
+                gateway.save()
+
+        self.assertContains(self.client.get(self.url), 'Payment setup is ready.')
+        response = self.client.post(self.url, {**data, 'online_provider': ''})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('online_provider', response.context['checkout_form'].errors)
+        self.assertRedirects(self.client.post(self.url, data), self.url + '?tab=checkout')
+        checkout.refresh_from_db()
+        self.assertEqual(checkout.configuration['modes']['pickup']['payment_methods'], ['online'])
+
     def test_signup_saves_complete_defaults_before_publication(self):
         response = self.client.post(reverse('signup'), dict(username='new-form-owner', email='a@example.org',
             password='test-owner-password', password2='test-owner-password', business_name='New form cafe', business_type='cafe'))
@@ -61,8 +179,9 @@ class OrderingSettingsTests(TestCase):
 
     def test_open_settings_persists_missing_records_and_retains_existing_values(self):
         response = self.client.get(self.url + '?tab=ordering')
-        self.assertContains(response, 'Ordering rules')
-        self.assertContains(response, 'Add rule', count=2)
+        self.assertContains(response, '>Pricing &amp; limits</a>')
+        self.assertContains(response, 'Add tax', count=1)
+        self.assertContains(response, 'Add discount', count=1)
         self.assertNotContains(response, 'name="taxes"')
         checkout = CheckoutSettings.objects.get(tenant=self.tenant)
         config = Configuration.objects.get(tenant=self.tenant)

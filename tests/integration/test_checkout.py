@@ -427,7 +427,7 @@ class CheckoutTests(CheckoutFixture, TestCase):
         TenantProfile.objects.create(user=user, tenant=self.tenant)
         self.client.force_login(user)
         url = reverse('tenant:tenant_settings')
-        self.assertContains(self.client.get(url), 'Save checkout and hours')
+        self.assertContains(self.client.get(url), 'Save order options and hours')
         data = {'section': 'checkout', 'modes': ['pickup'], 'timezone': 'Asia/Kolkata',
                 'always_open': 'on', 'pickup_payment_methods': ['cash'],
                 'pickup_preparation_minutes': 15, 'pickup_fee': '10', 'pickup_max_advance_days': 5}

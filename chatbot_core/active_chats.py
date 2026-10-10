@@ -24,6 +24,29 @@ def _k_global(tenant_id: str, channel: str) -> str:
     # tenant-wide, per-channel switch
     return f"acglobal:{tenant_id}:{channel}"
 
+
+def delete_tenant_chat_data(tenant_id: int) -> int:
+    """Remove tenant-scoped transcripts and summaries; propagate storage failures.
+
+    Scan each namespace so orphaned transcripts without an active-chat index are
+    also removed. The trailing colon prevents matching another tenant's ID.
+    """
+    tenant_id = int(tenant_id)
+    with _r.pipeline(transaction=True) as pipeline:
+        for namespace in ('msgs', 'ac', 'acidx', 'acglobal'):
+            batch = []
+            for key in _r.scan_iter(match=f'{namespace}:{tenant_id}:*', count=500):
+                batch.append(key)
+                if len(batch) == 500:
+                    pipeline.delete(*batch)
+                    batch = []
+            if batch:
+                pipeline.delete(*batch)
+        # Scan failures leave Redis untouched; all queued removals execute in a
+        # single Redis transaction, including more than one batch of keys.
+        return sum(pipeline.execute())
+
+
 def set_global_agent_enabled(tenant_id: str, channel: str, enabled: bool) -> None:
     # Operator controls must report persistence failures to the dashboard.
     _r.set(_k_global(tenant_id, channel), "1" if enabled else "0")

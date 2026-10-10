@@ -111,7 +111,7 @@ document type and do not need an envelope. Existing saved documents remain reada
 Document imports update drafts only; review and publish them. Checkout and
 ordering-policy imports update live settings immediately. Policy imports preserve
 activation flags: limits apply immediately, while policy taxes and discounts apply
-only when local policy pricing or external commerce is active. Save Ordering rules
+only when local policy pricing or external commerce is active. Save Pricing & limits
 or complete ordering setup to adopt local policy pricing. Ordering limits and checkout settings
 must be configured before enabling their dependent ordering routes. A café that
 only answers factual questions can keep those actions disabled and publish its
@@ -155,3 +155,20 @@ Retrieval does not change routing and does not authorize an action. Query
 expansion is not factual evidence. History can resolve a reference and cannot
 authorize repeating an action. A missing or omitted stock row does not mean the
 item is sold out.
+
+## Verification
+
+`tests.integration.test_configuration_readiness` covers the greeting, missing
+hours, knowledge-only menu and disabled-ordering sequence, import type errors,
+publication atomicity, draft comparisons, tenant isolation and external menu
+freshness. For an opt-in five-question live routing check with deliberately
+missing enabled capabilities:
+
+```sh
+python scripts/evaluate_contextual.py --live --workers 1 \
+  --cases tests/fixtures/configuration_classification.json \
+  --output /tmp/configuration-classification.json
+```
+
+This uses `.env.dev` and makes provider calls. It checks classification semantics;
+the offline regression tests check authorization and knowledge boundaries.

@@ -368,6 +368,10 @@ def advance_checkout(*, tenant, customer, chat_id, platform, basket, checklist, 
             return 'Your basket differs from the confirmed order. Please contact the café before paying.', None, False
         return None, order, False
     draft = deepcopy((session.state or {}).get('checkout', {'fields': {}}))
+    mode_policy = policy.modes.get(draft.get('mode'))
+    if mode_policy and not mode_policy.scheduling_enabled and draft.get('fields', {}).get('scheduled_at'):
+        draft['fields'].pop('scheduled_at')
+        drop_quote(draft)
     if action is None and text.lower() in ('cancel checkout', 'cancel', 'stop'):
         session.state = {**(session.state or {}), 'checkout': {}}
         session.save(update_fields=['state', 'last_interaction_at'])

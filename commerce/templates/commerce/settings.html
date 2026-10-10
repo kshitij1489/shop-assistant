@@ -4,7 +4,7 @@
 {% include 'commerce/limits.html' %}
 <p><a href="{% url 'commerce:operations' %}">Integration failures and resolution history</a></p>
 <p>Checkout: {% if checkout_enabled %}configurable{% else %}legacy{% endif %}. Commerce: {% if config.enabled %}enabled{% else %}disabled{% endif %}.</p>
-<p><a href="{% url 'tenant:tenant_settings' %}?tab=checkout">Checkout</a> · <a href="{% url 'tenant:tenant_settings' %}?tab=ordering">Ordering rules, taxes and discounts</a>{% if config %} · <a href="{% url 'commerce:connections' %}">Provider connections</a> · <a href="{% url 'commerce:stock' %}">Stock</a>{% endif %}</p>
+<p><a href="{% url 'tenant:tenant_settings' %}?tab=checkout">Order options</a> · <a href="{% url 'tenant:tenant_settings' %}?tab=ordering">Pricing &amp; limits</a>{% if config %} · <a href="{% url 'commerce:connections' %}">Provider connections</a> · <a href="{% url 'commerce:stock' %}">Stock</a>{% endif %}</p>
 <h3>Setup readiness</h3>
 <ul>{% for problem in readiness %}<li>{{ problem }}</li>{% empty %}<li>Local prerequisites are configured. Verify your adapter against the provider before accepting live orders.</li>{% endfor %}</ul>
 <p>Cash checkout works without external integrations. Configure stock and provider connections before enabling external POS and payments.</p>

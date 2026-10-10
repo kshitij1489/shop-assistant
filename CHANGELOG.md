@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.6.0 — 2026-10-10
+
+- Keep unavailable features from being enabled or used: order scheduling,
+  international delivery, WhatsApp chatbot processing, and online payments
+  without a ready provider are now blocked consistently across settings,
+  imports, and checkout.
+- Improve checkout and tenant settings with clearer order limits, grouped
+  pricing and advanced options, safer integration forms, and better feedback
+  for unsupported or invalid configuration.
+- Allow master operators to delete unused tenant setup without removing
+  business history; protected records block deletion, and disposable owner
+  accounts, onboarding data, and tenant-scoped chat data are cleaned up
+  atomically where storage permits.
+- Add regression coverage and operational guidance for availability gates,
+  tenant deletion, checkout behavior, dashboard settings, and integrations.
+
 ## 1.5.0 — 2026-10-10
 
 - Create editable checkout and ordering policies during signup; guide owners to

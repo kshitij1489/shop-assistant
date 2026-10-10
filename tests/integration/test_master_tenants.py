@@ -532,7 +532,7 @@ class TenantAddressSettingsTests(TestCase):
         self.assertIn('Paste your token from BotFather. Saving registers the Telegram webhook.', integrations)
         self.assertNotIn('name="geocoding_provider"', integrations)
         self.assertNotIn('name="geocoding_provider"', contact)
-        self.assertIn('Ordering rules tab', checkout)
+        self.assertIn('Pricing &amp; limits tab', checkout)
         self.assertContains(response, 'id="settings-tab-ordering"')
         self.assertNotIn('/commerce/settings/', integrations)
         self.assertContains(response, '>Opening hours</a>')
@@ -600,7 +600,7 @@ class TenantAddressSettingsTests(TestCase):
             webhook.return_value.json.return_value = {'ok': True}
             response = self.client.post(self.url, {
                 'section': 'integrations',
-                'telegram_bot_token': 'new-token', 'address': 'ignored',
+                'telegram_bot_token': 'existing-token', 'address': 'ignored',
             })
         self.assertRedirects(response, f'{self.url}?tab=integrations')
         webhook.assert_called_once()
@@ -608,12 +608,13 @@ class TenantAddressSettingsTests(TestCase):
         self.assertEqual(self.tenant.address, 'New address, Kolkata, West Bengal, India, 700016')
         self.assertEqual(self.tenant.whatsapp_number, '+15551234567')
         self.assertEqual(self.tenant.telegram_chat_id, 'old-chat')
-        self.assertEqual(self.tenant.telegram_bot_token, 'new-token')
+        self.assertEqual(self.tenant.telegram_bot_token, 'existing-token')
 
         response = self.client.post(self.url, {'section': 'integrations', 'telegram_chat_id': '', 'telegram_bot_token': ''})
-        self.assertRedirects(response, f'{self.url}?tab=integrations')
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(response, 'Changing or disconnecting Telegram is coming soon.', status_code=400)
         self.tenant.refresh_from_db()
-        self.assertEqual(self.tenant.telegram_bot_token, '')
+        self.assertEqual(self.tenant.telegram_bot_token, 'existing-token')
         self.assertEqual(self.tenant.telegram_chat_id, 'old-chat')
         self.assertEqual(self.tenant.address, 'New address, Kolkata, West Bengal, India, 700016')
 

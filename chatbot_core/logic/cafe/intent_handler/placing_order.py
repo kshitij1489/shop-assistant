@@ -239,6 +239,7 @@ class PlacingOrderIntent(BaseIntent):
     def configured_checkout(self, basket, customer, checklist, *, reset_address=False, delivery_address=None):
         from orders.models import CheckoutSettings
         from chatbot_core.logic.cafe.checkout import advance_checkout
+        from orders.checkout_config import without_scheduling
         from pydantic import ValidationError
         config = CheckoutSettings.objects.filter(tenant_id=self.tenant).first()
         if config is None:
@@ -251,7 +252,8 @@ class PlacingOrderIntent(BaseIntent):
         try:
             reply, order, pending = advance_checkout(
                 tenant=customer.tenant, customer=customer, chat_id=self.chat_id, platform=self.platform,
-                basket=basket, checklist=checklist, text=self.main_query, original_text=self.original_query, configuration=config.configuration,
+                basket=basket, checklist=checklist, text=self.main_query, original_text=self.original_query,
+                configuration=without_scheduling(config.configuration),
                 reset_address=reset_address, action=self.resolved_action,
                 defer_quote=getattr(self, 'checkout_blocker', None), delivery_address=delivery_address)
         except (ValueError, ValidationError, DatabaseError, ObjectDoesNotExist):

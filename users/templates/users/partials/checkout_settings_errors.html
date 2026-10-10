@@ -1,11 +1,11 @@
 {% if checkout_form.errors %}
 <div class="form-errors" role="alert">
-    <p>Please correct the checkout and opening hours settings below.</p>
+    <p>Please correct the order options and opening hours settings below.</p>
     {{ checkout_form.non_field_errors }}
     {% if checkout_form.error_fields %}
     <ul>
         {% for error in checkout_form.error_fields %}
-        <li><a href="#{{ error.field.auto_id }}_group" data-settings-error="{{ error.tab }}">{{ error.field.label }}: {{ error.field.errors|striptags }}</a></li>
+        <li><a href="#{{ error.field.auto_id }}_group" data-settings-error="{{ error.tab }}" data-order-options-error="{{ error.subtab }}">{{ error.field.label }}: {{ error.field.errors|striptags }}</a></li>
         {% endfor %}
     </ul>
     {% endif %}

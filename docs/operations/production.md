@@ -397,6 +397,20 @@ rejected, suspended, and inactive tenants cannot use channel APIs, including
 tokens issued before they were disabled. Do not run `seed_cafe_demo` for a real
 café.
 
+The tenant deletion endpoint is for unused accounts. Customer, order, chat,
+menu, tax and other business records block deletion; deactivate those tenants
+instead. Protected provider connections, stock and accepted orders also block it.
+Successful deletion removes disposable onboarding rows, linked owner accounts,
+and the tenant's Redis `msgs`, `ac`, `acidx` and `acglobal` keys. Operations accounts
+are protected. Success, blocked attempts, missing tenants and Redis failures log
+the actor and tenant IDs without logging transcript contents.
+
+Redis cleanup runs synchronously in a Redis transaction before SQL commit. Scan
+or execution failures prevent a success message and roll SQL changes back. SQL
+and Redis do not share a distributed transaction: an uncertain Redis response or
+a subsequent SQL commit failure can leave Redis data removed while SQL is restored.
+This endpoint does not erase existing business history.
+
 Dashboards, chat, voice, message workers, and order services each check tenant,
 customer, and session ownership. Analytics queries are limited to that tenant
 and mask order metadata and chat state, including checkout contact details,
@@ -418,10 +432,13 @@ settings** before enabling checkout topics.
 - **Telegram:** save the bot token in owner Settings after `PUBLIC_URL` is
   public HTTPS. Saving registers
   `${PUBLIC_URL}/agent_core/telegram-webhook/?token=<bot-token>`. Celery must
-  be running. Local HTTP does not call Telegram.
-- **WhatsApp:** signed inbound text using `WHATSAPP_APP_SECRET` and the tenant
-  `whatsapp_id`. There is no GET verification handshake and no outbound sender
-  in this repository.
+  be running. Local HTTP does not call Telegram. Existing tokens are read-only;
+  changing or disconnecting a bot is disabled with **Coming soon** labels.
+  The saved token can still register its webhook again.
+- **WhatsApp:** **Coming soon** and disabled. Valid signed inbound requests return
+  `503` before customer, session or order processing. The inbound foundation uses
+  `WHATSAPP_APP_SECRET` and the tenant `whatsapp_id`, but verification and outbound
+  replies are unfinished. Saving the WhatsApp contact number remains available.
 - **Voice:** OpenAI audio and FFmpeg. The no-key smoke check does not cover it.
 
 ## Commerce

@@ -33,6 +33,43 @@ async function browserChecks(assets) {
     };
     return { win, doc, load, frame, get: id => doc.getElementById(id), eval: source => win.eval(source) };
   }
+  function orderOptions() {
+    const modes = ['delivery', 'pickup', 'dine_in'];
+    const b = page(`<style>${assets.css}</style>
+      <div id="settings-config"></div>
+      <div data-settings-tabs class="settings-tabs" role="tablist">
+        ${['checkout', 'hours', 'ordering'].map(tab => `<a id="settings-tab-${tab}" role="tab" data-tab="${tab}" aria-controls="settings-panel-${tab}" aria-selected="${tab === 'checkout'}" href="?tab=${tab}">${tab}</a>`).join('')}
+      </div>
+      <form id="checkout-settings-form">
+        <input name="settings_tab" value="checkout" type="hidden">
+        <input name="order_options_tab" value="general" type="hidden">
+        <div id="settings-panel-checkout" role="tabpanel">
+          <a id="pickup-error" data-settings-error="checkout" data-order-options-error="pickup" href="#id_pickup_fee_group">Pickup fee error</a>
+          <div id="options" class="settings-tabs order-options-tabs" data-order-options-tabs role="tablist">
+            ${['general', ...modes].map(tab => `<a role="tab" id="order-options-tab-${tab}" data-order-options-tab="${tab}" aria-controls="order-options-panel-${tab}" aria-selected="${tab === 'general'}" href="?tab=checkout&subtab=${tab}">${tab === 'dine_in' ? 'Dine-in' : tab}</a>`).join('')}
+          </div>
+          <div id="order-options-panel-general" data-order-options-panel="general" role="tabpanel">
+            ${modes.map(mode => `<input id="mode-${mode}" name="modes" type="checkbox" value="${mode}" ${mode === 'pickup' ? 'checked' : ''}>`).join('')}
+          </div>
+          ${modes.map(mode => `<div id="order-options-panel-${mode}" data-order-options-panel="${mode}" role="tabpanel" hidden>
+            <div id="notice-${mode}" data-order-mode-notice="${mode}"><button id="enable-${mode}" type="button" data-enable-order-mode="${mode}">Enable</button></div>
+            <a data-order-options-select="general" href="?tab=checkout&subtab=general">General</a>
+            <div id="id_${mode}_fee_group"><input id="id_${mode}_fee" name="${mode}_fee" type="number" min="0" step="0.01" value="0"></div>
+            <label><input id="${mode}-scheduling" name="${mode}_scheduling_enabled" type="checkbox" disabled>Allow scheduling (Coming soon)</label>
+            <input id="${mode}-advance" name="${mode}_max_advance_days" type="number" value="7" min="1" disabled>
+            ${mode === 'pickup' ? '<label><input id="pickup-time" name="pickup_required_fields" value="scheduled_at" type="checkbox" disabled>Scheduled pickup time (Coming soon)</label>' : ''}
+          </div>`).join('')}
+        </div>
+        <div id="settings-panel-hours" role="tabpanel" hidden><input id="id_timezone" name="timezone" required value="Asia/Kolkata"></div>
+        <div id="save-actions" data-checkout-actions><button type="submit">Save</button></div>
+      </form>
+      <div id="settings-panel-ordering" role="tabpanel" hidden></div>`);
+    b.eval('history.replaceState = function (_state, _title, url) { window.settingsUrl = String(url); }');
+    b.load(assets.ui);
+    b.load(assets.settings);
+    b.doc.dispatchEvent(new b.win.Event('DOMContentLoaded'));
+    return b;
+  }
   function voice() {
     const b = page('<table><tbody id="basketBody"></tbody></table><div id="basketTotal"></div><button id="micBtn"></button><div id="status"></div><div id="liveText"></div><div id="chatLog"></div><input type="checkbox" id="autoLoop"><select id="langSelect"><option>en-US</option></select><select id="voiceSelect"></select><input id="rateCtl"><input id="pitchCtl">');
     b.load(`
@@ -428,6 +465,90 @@ async function browserChecks(assets) {
     check(b.doc.activeElement === buttons[0], 'Arrow navigation did not wrap');
     b.frame.remove();
   });
+  await run('order options preserve edits, enable modes and share one save action with hours', () => {
+    const b = orderOptions();
+    b.get('order-options-tab-delivery').click();
+    b.get('id_delivery_fee').value = '25.50';
+    b.get('enable-delivery').click();
+    check(b.get('mode-delivery').checked && b.get('notice-delivery').hidden, 'Enable did not update the shared order types');
+    check(b.doc.activeElement === b.get('id_delivery_fee'), 'Enabling a mode left focus in its hidden notice');
+    b.get('order-options-tab-pickup').click();
+    b.get('id_pickup_fee').value = '12.50';
+    b.get('order-options-tab-delivery').click();
+    check(b.get('id_delivery_fee').value === '25.50', 'Subtab switching lost an edit');
+    check(new URL(b.win.settingsUrl).searchParams.get('subtab') === 'delivery', 'Selected subtab was not saved in the URL');
+    b.get('settings-tab-hours').click();
+    check(!b.get('save-actions').hidden, 'Shared save action disappeared in opening hours');
+    b.get('settings-tab-ordering').click();
+    check(b.get('save-actions').hidden, 'Order options save action leaked into ordering rules');
+    b.get('settings-tab-checkout').click();
+    const data = new b.win.FormData(b.get('checkout-settings-form'));
+    check(data.get('order_options_tab') === 'delivery' && data.get('settings_tab') === 'checkout', 'Submission lost selected tabs');
+    check(data.get('delivery_fee') === '25.50' && data.get('pickup_fee') === '12.50', 'Hidden mode controls were dropped from submission');
+    check(data.getAll('modes').includes('delivery'), 'Enabled mode was not included in submission');
+    b.get('order-options-tab-general').click();
+    b.get('mode-delivery').click();
+    check(!b.get('notice-delivery').hidden, 'Disabling the mode did not restore its notice');
+    b.frame.remove();
+  });
+  await run('order options reveal nested validation errors and error links focus the correct mode', () => {
+    const b = orderOptions();
+    const form = b.get('checkout-settings-form');
+    b.get('id_delivery_fee').value = '-1';
+    b.get('id_dine_in_fee').value = '-2';
+    b.get('settings-tab-hours').click();
+    const submit = new b.win.Event('submit', { bubbles:true, cancelable:true });
+    form.dispatchEvent(submit);
+    check(submit.defaultPrevented, 'Invalid hidden settings were submitted');
+    check(!b.get('settings-panel-checkout').hidden && !b.get('order-options-panel-delivery').hidden, 'Nested invalid control remained hidden');
+    check(b.doc.activeElement === b.get('id_delivery_fee'), 'Browser could not focus the invalid field');
+    check(b.get('order-options-tab-delivery').querySelector('.order-options-error') && b.get('order-options-tab-dine_in').querySelector('.order-options-error'), 'Tabs with invalid fields were not marked');
+    for (const mode of ['delivery', 'dine_in']) {
+      b.get(`id_${mode}_fee`).value = '0';
+      b.get(`id_${mode}_fee`).dispatchEvent(new b.win.Event('input', { bubbles:true }));
+    }
+    check(!b.get('options').querySelector('.order-options-error'), 'Corrected native errors retained their badges');
+    b.get('pickup-error').click();
+    check(!b.get('order-options-panel-pickup').hidden && b.doc.activeElement === b.get('id_pickup_fee'), 'Error summary did not reveal and focus Pickup');
+    b.get('id_timezone').value = '';
+    form.dispatchEvent(new b.win.Event('submit', { bubbles:true, cancelable:true }));
+    check(!b.get('settings-panel-hours').hidden && b.doc.activeElement === b.get('id_timezone'), 'Opening hours validation stopped working');
+    b.frame.remove();
+  });
+  await run('coming soon controls stay disabled when enabling modes and switching tabs', () => {
+    const b = orderOptions();
+    b.get('order-options-tab-delivery').click();
+    b.get('enable-delivery').click();
+    for (const mode of ['delivery', 'pickup', 'dine_in']) {
+      b.get(`order-options-tab-${mode}`).click();
+      const scheduling = b.get(`${mode}-scheduling`), advance = b.get(`${mode}-advance`);
+      scheduling.click();
+      check(scheduling.disabled && !scheduling.checked && advance.disabled, 'An unavailable scheduling control was enabled');
+    }
+    b.get('pickup-time').click();
+    check(b.get('pickup-time').disabled && !b.get('pickup-time').checked, 'Unavailable pickup time was selected');
+    b.get('settings-tab-hours').click();
+    b.get('settings-tab-checkout').click();
+    const data = new b.win.FormData(b.get('checkout-settings-form'));
+    check(![...data.keys()].some(name => /scheduling_enabled|max_advance_days/.test(name)), 'Unavailable scheduling was submitted');
+    check(!data.getAll('pickup_required_fields').includes('scheduled_at'), 'Unavailable pickup time was submitted');
+    check(data.getAll('modes').includes('delivery') && data.getAll('modes').includes('pickup'), 'Supported order modes stopped working');
+    b.frame.remove();
+  });
+  await run('order options support keyboard navigation and fit four segments on mobile', () => {
+    const b = orderOptions();
+    b.frame.style.width = '360px';
+    b.get('order-options-tab-general').focus();
+    b.get('order-options-tab-general').dispatchEvent(new b.win.KeyboardEvent('keydown', { key:'End', bubbles:true }));
+    check(b.doc.activeElement === b.get('order-options-tab-dine_in') && !b.get('order-options-panel-dine_in').hidden, 'End did not select Dine-in');
+    check(!b.get('settings-panel-checkout').hidden, 'Subtab navigation changed the parent tab');
+    b.get('order-options-tab-dine_in').dispatchEvent(new b.win.KeyboardEvent('keydown', { key:'ArrowRight', bubbles:true }));
+    check(b.doc.activeElement === b.get('order-options-tab-general'), 'Subtab arrow navigation did not wrap');
+    const tabs = Array.from(b.get('options').children), first = tabs[0].getBoundingClientRect();
+    check(tabs.every(tab => tab.getBoundingClientRect().top === first.top), 'Mobile segments wrapped into multiple rows');
+    check(tabs.at(-1).getBoundingClientRect().right <= b.win.innerWidth, 'Mobile segments overflow the viewport');
+    b.frame.remove();
+  });
   await run('knowledge switching preserves edits and native dialogs restore focus', async () => {
     const b = page('<script id="docs_json" type="application/json"></script><select id="dtypeSelect"><option>knowledge</option><option>classification</option></select><div id="intentTabs" role="tablist"></div><div id="subIntentTabs" role="tablist"></div><textarea id="payloadTA"></textarea><div id="selectionPath"></div><p id="draftStatus"></p><form id="updateForm"></form><form id="deleteForm"></form><button id="btnFormat"></button><button id="btnValidate"></button><button id="openAddModal"></button><dialog id="addModal"><form id="addForm"><select id="add_dtype"><option>knowledge</option></select><textarea id="add_payload"></textarea><button type="button" id="btnAddCancel"></button><button type="button" id="btnAddFormat"></button><button type="button" id="btnAddValidate"></button></form></dialog>');
     for (const id of ['update_dtype','update_intent','update_sub_intent','update_payload','delete_dtype','delete_intent','delete_sub_intent']) {
@@ -560,6 +681,7 @@ test('native browser dashboard regressions', { skip: !chrome }, async t => {
     knowledge:read('users/static/users/js/knowledge.js'), json:read('users/static/users/js/json_editor.js'),
     chats:read('users/static/users/js/tenant_chats.js'),
     ordering:read('users/static/users/js/ordering_rules.js'),
+    settings:read('users/static/users/js/tenant_settings.js'),
     css:read('users/static/users/css/dashboard.css') + read('users/static/users/css/master_tenants.css'),
   };
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'studio-dashboard-browser-'));
@@ -596,7 +718,7 @@ test('native browser dashboard regressions', { skip: !chrome }, async t => {
     const raw = stdout.match(/<pre id="results">([\s\S]*?)<\/pre>/)?.[1];
     assert.ok(raw, 'Browser did not finish its checks: ' + stderr.slice(-1500));
     const results = JSON.parse(raw.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'));
-    assert.equal(results.length, 19);
+    assert.equal(results.length, 23);
     for (const result of results) await t.test(result.name, () => assert.ok(result.ok, result.error));
   } finally {
     fs.rmSync(directory, { recursive:true, force:true });

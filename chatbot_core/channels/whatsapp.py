@@ -10,6 +10,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Keep inbound processing unavailable until verification and outbound replies ship.
+WHATSAPP_CHATBOT_AVAILABLE = False
+
 @csrf_exempt
 @require_POST
 def whatsapp_webhook(request):
@@ -21,6 +24,8 @@ def whatsapp_webhook(request):
     expected = 'sha256=' + hmac.new(secret.encode(), request.body, hashlib.sha256).hexdigest()
     if not secret or len(signature) != len(expected) or not hmac.compare_digest(expected.encode(), signature.encode()):
         return JsonResponse({'error': 'Invalid webhook signature'}, status=403)
+    if not WHATSAPP_CHATBOT_AVAILABLE:
+        return JsonResponse({'error': 'WhatsApp chatbot is coming soon.'}, status=503)
     try:
         data = json.loads(request.body)
         phone_number_id = data["entry"][0]["changes"][0]["value"]["metadata"]["phone_number_id"]

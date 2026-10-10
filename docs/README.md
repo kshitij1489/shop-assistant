@@ -8,8 +8,11 @@
 | [chatbot/runtime_configuration.md](chatbot/runtime_configuration.md) | Knowledge and publication |
 | [chatbot/catalog_ordering.md](chatbot/catalog_ordering.md) | Menu names, modifiers, and basket rules |
 | [chatbot/checkout.md](chatbot/checkout.md) | Checkout and order confirmation |
+| [chatbot/conversation_actions.md](chatbot/conversation_actions.md) | Basket focus, catalog matching, and pending work |
 | [chatbot/llm.md](chatbot/llm.md) | Models and the website chat API |
 | [site_location.md](site_location.md) | Café address lookup |
+| [ui_notifications.md](ui_notifications.md) | Shared notifications and configuration feedback rules |
+| [dashboard_review.md](dashboard_review.md) | Dashboard review fixes and remaining manual validation |
 | [commerce/integration.md](commerce/integration.md) | Adapter protocol |
 | [commerce/menu_adapter.md](commerce/menu_adapter.md) | External menu import |
 | [commerce/operations.md](commerce/operations.md) | Payment and POS recovery |

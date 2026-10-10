@@ -93,7 +93,9 @@ class CommerceSettingsForm(forms.Form):
     max_line_quantity = forms.IntegerField(min_value=1, max_value=MAX_ITEM_QUANTITY, label='Maximum quantity on one basket line')
     max_item_quantity = forms.IntegerField(min_value=1, max_value=MAX_ITEM_QUANTITY, label='Maximum quantity of one item across sizes and customizations')
     max_basket_units = forms.IntegerField(min_value=1, max_value=MAX_ITEM_QUANTITY, label='Maximum units in a basket')
-    max_basket_lines = forms.IntegerField(min_value=1, max_value=MAX_ITEM_QUANTITY, label='Maximum basket lines')
+    max_basket_lines = forms.IntegerField(min_value=1, max_value=MAX_ITEM_QUANTITY,
+        label='Maximum distinct basket entries',
+        help_text='Different sizes or customizations count as separate entries. Two identical coffees on one line count as one entry.')
 
     def __init__(self, *args, configuration=None, tenant=None, **kwargs):
         policy = Policy.model_validate(configuration.policy if configuration else default_policy()).model_dump(mode='json')
@@ -107,8 +109,12 @@ class CommerceSettingsForm(forms.Form):
         currency = self.data.get('currency', policy['currency']) if self.is_bound else policy['currency']
         self.exponent = 0 if currency == 'JPY' else 2
         for name, label in [('packaging', 'Packaging charge'), ('minimum', 'Minimum basket value'),
-                            ('max_subtotal', 'Maximum item subtotal'), ('max_payable', 'Maximum payable amount')]:
+                            ('max_subtotal', 'Maximum item subtotal'), ('max_payable', 'Maximum order total')]:
             self.fields[name] = money_field(label, currency, minimum=Decimal(1) / 10 ** self.exponent if name.startswith('max_') else 0)
+        self.fields['minimum'].help_text = (
+            'Applies to all order types before discounts, fees and added taxes. '
+            'The basket must also meet the minimum for its order type in Order options; the higher minimum applies.')
+        self.fields['packaging'].help_text = 'Charged once per order, in addition to any order-type fee in Order options.'
         self.fields['max_payable'].help_text = 'Includes fees and taxes. Must be at least the subtotal limit.'
         discounts = []
         for rule in policy.get('discounts', []):
@@ -119,8 +125,23 @@ class CommerceSettingsForm(forms.Form):
         self.discount_rules = DiscountRuleFormSet(prefix='discounts', initial=discounts, **options)
 
     @property
+    def panels(self):
+        return {
+            'pricing': [
+                ('Currency & charges', [self[name] for name in ('currency', 'minimum', 'packaging')]),
+                ('Order limits', [self[name] for name in (
+                    'max_line_quantity', 'max_item_quantity', 'max_basket_units',
+                    'max_basket_lines', 'max_subtotal', 'max_payable')]),
+            ],
+            'advanced': [
+                ('Advanced settings', [self[name] for name in (
+                    'stock_policy', 'reservation_seconds', 'stock_max_age_seconds')]),
+            ],
+        }
+
+    @property
     def rule_sets(self):
-        return [('Taxes', self.tax_rules), ('Discounts', self.discount_rules)]
+        return [('Taxes', 'Tax', self.tax_rules), ('Discounts', 'Discount', self.discount_rules)]
 
     def clean(self):
         data = super().clean()
