@@ -1,6 +1,7 @@
 from . import modifier_views
 from . import menu_source
 from . import location_views
+from . import recording_views
 from django.urls import path, include
 from .views import (
     signup_view, SignInView, LogoutView,
@@ -46,6 +47,12 @@ tenant_dashboard_patterns = [
     path('settings/', tenant_settings_view, name='tenant_settings'),
     path('settings/cities/', location_views.cities, name='site_location_cities'),
     path('activity/', tenant_activity_view, name='tenant_activity'),
+    path('recordings/', recording_views.sessions, name='recording_sessions'),
+    path('recordings/sessions/<str:channel>/<str:session_id>/', recording_views.session_detail, name='recording_session'),
+    path('recordings/sessions/<str:channel>/<str:session_id>/export/', recording_views.session_export, name='recording_session_export'),
+    path('recordings/turns/<uuid:turn_id>/', recording_views.turn_detail, name='recording_turn'),
+    path('recordings/turns/<uuid:turn_id>/replay/', recording_views.turn_replay, name='recording_turn_replay'),
+    path('recordings/turns/<uuid:turn_id>/export/', recording_views.turn_export, name='recording_turn_export'),
     path('settings/generate-token/', generate_jwt_token_view, name='generate_jwt_token'),
 
     # Live chats

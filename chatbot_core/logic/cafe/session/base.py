@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
 import json
+from chatbot_core.recording import emit
 
 # Context-local staging also supports reused store instances and nested saves.
 _turns = ContextVar("cafe_session_turns", default={})
@@ -25,10 +26,20 @@ class BaseSessionStore:
             data = deepcopy(self.read_snapshot())
             token = _turns.set({**_turns.get(), id(self): data})
             try:
+                emit('session.loaded', snapshot=data)
                 yield self
                 # Validate everything before publishing any field.
                 snapshot = json.loads(json.dumps(data))
-                self.publish_snapshot(snapshot)
+                emit('session.publication.started', snapshot=snapshot)
+                try:
+                    self.publish_snapshot(snapshot)
+                except BaseException as exc:
+                    emit('session.publication.failed', error=exc)
+                    raise
+                emit('session.publication.completed', snapshot=snapshot)
+            except BaseException as exc:
+                emit('session.turn.failed', error=exc)
+                raise
             finally:
                 _turns.reset(token)
 

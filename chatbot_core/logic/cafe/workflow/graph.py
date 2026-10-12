@@ -1,5 +1,7 @@
 """Conversation routing only. Nodes never access the session store or retry work."""
 from chatbot_core.llm.streaming import final_reply, publish_reply
+from chatbot_core.recording import operation, emit
+from chatbot_core.recording.replay_capture import dependency, is_replaying, step
 from chatbot_core.llm.replies import join_replies
 from ..reply_renderer import render_reply
 from ..reply_evidence import ordering_reply_evidence
@@ -72,7 +74,7 @@ def prepare_followup(state: ConversationState):
 def classify_intents(state: ConversationState, runtime: Runtime[ConversationContext]):
     context = runtime.context
     try:
-        payload = classification_context(state['history'], state['checklist'],
+        payload = dependency('classification.context', classification_context, state['history'], state['checklist'],
             tenant_id=context.tenant.id, chat_id=context.user_id, platform=context.platform,
             query=state['query'], basket=state['basket'], pending=state['pending_queries'],
             tenant=context.tenant, customer=context.customer, active_pending=state['previous_followup'],
@@ -80,7 +82,7 @@ def classify_intents(state: ConversationState, runtime: Runtime[ConversationCont
         explicit = explicit_classification(state['query'], state['pending_queries'])
         proposal = explicit
         if proposal is None:
-            proposal = normalize_and_classify(state['query'],
+            proposal = dependency('classification.model', normalize_and_classify, state['query'],
                 payload['last_assistant_question'], state['followup_main_query'],
                 tenant_key=str(context.tenant.id), conversation_context=payload)
     except NormalizationClassificationError:
@@ -91,6 +93,8 @@ def classify_intents(state: ConversationState, runtime: Runtime[ConversationCont
     from evaluate.controls.telemetry import emit_classification
     emit_classification(proposal, prompt_version='cafe-explicit-commands-v1' if explicit else SYSTEM_ID,
                         catalog_version=payload.get('catalog_version'))
+    emit('classification.proposed', proposal=proposal, context=payload,
+         prompt_version='cafe-explicit-commands-v1' if explicit else SYSTEM_ID)
     # Apply explicit requirements before dispatch, including requirements stated
     # after an ordering clause. No state changes until the whole turn validates.
     constraints = state['checklist'].setdefault('declared_constraints', [])
@@ -155,7 +159,7 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
                               and (proposal is None or requires_action(*action_route(proposal))))
     if proposal is not None and not clarification_only:
         main_intent, sub_intent = action_route(proposal)
-    catalog = (catalog_names(runtime.context.tenant.api_key)
+    catalog = (dependency('catalog.names', catalog_names, runtime.context.tenant.api_key)
                if proposal and proposal.kind == 'CHANGE_BASKET' and not clarification_only else ())
     if replied is not None and not compatible_followup(proposal, (main_intent, sub_intent), replied, catalog=catalog):
         index = None
@@ -225,7 +229,7 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
             return result(resolution='unavailable', current_reply='That request has already finished. Please start a new request.')
     if (not rejection and index is not None and proposal is not None and proposal.kind == 'CHANGE_BASKET'
             and unsupported_size_answer(proposal, replied, state['query'],
-                                        load_catalog(runtime.context.tenant.api_key))):
+                                        dependency('catalog.load', load_catalog, runtime.context.tenant.api_key))):
         # Do not replace the saved proposal or spend its clarification budget on
         # unrelated text. The customer can still answer after this turn.
         response_context['reason'] = 'answer_does_not_resolve_pending_choice'
@@ -249,7 +253,8 @@ def resolve_intent(state: ConversationState, runtime: Runtime[ConversationContex
         if main_intent == 'location_based' and sub_intent in {'add_delivery_address', 'update_delivery_address'}:
             intent.preserve_draft(sentence, state['delivery_address'], state['checklist'],
                                   new=sub_intent == 'add_delivery_address' and index is None)
-            intent._sync_checkout_address(runtime.context.customer, state['delivery_address'], state['checklist'])
+            dependency('checkout.sync_address', type(intent)._sync_checkout_address, intent, runtime.context.customer,
+                       state['delivery_address'], state['checklist'])
         pending = state['pending_queries'][index] if index is not None else intent
         pending.rephrased_sentence = rewrite
         pending.response_language = intent.response_language
@@ -302,7 +307,8 @@ def cancel_pending(state: ConversationState, runtime: Runtime[ConversationContex
         pending = state['pending_queries']
         index = state['matched_followup_index']
         selected = pending[index] if index is not None else None
-        reply = stop_pending_request(pending, selected, state['basket'], runtime.context.customer, state['checklist'])
+        reply = dependency('handler.cancel', stop_pending_request, pending, selected,
+                           state['basket'], runtime.context.customer, state['checklist'])
         return {'pending_queries': pending, 'current_reply': reply, 'checklist': state['checklist']}
 
 
@@ -362,6 +368,12 @@ def stream_original_reply(state):
     return False
 
 
+def _call_handler(intent, incoming, *arguments):
+    if incoming is not None:
+        return intent.process_followup(incoming, *arguments)
+    return intent.process_query(*arguments)
+
+
 def process_followup(state: ConversationState, runtime: Runtime[ConversationContext]):
     with final_reply(stream_original_reply(state), state["replies"]):
         pending = state["pending_queries"][state["matched_followup_index"]]
@@ -370,13 +382,15 @@ def process_followup(state: ConversationState, runtime: Runtime[ConversationCont
         pending.response_language = state['active_intent'].response_language
         pending.resolved_action = state['active_intent'].resolved_action
         pending.checkout_blocker = getattr(state['active_intent'], 'checkout_blocker', None)
-        reply, _ = pending.process_followup(state["active_intent"], *_business_arguments(state, runtime.context))
+        reply, _ = dependency('handler.followup', _call_handler, pending,
+                              state['active_intent'], *_business_arguments(state, runtime.context))
         return _business_update(state, reply)
 
 
 def process_new_query(state: ConversationState, runtime: Runtime[ConversationContext]):
     with final_reply(stream_original_reply(state), state["replies"]):
-        reply, _ = state["active_intent"].process_query(*_business_arguments(state, runtime.context))
+        reply, _ = dependency('handler.query', _call_handler, state['active_intent'],
+                              None, *_business_arguments(state, runtime.context))
         return _business_update(state, reply)
 
 
@@ -514,21 +528,23 @@ def render_response(state: ConversationState, runtime: Runtime[ConversationConte
     index = state['awaiting_followup_index']
     pending = state['pending_queries'][index] if index is not None else None
     question = state.get('delivered_question', '')
-    response, delivered_question = render_reply(
+    response, delivered_question = dependency('reply.model', render_reply,
         query=state['query'],
         previous_message=state['checklist'].get('last_assistant_message', ''),
         previous_question=state['checklist'].get('last_assistant_question', ''),
         facts=state.get('response_facts', []), response=state['response'], question=question,
         followup={'outcome': pending.outcome.value, 'missing_fields': pending.missing_fields,
                   'route': (pending.intent_type, pending.sub_intent)} if pending else {},
-        evidence=ordering_reply_evidence(runtime.context.tenant.api_key, state.get('response_facts', [])),
+        evidence=dependency('reply.evidence', ordering_reply_evidence,
+                            runtime.context.tenant.api_key, state.get('response_facts', [])),
         language=state['checklist'].get('response_language', 'en'))
     if pending is not None and delivered_question:
         # Next-turn classification and task restoration see the question actually sent.
         if pending.response == question:
             pending.response = delivered_question
         pending.follow_up_question[-1:] = [delivered_question]
-    publish_reply(response)
+    if not is_replaying():
+        publish_reply(response)
     return {'response': response, 'delivered_question': delivered_question,
             'pending_queries': state['pending_queries']}
 
@@ -539,7 +555,7 @@ def get_conversation_graph():
     for node in (prepare_followup, classify_intents, resolve_intent,
                  cancel_pending, pause_pending, match_followup, process_followup, process_new_query,
                  collect_reply, choose_followup, render_response):
-        builder.add_node(node.__name__, node, retry_policy=None)
+        builder.add_node(node.__name__, step(operation('workflow.' + node.__name__)(node)), retry_policy=None)
     builder.add_edge(START, "prepare_followup")
     builder.add_edge("prepare_followup", "classify_intents")
     builder.add_conditional_edges("classify_intents", after_classification)

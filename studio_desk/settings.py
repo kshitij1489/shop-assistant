@@ -144,6 +144,11 @@ SECURE_HSTS_PRELOAD = True
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')
 APP_SESSION_REDIS_URL = os.getenv('APP_SESSION_REDIS_URL', 'redis://redis:6379/1')
 APP_REDIS_URL = os.getenv("APP_REDIS_URL", "redis://redis:6379/2")
+# Conversation evidence is opt-in and contains customer messages and state.
+CONVERSATION_RECORDING_ENABLED = os.getenv('CONVERSATION_RECORDING_ENABLED', 'false').lower() == 'true'
+CONVERSATION_RECORDING_REDIS_URL = os.getenv('CONVERSATION_RECORDING_REDIS_URL', 'redis://redis:6379/3')
+CONVERSATION_RECORDING_TIMEOUT = float(os.getenv('CONVERSATION_RECORDING_TIMEOUT', '0.1'))
+CONVERSATION_RECORDING_MAX_EVENT_BYTES = int(os.getenv('CONVERSATION_RECORDING_MAX_EVENT_BYTES', str(4 * 1024 * 1024)))
 CELERY_RESULT_BACKEND = 'django-db'  # Provided by django-celery-results
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'

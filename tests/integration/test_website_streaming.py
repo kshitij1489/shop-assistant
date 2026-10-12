@@ -215,11 +215,11 @@ class WebsiteStreamingTests(TransactionTestCase):
         self.consume(self.send())
         original = website.stream_turn
 
-        def newer_snapshot(work):
+        def newer_snapshot(work, **kwargs):
             session = SessionStore(self.client.session.session_key)
             session["another_request"] = "keep me"
             session.save()
-            return original(work)
+            return original(work, **kwargs)
 
         with patch.object(website, "stream_turn", newer_snapshot):
             response = self.send()

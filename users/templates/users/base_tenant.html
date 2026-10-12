@@ -4,6 +4,7 @@
   <aside class="sidebar" aria-label="Tenant navigation">
     <ul>
       <li><a href="{% url 'tenant:tenant_chats' %}" class="{% if active_page == 'chats' %}active{% endif %}"{% if active_page == 'chats' %} aria-current="page"{% endif %}>Chats</a></li>
+      <li><a href="{% url 'tenant:recording_sessions' %}" class="{% if active_page == 'recordings' %}active{% endif %}"{% if active_page == 'recordings' %} aria-current="page"{% endif %}>Recordings</a></li>
       <li><a href="{% url 'tenant:tenant_analytics' %}" class="{% if active_page == 'analytics' %}active{% endif %}"{% if active_page == 'analytics' %} aria-current="page"{% endif %}>Analytics</a></li>
       <li><a href="{% url 'tenant:tenant_orders' %}" class="{% if active_page == 'orders' %}active{% endif %}"{% if active_page == 'orders' %} aria-current="page"{% endif %}>Orders</a></li>
       <li><a href="{% url 'tenant:tenant_menu' %}" class="{% if active_page == 'menu' %}active{% endif %}"{% if active_page == 'menu' %} aria-current="page"{% endif %}>Menu</a></li>

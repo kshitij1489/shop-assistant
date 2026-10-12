@@ -1,0 +1,27 @@
+{% extends "users/recordings/base.html" %}
+{% block recording_content %}
+<nav aria-label="Recording navigation"><a href="{% url 'tenant:recording_sessions' %}">All recordings</a></nav>
+<h1>Recorded session</h1>
+<p>{{ channel }} · <code class="recording-id">{{ session_id }}</code></p>
+<div class="actions"><a class="btn" href="{% url 'tenant:recording_session_export' channel session_id %}">Export session JSON</a><a href="{{ request.path }}">Refresh</a></div>
+<p class="muted">Completeness covers currently persisted segments. Late delivery and commerce events may arrive later. A failed execution can have complete evidence.</p>
+<div class="table-wrap" role="region" aria-label="Recorded turns" tabindex="0">
+  <table>
+    <thead><tr><th>Turn and messages</th><th>First event</th><th>Evidence and execution</th><th>Segments / events</th></tr></thead>
+    <tbody>
+      {% for turn in page %}
+      <tr>
+        <td><a class="recording-id" href="{% url 'tenant:recording_turn' turn.turn_id %}">{{ turn.turn_id }}</a>
+          {% if turn.query != None %}<p class="recording-text"><strong>Input:</strong> {{ turn.query }}</p>{% endif %}
+          {% if turn.reply != None %}<p class="recording-text"><strong>Reply:</strong> {{ turn.reply }}</p>{% endif %}
+        </td>
+        <td>{{ turn.started_at|date:"Y-m-d H:i:s T" }}</td>
+        <td>{% include "users/recordings/status.html" with evidence=turn %}{% if not turn.has_turn_segment %}<p>Original turn segment is missing.</p>{% endif %}</td>
+        <td>{{ turn.segments|length }} / {{ turn.event_count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "users/recordings/pagination.html" with item_name="turns" %}
+{% endblock %}

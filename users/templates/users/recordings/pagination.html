@@ -1,0 +1,8 @@
+{% load dashboard_query %}
+{% if page.paginator.num_pages > 1 %}
+<nav class="actions" aria-label="Recording pages">
+  {% if page.has_previous %}<a class="btn" href="{% query_update page=page.previous_page_number %}">Previous</a>{% endif %}
+  <span>Page {{ page.number }} of {{ page.paginator.num_pages }} · {{ page.paginator.count }} {{ item_name }}</span>
+  {% if page.has_next %}<a class="btn" href="{% query_update page=page.next_page_number %}">Next</a>{% endif %}
+</nav>
+{% endif %}

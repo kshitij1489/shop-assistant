@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.9.0 — 2026-10-12
+
+- Add opt-in conversation recording with immutable, credential-redacted snapshots
+  of channel input, session state, configuration, model calls, workflow steps,
+  checkout operations and delivery observations.
+- Persist recording events through a Redis Stream and dedicated writer with
+  idempotent SQL inserts, commit-before-acknowledgement recovery, sequence-gap
+  diagnostics and linked asynchronous commerce outcomes.
+- Add tenant-scoped recording inspection, session/turn JSON exports and isolated
+  graph or step replay using captured state and strictly matched dependencies.
+- Preserve raw structured model responses before local validation and accept
+  valid responses with omitted or provider-specific completion metadata while
+  rejecting explicit truncation, filtering and failure.
+- Add recording, inspection, replay and transport regression coverage, operational
+  documentation, a Compose recording writer and bounded Redis memory settings.
+
+**Upgrade:** apply chatbot_core migration 0026 and commerce migration 0008,
+collect static assets, and restart web, background workers and the new
+`recording_writer` service. Recording remains disabled by default. Before enabling
+`CONVERSATION_RECORDING_ENABLED`, configure the recording Redis endpoint and
+review the [recording operations and data limits](docs/chatbot/recording.md).
+
 ## 1.7.0 — 2026-10-10
 
 - Add an opt-in, tenant-scoped semantic answer cache with bounded PostgreSQL

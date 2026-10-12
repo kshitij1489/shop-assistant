@@ -1,0 +1,10 @@
+{% extends "users/base_tenant.html" %}
+{% load static %}
+{% block title %}Conversation recordings{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'users/css/recordings.css' %}">{% endblock %}
+{% block tenant_content %}
+<div class="recordings stack">
+  <p class="muted">{{ tenant.display_name }} · Saved conversation evidence</p>
+  {% block recording_content %}{% endblock %}
+</div>
+{% endblock %}

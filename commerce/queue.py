@@ -35,6 +35,8 @@ def claim(connection):
         command.save(update_fields=['status', 'lease_token', 'lease_until', 'attempts'])
         from evaluate.controls.commerce import command_event
         command_event(command, 'commerce.command.claimed')
+        from chatbot_core.recording.commerce import command_committed
+        command_committed(command, 'commerce.command.claimed')
         result.append({'schema_version': 1, 'command_id': str(command.pk), 'idempotency_key': str(command.pk),
                        'type': command.kind, 'lease_token': str(command.lease_token),
                        'lease_until': command.lease_until.isoformat(), 'attempt': command.attempts, 'data': command.payload})
@@ -59,6 +61,8 @@ def acknowledge(connection, command_id, data):
     command.save(update_fields=['status', 'error', 'available_at'])
     from evaluate.controls.commerce import command_event
     command_event(command, 'commerce.command.acknowledged')
+    from chatbot_core.recording.commerce import command_committed
+    command_committed(command, 'commerce.command.acknowledged')
     if command.status in ('unknown', 'failed') and command.accepted_order_id:
         issue(command.accepted_order, 'adapter_' + command.status, command_id=str(command.pk), error_code=data.error_code)
 

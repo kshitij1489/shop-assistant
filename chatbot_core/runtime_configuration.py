@@ -347,6 +347,8 @@ def configuration_for_turn(tenant_id):
     menu_token = _turn_menus.set({})
     try:
         _active.set(get_configuration(tenant_id=tenant_id))
+        from chatbot_core.recording import emit
+        emit('configuration.loaded', configuration=_active.get())
         yield
     finally:
         _turn_menus.reset(menu_token)

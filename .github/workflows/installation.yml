@@ -99,17 +99,26 @@ jobs:
           tests.integration.test_configuration_readiness tests.integration.test_ordering_settings
           tests.unit.test_opening_hours tests.unit.test_intent_fixture tests.unit.test_normalize_and_classify
           --settings=tests.settings.integration --noinput
-      - name: Test commerce integrations and concurrency with real PostgreSQL migrations
+      - name: Test conversation recording, inspection and isolated replay
+        run: >-
+          python manage.py test
+          tests.unit.test_recording tests.unit.test_replay_codec tests.unit.test_langchain
+          tests.integration.test_recording_inspection tests.integration.test_recording_replay
+          --settings=tests.settings.integration --noinput
+      - name: Test commerce and recording with real PostgreSQL migrations
         env:
           COMMERCE_TEST_PG_HOST: ${{ env.POSTGRES_HOST }}
           COMMERCE_TEST_PG_PORT: ${{ env.POSTGRES_PORT }}
           COMMERCE_TEST_PG_USER: ${{ env.POSTGRES_USER }}
           PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          RECORDING_TEST_REDIS_URL: redis://127.0.0.1:6379/15
         run: >-
           python manage.py test
           tests.integration.test_menu_sync tests.integration.test_reference_adapter tests.integration.test_commerce_operations
           tests.integration.test_commerce tests.integration.test_checkout tests.integration.test_mock_commerce
           tests.integration.test_semantic_cache
+          tests.integration.test_recording tests.integration.test_recording_transport
+          tests.integration.test_recording_inspection
           --settings=tests.settings.integration_postgres --noinput
           --report-dir=.test-reports/postgres
       - name: Test mock service lifecycle and reporting

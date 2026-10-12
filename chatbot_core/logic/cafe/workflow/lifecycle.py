@@ -2,6 +2,7 @@
 from copy import deepcopy
 import re
 from uuid import uuid4
+from chatbot_core.recording import operation
 
 
 NEW_ORDER = re.compile(
@@ -30,6 +31,7 @@ def reset_order_state(state):
                  pending_queries=[], awaiting_followup_index=None, history=[])
 
 
+@operation('checkout.prepare_session')
 def prepare_order_session(state, db_session, tenant, session, customer, query):
     """Restart an unfinished draft or roll over a terminal order on explicit request.
 
@@ -81,6 +83,7 @@ def prepare_order_session(state, db_session, tenant, session, customer, query):
     return db_session, reply
 
 
+@operation('checkout.recover')
 def recover_checkout(state, db_session, tenant, session, customer):
     if isinstance(getattr(db_session, 'state', None), dict):
         draft = db_session.state.get('checkout')
@@ -118,6 +121,7 @@ def recover_checkout(state, db_session, tenant, session, customer):
                 state['awaiting_followup_index'] = len(state['pending_queries']) - 1
 
 
+@operation('checkout.sync_basket')
 def sync_checkout_basket(result, tenant, session, customer):
     if result['checklist'].get('checkout'):
         from django.db import transaction

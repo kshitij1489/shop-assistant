@@ -4,6 +4,7 @@ from django.db.models import Q
 from commerce.policy import MAX_ITEM_QUANTITY, MAX_QUANTITY_DIGITS
 from orders.models import MenuItem
 from .ordering_errors import OrderingRejected
+from chatbot_core.recording import operation
 
 
 def serialize_item(item):
@@ -31,11 +32,13 @@ def available_items(api_key):
             .filter(Q(category_fk__isnull=True) | Q(category_fk__is_active=True)))
 
 
+@operation('catalog.load')
 def load_catalog(api_key):
     items = available_items(api_key).prefetch_related("variants", "addon_groups__group__addons")
     return {str(item.pk): serialize_item(item) for item in items}
 
 
+@operation('catalog.names')
 def catalog_names(api_key):
     """Id, name and alias rows for product ambiguity checks: one query, no variants or modifiers."""
     return [{"id": str(pk), "name": name, "aliases": list((meta or {}).get("aliases", []))}

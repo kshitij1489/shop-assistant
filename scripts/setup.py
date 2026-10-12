@@ -409,7 +409,7 @@ def deploy(stack, config):
     report("Starting database and Redis…")
     stack.run("up", "-d", "--wait", "db", "redis")
     # Stop application traffic/writers before migrations on repeat deployments.
-    stack.run("stop", "nginx", "web", "celery_worker", "celery_beat")
+    stack.run("stop", "nginx", "web", "celery_worker", "celery_beat", "recording_writer")
     report("Running migrations, collecting static files and auditing tenant ownership…")
     stack.run("run", "--rm", "--no-deps", "init")
     # A failed initial port bind can leave an old proxy without a network endpoint.

@@ -12,6 +12,7 @@ import hmac
 from evaluate.controls.http import evaluation_request
 from evaluate.controls.context import assert_scope
 from chatbot_core.channels.streaming import stream_turn
+from chatbot_core.recording import recording, emit
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +93,9 @@ def chatbot_api(request):
                     tenant, message, session_store, request=request, customer=customer,
                 )
 
+        def record_turn():
+            return recording(tenant, 'website', session_store.user_id, query=data.get('message', message))
+
         if request.headers.get("Accept", "").split(",")[0].strip() == "text/event-stream":
             # Middleware runs before the body. It must set the session cookie,
             # but must not publish its stale snapshot outside the turn lock
@@ -103,11 +107,14 @@ def chatbot_api(request):
                 request.session.save = save
                 return process_turn()
 
-            return stream_turn(streaming_turn)
+            return stream_turn(streaming_turn, recording_context=record_turn)
 
-        response_text, basket = process_turn()
-
-        return JsonResponse({"response": response_text, "basket": basket})
+        with record_turn():
+            response_text, basket = process_turn()
+            response = JsonResponse({"response": response_text, "basket": basket})
+            emit('delivery.observed', status='response_created', transport='json',
+                 response=response_text, basket=basket)
+            return response
 
     except Exception:
         logger.exception("Unhandled error in chatbot_api")

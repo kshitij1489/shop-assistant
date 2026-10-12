@@ -89,6 +89,20 @@ retries do not replay business operations.
 | Business execution | [Checkout](../chatbot_core/logic/cafe/checkout.py), [catalog](../chatbot_core/logic/cafe/catalog.py), [pricing](../orders/pricing.py), [commerce services](../commerce/services.py) | Authoritative prices, order acceptance, stock reservations |
 | External adapter protocol | [Commerce API](../commerce/api.py), [events](../commerce/events.py), [command queue](../commerce/queue.py), [menu sync](../commerce/menu_sync.py) | Signed adapter requests, reconciliation, external menu authority |
 | Operations and assurance | [Tasks](../chatbot_core/tasks.py), [readiness](../studio_desk/health.py), [tenant deletion](../users/tenant_deletion.py), [tests](../tests/README.md), [evaluation](evaluate/integration.md) | Scheduled maintenance, dependency checks, protected records, scenario evidence |
+| Conversation recording | [Capture](../chatbot_core/recording/capture.py), [writer](../chatbot_core/recording/writer.py), [inspection](../chatbot_core/recording/inspection.py), [replay](../chatbot_core/recording/replay.py), [dashboard](../users/recording_views.py), [operations](chatbot/recording.md) | Opt-in immutable snapshots, asynchronous SQL persistence, linked commerce outcomes, tenant-scoped inspection/export and isolated graph/step replay |
+
+When conversation recording is enabled, the application captures execution
+boundaries into a Redis Stream. The dedicated `recording_writer` process batches
+them into PostgreSQL and acknowledges committed events. Sequence numbers and
+completion markers expose incomplete recordings. Recording covers session and
+channel failures. The tenant dashboard reads persisted sessions and turns and
+exports complete saved envelopes without invoking the conversation runtime.
+Inspection distinguishes evidence gaps from execution failures. Replay restores
+captured graph/step state and configuration, reruns workflow code with strictly
+matched dependency fixtures, and compares outputs without publishing live state
+or executing commerce/model/delivery operations. Older recordings without typed
+replay checkpoints remain inspectable but cannot be replayed. See
+the [recording contract](chatbot/recording.md) for latency, durability and data limits.
 
 ## Editable flow source
 

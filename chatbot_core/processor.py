@@ -18,6 +18,7 @@ from chatbot_core.logic.cafe.db_utils import create_or_get_customer
 from chatbot_core.logic.cafe.session.redis_session import RedisSessionStore
 from chatbot_core.channels.utils import route_message_for_tenant
 from .channels.registry import get_adapter
+from chatbot_core.recording import recording, emit, mark_failed
 
 from chatbot_core.language_utils import (
     translate, to_wav, transcribe_and_detect,
@@ -41,11 +42,17 @@ def _record_message(*args, **kwargs):
 def _safe_send_text(adapter, payload, message: str) -> None:
     """Best-effort send; never raises back to caller."""
     if not adapter:
+        mark_failed()
+        emit('delivery.observed', transport='adapter_text', status='adapter_unavailable', response=message)
         log.warning("No adapter available to send message: %r", message)
         return
     try:
+        emit('delivery.started', transport='adapter_text', response=message)
         adapter.send_text(payload, message)
-    except Exception:
+        emit('delivery.observed', transport='adapter_text', status='adapter_returned')
+    except Exception as exc:
+        mark_failed()
+        emit('delivery.failed', transport='adapter_text', error=exc)
         log.exception("Adapter send_text failed")
 
 def _normalize_channel(raw: Optional[str]) -> str:
@@ -148,6 +155,13 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
     if channel == 'telegram':
         if not tenant.telegram_bot_token or payload.get('bot_token') != tenant.telegram_bot_token:
             raise ValueError('Telegram credential does not match the queued tenant.')
+    chat_id = str(payload.get('chat_id') or user_id)
+    with recording(tenant, channel, chat_id, query=payload.get('text') or ''):
+        emit('channel.input', payload=payload)
+        return _process_payload(tenant_id, user_id, payload, tenant, channel)
+
+
+def _process_payload(tenant_id, user_id, payload, tenant, channel):
     adapter = None
 
     # original incoming text (may be empty if media present)
@@ -167,14 +181,16 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
         if media:
             try:
                 media_path = adapter.fetch_media(payload)
-            except Exception:
+            except Exception as exc:
+                emit('channel.media_failed', operation='fetch', error=exc)
                 log.exception("adapter.fetch_media failed")
                 media_path = None
 
             if media_path:
                 try:
                     wav_path = to_wav(media_path)
-                except Exception:
+                except Exception as exc:
+                    emit('channel.media_failed', operation='convert', error=exc)
                     log.exception("ffmpeg conversion failed for %s", media_path)
                     wav_path = None
 
@@ -196,7 +212,8 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
         # 2) Channel-specific text fallback
         try:
             text = adapter.augment_text(text, payload)
-        except Exception:
+        except Exception as exc:
+            emit('channel.augmentation_failed', error=exc)
             log.exception("adapter.augment_text failed; proceeding with original text")
 
         # 2a) If no language present (text-only), detect it
@@ -205,6 +222,7 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
         #payload["language"] = detected_lang
         #payload["lang_confidence"] = conf
         routing_text = text[:8000]
+        emit('channel.routing_input', original_text=text, routing_text=routing_text, transcribed=transcribed)
         payload["language"] = "en"
         payload["lang_confidence"] = 1.0
 
@@ -242,13 +260,16 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
         try:
             global_enabled = is_global_agent_enabled(str(tenant.id), channel)
         except RedisError:
+            emit('channel.skipped', reason='agent_status_unavailable')
             log.exception('Agent status unavailable; skipping bot routing')
             return
         if not global_enabled:
+            emit('channel.skipped', reason='global_agent_disabled')
             log.info("Global agent disabled for tenant=%s channel=%s; skipping bot routing", tenant_id, channel)
             return
 
         if not is_agent_enabled(str(tenant.id), channel, chat_id):
+            emit('channel.skipped', reason='chat_agent_disabled')
             log.info("Agent disabled for %s/%s via %s; skipping bot routing", tenant_id, user_id, channel)
             return
 
@@ -259,7 +280,9 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
                 tenant, routing_text, session_store, customer=customer,
             )
             meta_data = meta_data if isinstance(meta_data, list) else None
-        except Exception:
+        except Exception as exc:
+            mark_failed()
+            emit('turn.routing_failed', error=exc)
             log.exception("route_message_for_tenant failed")
             reply_en = ""
             meta_data = None
@@ -286,8 +309,11 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
                 tts_path = tts_generate_to_file(reply_local or "Thanks for your message!", lang=out_lang, voice_hint=voice_hint)
                 if tts_path:
                     try:
+                        emit('delivery.started', transport='adapter_voice', response=reply_local)
                         adapter.send_voice(payload, tts_path)
-                    except Exception:
+                        emit('delivery.observed', transport='adapter_voice', status='adapter_returned')
+                    except Exception as exc:
+                        emit('delivery.failed', transport='adapter_voice', error=exc)
                         log.exception("adapter.send_voice failed, falling back to text")
                         _safe_send_text(adapter, payload, reply_local or reply_en or DEFAULT_ERROR_MSG)
                 else:
@@ -296,7 +322,8 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
 
                 # record textual reply (store local-language text)
                 _record_message(str(tenant.id), channel, chat_id, direction="out", text=reply_local or reply_en or "")
-            except Exception:
+            except Exception as exc:
+                emit('channel.media_failed', operation='tts_or_send', error=exc)
                 log.exception("TTS or send_voice failed; falling back to text")
                 _safe_send_text(adapter, payload, reply_local or reply_en or DEFAULT_ERROR_MSG)
                 _record_message(str(tenant.id), channel, chat_id, direction="out", text=reply_local or reply_en or "")
@@ -308,9 +335,12 @@ def process_payload(tenant_id: str, user_id: str, payload: Dict[str, Any]) -> No
         log.info("Replied to %s/%s via %s", tenant_id, user_id, channel)
 
     except TenantInfo.DoesNotExist:
+        mark_failed()
         log.warning("Tenant not found for id=%s", tenant_id)
         _safe_send_text(adapter, payload, DEFAULT_ERROR_MSG)
-    except Exception:
+    except Exception as exc:
+        mark_failed()
+        emit('channel.failed', error=exc)
         log.exception("processor.process_payload error")
         _safe_send_text(adapter, payload, DEFAULT_ERROR_MSG)
     finally:

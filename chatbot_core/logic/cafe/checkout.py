@@ -17,6 +17,7 @@ from orders.checkout_config import CheckoutPolicy
 from orders.models import ChatSession, Order
 from .catalog import load_catalog, validate_selection, selection_prices_match, selection_unit_total
 from .db_utils import create_order
+from chatbot_core.recording import operation
 
 MODE_LABELS = {'delivery': 'delivery', 'pickup': 'pickup', 'dine_in': 'dine-in'}
 CONFIRM = re.compile(r'(?:confirm|confirm order|place order)[.!]?', re.I)
@@ -149,6 +150,7 @@ def _validate_checkout_field(policy, draft, field, now):
         _validate_postal_code(policy, mode, fields)
 
 
+@operation('checkout.quote')
 def quote(policy, draft, basket, tenant, now=None):
     mode = draft.get('mode')
     if mode not in policy.modes:
@@ -341,6 +343,7 @@ def _update_action(draft, resolved, policy):
     return None
 
 
+@operation('checkout.advance')
 @transaction.atomic
 def advance_checkout(*, tenant, customer, chat_id, platform, basket, checklist, text, configuration,
                      reset_address=False, original_text=None, action=None, defer_quote=None, delivery_address=None):

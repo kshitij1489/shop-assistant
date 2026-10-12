@@ -1,0 +1,7 @@
+.recordings > h1, .recordings > h2, .recordings > p { margin-bottom: 0; }
+.recordings .recording-id { overflow-wrap: anywhere; font-family: ui-monospace, Menlo, Consolas, monospace; }
+.recordings .recording-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.recordings pre { max-height: 36rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.recordings td .badge { margin-bottom: .375rem; }
+.recordings summary .muted { font-weight: 400; }
+.recordings .form-grid > div { min-width: 0; }

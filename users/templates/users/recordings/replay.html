@@ -1,0 +1,20 @@
+{% extends "users/recordings/base.html" %}
+{% block recording_content %}
+<nav aria-label="Recording navigation"><a href="{% url 'tenant:recording_turn' turn_id %}">Back to recorded turn</a></nav>
+<h1>Replay result</h1>
+<p><code class="recording-id">{{ turn_id }}</code> · {{ channel }}</p>
+{% if error %}
+<p class="status-notice">Replay unavailable: {{ error }}</p>
+{% else %}
+<p><strong>{{ report.status|capfirst }}</strong> · {{ report.dependencies_consumed }} recorded dependencies consumed.</p>
+<p class="muted">This run executed workflow code with saved classification, retrieval and business-operation fixtures. It did not publish session state or deliver a message. Results describe the conversation graph; preparation, commerce workers and delivery are outside this replay.</p>
+{% if report.error %}<p class="status-notice">{{ report.error }}</p>{% endif %}
+{% if report.recorded_failure %}<p>Reproduced recorded failure: {{ report.recorded_failure }}</p>{% endif %}
+{% if report.response %}<section class="card"><h2>Replayed reply</h2><p class="recording-text">{{ report.response }}</p></section>{% endif %}
+<table>
+  <thead><tr><th>Step</th><th>Comparison</th></tr></thead>
+  <tbody>{% for step in report.steps %}<tr><td>{{ step.name }}</td><td>{% if step.matched %}Matched{% else %}Diverged{% endif %}</td></tr>{% endfor %}</tbody>
+</table>
+<details class="card"><summary>Complete replay report and isolated result state</summary><pre tabindex="0">{{ pretty_report }}</pre></details>
+{% endif %}
+{% endblock %}

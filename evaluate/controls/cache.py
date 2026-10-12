@@ -5,6 +5,7 @@ from hashlib import sha256
 from django.core.cache import cache as django_cache
 from .context import current
 from .telemetry import emit
+from chatbot_core.recording import operation
 
 
 def namespace(value):
@@ -16,6 +17,7 @@ def namespace(value):
 
 
 class ResponseCache:
+    @operation('cache.get')
     def get(self, key, default=None, **kwargs):
         ctx = current()
         if ctx is None:
@@ -27,6 +29,7 @@ class ResponseCache:
         emit('cache.lookup', cache='response', tier='exact', hit=value is not default)
         return value
 
+    @operation('cache.set')
     def set(self, key, value, *args, **kwargs):
         ctx = current()
         if ctx and ctx.cache_mode == 'cold':
@@ -41,6 +44,7 @@ def semantic_lookup(name):
     """Both semantic lookup APIs return (hit, value, preparation_context)."""
     def decorate(fn):
         @wraps(fn)
+        @operation('cache.' + name)
         def wrapped(*args, **kwargs):
             ctx = current()
             if ctx and ctx.cache_mode == 'cold':

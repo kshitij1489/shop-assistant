@@ -8,6 +8,7 @@ import httpx
 from django.core.cache import cache
 from django.test import SimpleTestCase, override_settings
 from langchain_openai import ChatOpenAI
+from openai import ContentFilterFinishReasonError, LengthFinishReasonError
 
 from chatbot_core import language_utils
 from chatbot_core.llm import models
@@ -101,6 +102,32 @@ class OperationTests(ProviderHarness, SimpleTestCase):
         self.payload = {"query": {"sql": "SELECT 1"}}
         with self.assertRaises(analytics.QueryGenerationError):
             analytics._call_model_for_sql("hello", {})
+
+
+@override_settings(CONVERSATION_RECORDING_ENABLED=False)
+class StructuredCompletionTests(ProviderHarness, SimpleTestCase):
+    def respond(self, request):
+        body = super().respond(request).json()
+        choice = body['choices'][0]
+        choice.pop('finish_reason')
+        choice.update(self.completion)
+        return httpx.Response(200, json=body)
+
+    def test_valid_json_accepts_missing_null_and_other_completion_reasons(self):
+        for completion in ({}, {'finish_reason': None}, {'finish_reason': 'stop'},
+                           {'finish_reason': 'tool_calls'}, {'finish_reason': 'provider_complete'}):
+            with self.subTest(completion=completion):
+                self.completion = completion
+                result = structured_chain(FollowupDecision, 'Classify').invoke({'input': 'yes'})
+                self.assertTrue(result.is_followup)
+
+    def test_known_truncation_and_filtering_still_reject_valid_json(self):
+        for reason, error in (('length', LengthFinishReasonError),
+                              ('content_filter', ContentFilterFinishReasonError)):
+            with self.subTest(reason=reason):
+                self.completion = {'finish_reason': reason}
+                with self.assertRaises(error):
+                    structured_chain(FollowupDecision, 'Classify', include_raw=True).invoke({'input': 'yes'})
 
 
 class TranslationTests(ProviderHarness, SimpleTestCase):

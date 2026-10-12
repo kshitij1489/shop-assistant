@@ -29,6 +29,9 @@ services:
   celery_beat:
     volumes: *development-volumes
     environment: *development-environment
+  recording_writer:
+    volumes: *development-volumes
+    environment: *development-environment
   nginx:
     volumes:
       - ./nginx/default.dev.conf:/etc/nginx/templates/default.conf.template:ro

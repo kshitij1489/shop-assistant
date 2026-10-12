@@ -219,3 +219,25 @@ class FaissVector(models.Model):
     dim = models.IntegerField(default=384)
     # raw float32 bytes (np.ndarray.tobytes())
     vector = models.BinaryField()
+
+
+class ConversationEvent(models.Model):
+    """Append-only evidence. Only the stream writer inserts these records."""
+    event_id = models.UUIDField(primary_key=True, editable=False)
+    tenant = models.ForeignKey(TenantInfo, on_delete=models.CASCADE)
+    channel = models.CharField(max_length=32)
+    session_id = models.CharField(max_length=64)
+    turn_id = models.UUIDField(db_index=True)
+    segment_id = models.UUIDField()
+    sequence = models.PositiveIntegerField()
+    event = models.CharField(max_length=96)
+    occurred_at = models.DateTimeField()
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    envelope = models.JSONField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['segment_id', 'sequence'], name='recording_segment_sequence')]
+        indexes = [
+            models.Index(fields=['tenant', 'channel', 'session_id', 'occurred_at'], name='recording_session_idx'),
+            models.Index(fields=['tenant', 'turn_id', 'occurred_at'], name='recording_turn_idx'),
+        ]

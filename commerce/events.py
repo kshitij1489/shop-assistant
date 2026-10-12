@@ -7,6 +7,8 @@ from .models import AcceptedOrder, Payment, StockItem, Reservation, Inbox, Exter
 from .schemas import Event, PaymentUpdate, StockUpdate
 from .pricing import digest
 from .services import issue, finish_reservations, pos_submit, refund_capture, StockCommitmentError
+from chatbot_core.recording import operation, emit
+from chatbot_core.recording.commerce import event_scope
 
 
 def receive(connection, payload):
@@ -26,10 +28,21 @@ def receive(connection, payload):
 
 
 def process(inbox_id):
+    from django.conf import settings
+    if not getattr(settings, 'CONVERSATION_RECORDING_ENABLED', False):
+        return _process(inbox_id)
+    inbox = Inbox.objects.select_related('connection').get(pk=inbox_id)
+    with event_scope(inbox.connection, inbox.payload):
+        return _process(inbox_id)
+
+
+@operation('commerce.event.process')
+def _process(inbox_id):
     # Inbox receipt is committed before processing. A crash or dependency failure
     # leaves a durable retryable event; its effects commit in one transaction.
     with transaction.atomic():
         inbox = Inbox.objects.select_for_update().select_related('connection').get(pk=inbox_id)
+        emit('commerce.event.received', inbox=inbox)
         if inbox.status == 'processed':
             return
         inbox.attempts += 1
@@ -56,8 +69,11 @@ def process(inbox_id):
         else:
             inbox.status, inbox.error, inbox.processed_at = 'processed', '', timezone.now()
         inbox.save(update_fields=['status', 'attempts', 'error', 'processed_at'])
+        emit('commerce.event.processed', inbox=inbox, publication='staged')
+    emit('commerce.event.committed', inbox=inbox)
 
 
+@operation('commerce.payment_update')
 def payment_update(connection, data):
     payment = Payment.objects.get(pk=data.payment_id, connection=connection)
     record = AcceptedOrder.objects.select_for_update().get(pk=payment.accepted_order_id, location=connection.location)
@@ -116,6 +132,7 @@ def payment_update(connection, data):
         record.state = 'cancelled'
         Order.objects.filter(pk=record.order_id).update(payment_status='failed', order_status='cancelled')
     record.save(update_fields=['state'])
+    emit('commerce.payment_state', payment=payment, accepted_order=record, publication='staged')
 
 
 def stock_update(connection, data):
@@ -138,6 +155,7 @@ def stock_update(connection, data):
     stock.save()
 
 
+@operation('commerce.order_update')
 def order_update(connection, data):
     record = AcceptedOrder.objects.select_for_update().get(pk=data.accepted_order_id, location=connection.location)
     if not record.commands.filter(connection=connection, kind='order.submit').exists():
@@ -163,3 +181,4 @@ def order_update(connection, data):
         record.pos_state = data.status
         Order.objects.filter(pk=record.order_id).update(order_status=data.status)
     record.save(update_fields=['state', 'pos_state'])
+    emit('commerce.order_state', accepted_order=record, publication='staged')

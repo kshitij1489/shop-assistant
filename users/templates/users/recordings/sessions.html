@@ -1,0 +1,26 @@
+{% extends "users/recordings/base.html" %}
+{% block recording_content %}
+<h1>Conversation recordings</h1>
+<p>Inspect saved sessions, model calls, application operations and delivery observations. Viewing and exporting recordings runs no conversation steps.</p>
+{% if not recording_enabled %}<p class="status-notice">Capture is currently disabled. Previously saved recordings remain available.</p>{% endif %}
+<form method="get" class="card form-grid" aria-label="Find recordings">
+  {{ form.as_div }}
+  <div class="actions"><button type="submit">Find sessions</button><a href="{% url 'tenant:recording_sessions' %}">Reset</a></div>
+</form>
+<div class="table-wrap" role="region" aria-label="Recorded sessions" tabindex="0">
+  <table>
+    <thead><tr><th>Session digest</th><th>Channel</th><th>Turns</th><th>Events</th><th>First event</th><th>Last activity</th></tr></thead>
+    <tbody>
+      {% for session in page %}
+      <tr>
+        <td><a class="recording-id" href="{% url 'tenant:recording_session' session.channel session.session_id %}">{{ session.session_id }}</a></td>
+        <td>{{ session.channel }}</td><td>{{ session.turn_count }}</td><td>{{ session.event_count }}</td>
+        <td>{{ session.started_at|date:"Y-m-d H:i:s T" }}</td><td>{{ session.last_activity|date:"Y-m-d H:i:s T" }}</td>
+      </tr>
+      {% empty %}<tr><td colspan="6">No persisted recordings match these filters. New events appear after the recording writer commits them.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "users/recordings/pagination.html" with item_name="sessions" %}
+<p class="muted">Search by Telegram or WhatsApp chat ID, recording session digest, or turn ID. Browser session credentials stay hidden.</p>
+{% endblock %}

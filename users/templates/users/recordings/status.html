@@ -1,0 +1,3 @@
+<span class="badge {% if evidence.complete %}on{% else %}off{% endif %}">{% if evidence.complete %}Complete evidence{% else %}Incomplete evidence{% endif %}</span>
+<span class="badge {% if evidence.execution_status == 'failed' %}off{% endif %}">Execution: {{ evidence.execution_status }}</span>
+{% if evidence.failure_count %}<span class="badge off">{{ evidence.failure_count }} failure event{{ evidence.failure_count|pluralize }}</span>{% endif %}

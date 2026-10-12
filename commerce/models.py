@@ -149,6 +149,7 @@ class AcceptedOrder(UUIDModel):
     total_minor = models.PositiveBigIntegerField()
     snapshot = models.JSONField()
     snapshot_hash = models.CharField(max_length=64)
+    recording_context = models.JSONField(default=dict, blank=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(db_index=True)
     # These workflow fields may change; snapshot and accepted money may not.

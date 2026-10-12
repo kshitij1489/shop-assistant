@@ -10,6 +10,7 @@ from .models import (Configuration, Connection, AcceptedOrder, StockItem, Reserv
                      Payment, Command, ReconciliationIssue)
 from .policy import Policy
 from .pricing import calculate, digest, major
+from chatbot_core.recording import operation
 
 
 def configuration(tenant):
@@ -18,6 +19,7 @@ def configuration(tenant):
     return Configuration.objects.filter(tenant=tenant, enabled=True).select_related('location').first()
 
 
+@operation('commerce.quote')
 def basket_quote(tenant, basket, *, mode, fee='0', discount_code=''):
     config = Configuration.objects.filter(tenant=tenant).filter(Q(enabled=True) | Q(local_checkout=True)).first()
     if not config:
@@ -48,6 +50,8 @@ def enqueue(connection, kind, key, record, payload):
         defaults=dict(kind=kind, accepted_order=record, payload=payload, available_at=timezone.now()))[0]
     from evaluate.controls.commerce import command_created
     command_created(command)
+    from chatbot_core.recording.commerce import command_committed
+    command_committed(command, 'commerce.command.enqueued')
     return command
 
 
@@ -122,6 +126,7 @@ class StockCommitmentError(ValueError):
     pass
 
 
+@operation('commerce.reservations.finish')
 @transaction.atomic
 def finish_reservations(record, consume):
     """Caller locks accepted order first, then stock in a stable order."""
@@ -141,6 +146,7 @@ def finish_reservations(record, consume):
         hold.save(update_fields=['state'])
 
 
+@operation('commerce.accept_order')
 @transaction.atomic
 def accept_order(order, pricing):
     """Persist price/options/contact facts, inventory and commands atomically."""
@@ -167,7 +173,8 @@ def accept_order(order, pricing):
     snapshot['fulfillment']['fulfillment_id'] = f'{order.pk}:fulfillment'
     snapshot['customer'].update({k: v for k, v in checkout.get('fields', {}).items() if k in ('name', 'phone')})
     policy = Policy.model_validate(config.policy)
-    record = AcceptedOrder.objects.create(expires_at=timezone.now() + timedelta(seconds=policy.reservation_seconds), order=order, location=config.location, currency=pricing['currency'],
+    from chatbot_core.recording.commerce import origin_for, committed
+    record = AcceptedOrder.objects.create(recording_context=origin_for(order.tenant_id), expires_at=timezone.now() + timedelta(seconds=policy.reservation_seconds), order=order, location=config.location, currency=pricing['currency'],
                 exponent=pricing['exponent'], total_minor=pricing['total_minor'], snapshot=snapshot, snapshot_hash=digest(snapshot))
     policy = Policy.model_validate(config.policy)
     reserve(record, policy)
@@ -191,9 +198,11 @@ def accept_order(order, pricing):
         record.save(update_fields=['state'])
         if config.enabled:
             pos_submit(record)
+    committed(record, 'commerce.order.accepted')
     return record
 
 
+@operation('commerce.cancel_order')
 @transaction.atomic
 def cancel_order(record_id):
     record = AcceptedOrder.objects.select_for_update().select_related('order').get(pk=record_id)
@@ -205,6 +214,8 @@ def cancel_order(record_id):
     record.state = 'cancelled'
     record.save(update_fields=['state'])
     Order.objects.filter(pk=record.order_id).update(order_status='cancelled')
+    from chatbot_core.recording.commerce import committed
+    committed(record, 'commerce.order.cancelled')
     return record
 
 
@@ -219,6 +230,8 @@ def expire_reservations():
                 record.state = 'expired'
                 record.save(update_fields=['state'])
                 Order.objects.filter(pk=record.order_id).update(order_status='cancelled')
+                from chatbot_core.recording.commerce import committed
+                committed(record, 'commerce.order.expired')
                 for payment in record.payments.all():
                     if 'payment.reconcile' in payment.connection.capabilities:
                         enqueue(payment.connection, 'payment.reconcile', f'expired:{payment.pk}', record, {'payment_id': str(payment.pk), 'external_id': payment.external_id})

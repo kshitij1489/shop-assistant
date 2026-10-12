@@ -81,7 +81,9 @@ services:
 
   redis:
     image: redis:7
-    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "${REDIS_APPENDFSYNC:-everysec}",
+              "--maxmemory", "${REDIS_MAXMEMORY:-512mb}", "--maxmemory-policy", "noeviction"]
+    mem_limit: ${REDIS_MEMORY_LIMIT:-1g}
     volumes:
       - redis_data:/data
     healthcheck:
@@ -101,6 +103,13 @@ services:
   celery_beat:
     <<: *app
     command: celery -A studio_desk beat --loglevel=info --schedule=/tmp/celerybeat-schedule
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  recording_writer:
+    <<: *app
+    command: python manage.py write_conversation_events
     depends_on:
       init:
         condition: service_completed_successfully

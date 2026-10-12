@@ -21,6 +21,7 @@ from chatbot_core.llm.models import get_model_name
 from chatbot_core.runtime_configuration import get_configuration, classification_options, _turn_menus
 from commerce.knowledge_inventory import inventory_knowledge
 from evaluate.controls.cache import cache
+from chatbot_core.recording import operation
 
 logger = logging.getLogger(__name__)
 RETRIEVAL_VERSION = 'tenant-evidence-v3-english-rewrites'
@@ -195,6 +196,7 @@ def _live_menu(configuration):
     return result
 
 
+@operation('knowledge.retrieve')
 def retrieve_knowledge(api_key, main_intent, sub_intent, query, *, previous_user_message=None,
                        rephrased_sentence=None):
     configuration = get_configuration(api_key=api_key)

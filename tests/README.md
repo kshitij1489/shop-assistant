@@ -42,3 +42,8 @@ Legacy pending tasks may gain `basket_item.clarification_budget` on restoration;
 assert that metadata explicitly while preserving assertions on business fields.
 Mocks at the normalization provider boundary must use
 `NormalizedClassifiedMessages`, including each unit's `rephrased_sentence`.
+
+Conversation replay regressions live in `integration/test_recording_replay.py`
+and `unit/test_replay_codec.py`. They capture real graph turns and verify isolated
+reexecution, dependency mismatches, failed calls, pending object identity, tenant
+authority and offline export replay.

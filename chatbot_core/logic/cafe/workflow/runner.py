@@ -7,6 +7,8 @@ from evaluate.controls.context import assert_scope
 from chatbot_core.chat_session import create_new_chat_session, get_chat_ongoing_session
 from chatbot_core.queues import enqueue_string
 from chatbot_core.runtime_configuration import configuration_for_turn
+from chatbot_core.recording import recording, emit
+from chatbot_core.recording.replay_capture import checkpoint
 from .graph import get_conversation_graph
 from .order_context import remember_reply
 from ..ordering_limits import public_summary
@@ -46,8 +48,16 @@ def save_state(session, state):
 @observed('workflow')
 def run_conversation(tenant, session, query, customer=None):
     assert_scope(tenant.pk, customer.pk if customer else None)
-    with session.turn(), configuration_for_turn(tenant.id):
-        return _run_conversation(tenant, session, query, customer)
+    if str(session.tenant_id) != str(tenant.pk):
+        raise ValueError('Session tenant does not match handler tenant')
+    if customer is not None and str(customer.tenant_id) != str(tenant.pk):
+        raise ValueError('Customer tenant does not match handler tenant')
+    with recording(tenant, session.platform, session.user_id, query=query):
+        with session.turn(), configuration_for_turn(tenant.id):
+            emit('turn.input', query=query, customer=customer)
+            result = _run_conversation(tenant, session, query, customer)
+            emit('turn.result', response=result[0], basket=result[1])
+        return result
 
 
 def _run_conversation(tenant, session, query, customer=None):
@@ -56,16 +66,19 @@ def _run_conversation(tenant, session, query, customer=None):
     if customer is not None and str(customer.tenant_id) != str(tenant.id):
         raise ValueError("Customer tenant does not match handler tenant")
     state = load_state(session, tenant, query)
+    emit('turn.starting_state', state=state)
     db_session = get_chat_ongoing_session(session.user_id, tenant_id=tenant.id, platform=session.platform)
     if not db_session:
         db_session = create_new_chat_session(tenant=tenant, customer=customer, platform=session.platform,
                                 session_id=session.user_id)
         state["basket"] = session.clear_basket()
         state["checklist"] = deepcopy(session.clear_checklist())
+    emit('turn.chat_session', chat_session_id=str(getattr(db_session, 'pk', '')))
     db_session, reply = prepare_order_session(state, db_session, tenant, session, customer, query)
     recover_checkout(state, db_session, tenant, session, customer)
     if reply:
         save_state(session, state)
+        emit('turn.final_state', state=state, state_staged=True)
         return reply, public_summary(state['basket'], tenant)
     session.increment_counter()
     state["counter"] = session.get_counter()
@@ -73,13 +86,16 @@ def _run_conversation(tenant, session, query, customer=None):
     enqueue_string(f'{state["counter"]}, User message: {query}')
     # There is one active node at a time. The high step limit accommodates long
     # split-message batches; intent_index advances monotonically through a finite list.
+    checkpoint('replay.turn.input', state=state, context=context)
     result = get_conversation_graph().invoke(
         state, context=context, config={"recursion_limit": 10000, "max_concurrency": 1},
     )
+    checkpoint('replay.turn.output', state=result)
     if result["persist"]:
         remember_reply(result, tenant)
         sync_checkout_basket(result, tenant, session, customer)
         save_state(session, result)
+    emit('turn.final_state', state=result, state_staged=result['persist'])
     logger.info("Returning café response for tenant=%s platform=%s", tenant.id, session.platform)
     enqueue_string(f'{state["counter"]}, Returning response, final_response: {result["response"]}')
     return result["response"], public_summary(result["basket"], tenant) if result["include_basket"] else None
